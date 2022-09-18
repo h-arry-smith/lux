@@ -1,0 +1,31 @@
+
+#+begin_src
+  [1] {
+    intensity: 100
+  }
+#+end_src
+
+should produce the AST
+#+begin_src
+  Selector "1"
+    Block
+      Apply
+        Identifer "intensity"
+        Value "100"
+#+end_src
+
+* Grammar
+#+begin_src
+  selection -> selector block
+  selector -> "[" NUMBER "]"
+  
+  block -> "{" expression* "}"
+
+  expression -> identifier value NEW_LINE
+  identifier -> ALPHA+ ":" " "
+  value -> NUMBER
+
+  
+  NUMBER -> NUMERIC ( "." NUMERIC+ )?
+  NEW_LINE -> "\n"
+#+end_src
