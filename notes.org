@@ -7,15 +7,17 @@
 
 should produce the AST
 #+begin_src
-  Selector "1"
+  Selection
+    Selector 1
     Block
       Apply
         Identifer "intensity"
-        Value "100"
+        Value 100
 #+end_src
 
 * Grammar
 #+begin_src
+  statement -> selection
   selection -> selector block
   selector -> "[" NUMBER "]"
   

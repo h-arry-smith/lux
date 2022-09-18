@@ -1,0 +1,94 @@
+require_relative "ast"
+require_relative "token"
+
+class Parser
+  def initialize(tokens)
+    @tokens = tokens
+    @current = 0
+  end
+
+  def parse
+    statement
+  end
+
+  private
+
+  def statement
+    selection
+  end
+
+  def block
+    consume(Token::RIGHT_BRACE, "Expect '}' after block")
+
+    #TODO: Actually process the blocl
+    return Ast::Block.new([])
+  end
+
+  def selection
+    select = selector
+
+    consume(Token::LEFT_BRACE, "Expect block after selector")
+    return Ast::Selection.new(select, block)
+  end
+
+  def selector
+    consume(Token::LEFT_BRACKET, "Expect '[' to start selector")
+
+    if match(Token::NUMBER)
+      select = Ast::Selector.new(previous.literal)
+      consume(Token::RIGHT_BRACKET, "Expect ']' to end selector")
+      return select
+    end
+
+    error(peek, "Expected valid selector")
+  end
+
+  def match(*types)
+    types.each do |type|
+      if check(type)
+        advance
+        return true
+      end
+    end
+
+    false
+  end
+
+  def consume(type, message)
+    return advance if check(type)
+
+    raise error(peek, message)
+  end
+
+  def check(type)
+    return false if is_at_end
+    peek.type == type
+  end
+
+  def advance
+    @current += 1 unless is_at_end
+    previous
+  end
+
+  def is_at_end
+    peek.type == Token::EOF
+  end
+
+  def peek
+    @tokens[@current]
+  end
+
+  def previous
+    @tokens[@current - 1]
+  end
+
+  def error(peek, message)
+    raise ParserError.new(peek, message)
+  end
+end
+
+class ParserError < StandardError
+  def initialize(peek, message)
+    super("Parser Error: [#{peek}] #{message}")
+  end
+end
