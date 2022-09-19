@@ -18,10 +18,43 @@ class Parser
   end
 
   def block
+    statements = []
+
+    while !check(Token::RIGHT_BRACE) && !is_at_end
+      statements << apply
+    end
+    
     consume(Token::RIGHT_BRACE, "Expect '}' after block")
 
-    #TODO: Actually process the blocl
-    return Ast::Block.new([])
+    return Ast::Block.new(statements)
+  end
+
+  def apply
+    parameter = identifier
+
+    consume(Token::COLON, "Expect ':' after identifier")
+
+    val = value
+
+    consume(Token::SEMICOLON, "Expected semicolon after apply")
+
+    return Ast::Apply.new(parameter, val)
+  end
+
+  def identifier
+    if match(Token::IDENTIFIER)
+      return previous.literal
+    end
+
+    error(peek, "Expected valid identifer")
+  end
+
+  def value
+    if match(Token::NUMBER)
+      return Ast::Value.new(previous.literal)
+    end
+
+    error(peek, "Expected a valid value")
   end
 
   def selection

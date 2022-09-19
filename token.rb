@@ -14,10 +14,9 @@ class Token
   # define :DOT, 'DOT'
   # define :MINUS, 'MINUS'
   # define :PLUS, 'PLUS'
-  # define :SEMICOLON, 'SEMICOLON'
+  define :SEMICOLON, 'SEMICOLON'
   # define :SLASH, 'SLASH'
   # define :STAR, 'STAR'
-  define :NEW_LINE, 'NEW_LINE'
   define :COLON, "COLON"
 
   # One or two character tokens

@@ -35,11 +35,12 @@ class Lexer
       add_token(Token::RIGHT_BRACE)
     when ':'
       add_token(Token::COLON)
+    when ';'
+      add_token(Token::SEMICOLON)
     when " " then return
     when "\r" then return
     when "\t" then return
     when "\n"
-      @tokens << add_token(Token::NEW_LINE)
       @line += 1
     else
       if digit?(c)
