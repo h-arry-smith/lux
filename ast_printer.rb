@@ -9,15 +9,22 @@ class AstPrinter
   end
 
   def visit_apply(node)
-    print_with_indent("APPLY parameter:#{node.parameter} value:#{node.value}")
+    print_with_indent("APPLY")
+    indent
+    print_with_indent("PARAMETER #{node.parameter}")
+    self.print(node.value)
+    dedent
   end
 
   def visit_block(node)
-    print_with_indent("BLOCK statement:#{node.statements}")
+    print_with_indent("BLOCK")
+    indent
+    node.statements.each { |statement| self.print(statement) }
+    dedent
   end
 
   def visit_selector(node)
-    print_with_indent("SELECTOR selector:#{node.selector}")
+    print_with_indent("SELECTOR #{node.selector}")
   end
 
   def visit_selection(node)
@@ -29,7 +36,7 @@ class AstPrinter
   end
 
   def visit_value(node)
-    print_with_indent("VALUE value:#{node.value}")
+    print_with_indent("VALUE #{node.value}")
   end
 
   private
