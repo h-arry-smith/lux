@@ -46,6 +46,10 @@ class AstPrinter
     print_with_indent("VALUE #{node.value}")
   end
 
+  def visit_range(node)
+    print_with_indent("RANGE #{node.start}->#{node.end}")
+  end
+
   private
 
   def print(node)

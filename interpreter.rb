@@ -1,6 +1,7 @@
 require_relative "fixture"
 require_relative "world"
 require_relative "selection_engine"
+require_relative "query_builder"
 
 class Interpreter
   attr_reader :world
@@ -10,15 +11,17 @@ class Interpreter
     @world = World.new()
 
     # Temporary World
-    3.times { |x| @world.add_fixture(Dimmer.new(x + 1)) }
+    3.times { |x| @world.add(Dimmer.new(x + 1)) }
     
     @selection_engine = SelectionEngine.new()
+    @query_builder = QueryBuilder.new()
   end
 
   def visit_selection(expr)
     selector = evaluate(expr.selector)
 
-    select_fixtures(selector)
+    query = @query_builder.build(selector)
+    select_fixtures(query)
 
     evaluate(expr.block)
 
@@ -43,6 +46,10 @@ class Interpreter
     expr.value
   end
 
+  def visit_range(expr)
+    (expr.start..expr.end)
+  end
+
   def interpret
     @ast.each { |statement| evaluate(statement) }
   end
@@ -53,8 +60,8 @@ class Interpreter
     expr.accept(self)
   end
 
-  def select_fixtures(selector)
-    @world = @selection_engine.select(@world, selector)
+  def select_fixtures(query)
+    @world = @selection_engine.select(@world, query)
   end
 
   def deselect_fixtures

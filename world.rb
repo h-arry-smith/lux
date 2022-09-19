@@ -6,12 +6,13 @@ class World
     @fixtures = fixtures
   end
 
-  def add_fixture(fixture)
-    @fixtures << fixture
-  end
-
-  def fixture(number)
-    @fixtures.filter { |fixture| fixture.id == number }
+  # TODO : Any selection never has duplicates..
+  def add(fixture)
+    if fixture.is_a?(Array)
+      @fixtures.concat(fixture)
+    else
+      @fixtures << fixture
+    end
   end
 
   def deselect

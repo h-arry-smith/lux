@@ -80,12 +80,31 @@ class Parser
     consume(Token::LEFT_BRACKET, "Expect '[' to start selector")
 
     if check(Token::NUMBER)
-      select = Ast::Selector.new(value)
+      first = value
+
+      select = Ast::Selector.new(first)
+
+      if check(Token::ARROW)
+        select =  Ast::Selector.new(range)
+      end
+
       consume(Token::RIGHT_BRACKET, "Expect ']' to end selector")
       return select
     end
 
     error(peek, "Expected valid selector")
+  end
+
+  def range
+    first = previous.literal
+
+    consume(Token::ARROW, "Expect -> for range.")
+
+    if match(Token::NUMBER)
+      return Ast::Range.new(first, previous.literal)
+    end
+
+    error(peek, "Expected a end number for range.")
   end
 
   def match(*types)

@@ -3,6 +3,7 @@ AST = {
   Block: [:statements],
   Selector: [:selector],
   Selection: [:selector, :block],
+  Range: [:start, :end],
   Value: [:value]
 }
 

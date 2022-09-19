@@ -37,6 +37,11 @@ class Lexer
       add_token(Token::COLON)
     when ';'
       add_token(Token::SEMICOLON)
+    when '-'
+      if peek == '>'
+        advance
+        add_token(Token::ARROW)
+      end
     when " " then return
     when "\r" then return
     when "\t" then return

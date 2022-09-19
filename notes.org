@@ -21,12 +21,16 @@ should produce the AST
   program -> statement*
   statement -> selection
   selection -> selector block
-  selector -> "[" NUMBER "]"
+  selector -> "[" selection_expression "]"
   
   block -> "{" expression* "}"
 
   expression -> identifier value NEW_LINE
   parameter -> identifier ":" " "
+
+  selection_expression -> value | range
+
+  range -> NUMBER "->" NUMBER
   value -> NUMBER
   identifier -> ALPHANUMERIC+ ( "_" | ALPHANUMERIC )*
   

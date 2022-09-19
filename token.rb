@@ -28,6 +28,7 @@ class Token
   # define :GREATER_EQUAL, 'GREATER_EQUAL'
   # define :LESS, 'LESS'
   # define :LESS_EQUAL, 'LESS_EQUAL'
+  define :ARROW, 'ARROW'
 
   # Literals
   define :IDENTIFIER, 'IDENTIFIER'
