@@ -79,8 +79,8 @@ class Parser
   def selector
     consume(Token::LEFT_BRACKET, "Expect '[' to start selector")
 
-    if match(Token::NUMBER)
-      select = Ast::Selector.new(previous.literal)
+    if check(Token::NUMBER)
+      select = Ast::Selector.new(value)
       consume(Token::RIGHT_BRACKET, "Expect ']' to end selector")
       return select
     end

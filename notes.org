@@ -8,7 +8,8 @@
 should produce the AST
 #+begin_src
   Selection
-    Selector 1
+    Selector
+      Value 1
     Block
       Apply
         Parameter "intensity"

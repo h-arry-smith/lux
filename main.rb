@@ -2,7 +2,7 @@ require_relative "lux"
 
 DEBUG_FLAGS = {
   token: false,
-  ast: false,
+  ast: true,
   lx_state: true
 }
 

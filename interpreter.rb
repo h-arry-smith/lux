@@ -26,7 +26,7 @@ class Interpreter
   end
 
   def visit_selector(expr)
-    expr.selector.to_i
+    evaluate(expr.selector)
   end
 
   def visit_block(expr)

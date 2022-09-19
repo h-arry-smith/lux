@@ -28,7 +28,10 @@ class AstPrinter
   end
 
   def visit_selector(node)
-    print_with_indent("SELECTOR #{node.selector}")
+    print_with_indent("SELECTOR")
+    indent
+    self.print(node.selector)
+    dedent
   end
 
   def visit_selection(node)
