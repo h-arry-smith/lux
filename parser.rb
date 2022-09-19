@@ -8,10 +8,18 @@ class Parser
   end
 
   def parse
-    [statement]
+    program
   end
 
   private
+
+  def program
+    statements = []
+
+    statements << statement while !at_end?
+
+    statements
+  end
 
   def statement
     selection
@@ -20,7 +28,7 @@ class Parser
   def block
     statements = []
 
-    while !check(Token::RIGHT_BRACE) && !is_at_end
+    while !check(Token::RIGHT_BRACE) && !at_end?
       statements << apply
     end
     
@@ -98,16 +106,16 @@ class Parser
   end
 
   def check(type)
-    return false if is_at_end
+    return false if at_end?
     peek.type == type
   end
 
   def advance
-    @current += 1 unless is_at_end
+    @current += 1 unless at_end?
     previous
   end
 
-  def is_at_end
+  def at_end?
     peek.type == Token::EOF
   end
 

@@ -17,6 +17,7 @@ should produce the AST
 
 * Grammar
 #+begin_src
+  program -> statement*
   statement -> selection
   selection -> selector block
   selector -> "[" NUMBER "]"
