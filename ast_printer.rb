@@ -3,6 +3,10 @@ class AstPrinter
     @indent = 0
   end
 
+  def print_ast(ast)
+    ast.each { |node| print_tree(node) }
+  end
+
   def print_tree(node)
     @indent = 0
     self.print(node)

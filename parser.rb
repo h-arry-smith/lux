@@ -8,7 +8,7 @@ class Parser
   end
 
   def parse
-    statement
+    [statement]
   end
 
   private
