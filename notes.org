@@ -11,7 +11,7 @@ should produce the AST
     Selector 1
     Block
       Apply
-        Identifer "intensity"
+        Parameter "intensity"
         Value 100
 #+end_src
 
@@ -24,9 +24,9 @@ should produce the AST
   block -> "{" expression* "}"
 
   expression -> identifier value NEW_LINE
-  identifier -> ALPHA+ ":" " "
+  parameter -> identifier ":" " "
   value -> NUMBER
-
+  identifier -> ALPHANUMERIC+ ( "_" | ALPHANUMERIC )*
   
   NUMBER -> NUMERIC ( "." NUMERIC+ )?
   NEW_LINE -> "\n"

@@ -30,15 +30,19 @@ class Parser
   end
 
   def apply
-    parameter = identifier
-
-    consume(Token::COLON, "Expect ':' after identifier")
+    param = parameter
 
     val = value
 
     consume(Token::SEMICOLON, "Expected semicolon after apply")
 
-    return Ast::Apply.new(parameter, val)
+    return Ast::Apply.new(param, val)
+  end
+
+  def parameter
+    id = identifier
+    consume(Token::COLON, "Expect ':' after parameter")
+    id
   end
 
   def identifier
