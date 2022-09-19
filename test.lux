@@ -1,0 +1,11 @@
+[1] {
+  intensity: 10;
+}
+
+[2] {
+  intensity: 20;
+}
+
+[3] {
+  intensity: 30;
+}
