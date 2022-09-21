@@ -1,6 +1,8 @@
 require_relative "fixture"
 require_relative "world"
 require_relative "selection_engine"
+require_relative "value"
+require_relative "value_sequence"
 require_relative "query_builder"
 
 class Interpreter
@@ -11,7 +13,7 @@ class Interpreter
     @world = World.new()
 
     # Temporary World
-    3.times { |x| @world.add(Dimmer.new(x + 1)) }
+    6.times { |x| @world.add(Dimmer.new(x + 1)) }
     
     @selection_engine = SelectionEngine.new()
     @query_builder = QueryBuilder.new()
@@ -37,7 +39,13 @@ class Interpreter
   end
 
   def visit_apply(expr)
-    value = evaluate(expr.value)
+    value = expr.value.map { |value| evaluate(value) }
+
+    if value.length == 1
+      value = StaticValue.new(value.first)
+    else
+      value = ValueSequence.new(value)
+    end
 
     @world.fixtures.each { |fixture| fixture.apply(expr.parameter, value) }
   end

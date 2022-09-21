@@ -28,10 +28,12 @@ should produce the AST
   block -> "{" expression_statement* "}"
 
   expression -> apply
-  apply -> identifier value ";"
+  apply -> identifier arguments ";"
   parameter -> identifier ":" " "
 
   selection_expression -> value | range
+
+  arguments -> value value*
 
   range -> NUMBER "->" NUMBER
   value -> NUMBER

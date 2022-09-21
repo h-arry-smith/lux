@@ -49,7 +49,7 @@ class Parser
   def apply
     param = parameter
 
-    val = value
+    val = arguments
 
     consume(Token::SEMICOLON, "Expected semicolon after apply")
 
@@ -68,6 +68,14 @@ class Parser
     end
 
     error(peek, "Expected valid identifer")
+  end
+
+  def arguments
+    args = []
+
+    args << value until check(Token::SEMICOLON)
+
+    args
   end
 
   def value

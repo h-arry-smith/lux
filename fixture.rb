@@ -1,3 +1,5 @@
+require_relative "value"
+
 class Fixture
   attr_reader :id
 
@@ -8,7 +10,9 @@ class Fixture
   end
   
   def apply(parameter, value)
-    instance_variable_set("@#{parameter}", value)
+    raise "value must be an sub-class of Value" unless value.is_a?(Value)
+
+    instance_variable_set("@#{parameter}", value.get())
   end
 
   def to_s

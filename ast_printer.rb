@@ -16,7 +16,9 @@ class AstPrinter
     print_with_indent("APPLY")
     indent
     print_with_indent("PARAMETER #{node.parameter}")
-    self.print(node.value)
+    indent
+    node.value.each { |node| self.print(node) }
+    dedent
     dedent
   end
 
