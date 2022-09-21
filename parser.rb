@@ -73,7 +73,15 @@ class Parser
   def arguments
     args = []
 
-    args << value until check(Token::SEMICOLON)
+    until check(Token::SEMICOLON)
+      val = value
+
+      if check(Token::ARROW)
+        val = range
+      end
+
+      args << val
+    end
 
     args
   end

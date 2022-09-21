@@ -33,7 +33,8 @@ should produce the AST
 
   selection_expression -> value | range
 
-  arguments -> value value*
+  arguments -> argument argument*
+  argument -> range | value
 
   range -> NUMBER "->" NUMBER
   value -> NUMBER

@@ -2,6 +2,7 @@ require_relative "fixture"
 require_relative "world"
 require_relative "selection_engine"
 require_relative "value"
+require_relative "value_range"
 require_relative "value_sequence"
 require_relative "query_builder"
 
@@ -42,7 +43,12 @@ class Interpreter
     value = expr.value.map { |value| evaluate(value) }
 
     if value.length == 1
-      value = StaticValue.new(value.first)
+      value = value.first
+      if value.is_a?(Numeric)
+        value = StaticValue.new(value.first)
+      elsif value.is_a?(Range)
+        value = ValueRange.new(value.first, value.last, @world.fixtures.length)
+      end
     else
       value = ValueSequence.new(value)
     end
