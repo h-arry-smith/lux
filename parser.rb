@@ -21,6 +21,15 @@ class Parser
     statements
   end
 
+  def expression_statement
+    return statement if check(Token::LEFT_BRACKET)
+    return expression
+  end
+
+  def expression
+    apply
+  end
+
   def statement
     selection
   end
@@ -29,7 +38,7 @@ class Parser
     statements = []
 
     while !check(Token::RIGHT_BRACE) && !at_end?
-      statements << apply
+      statements << expression_statement
     end
     
     consume(Token::RIGHT_BRACE, "Expect '}' after block")

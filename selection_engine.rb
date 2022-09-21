@@ -16,7 +16,7 @@ class SelectionEngine
   private
 
   def single(world, id)
-    world.fixtures.filter { |fixture| fixture.id == number }
+    world.fixtures.filter { |fixture| fixture.id == id }
   end
 
   def range(world, first, last)

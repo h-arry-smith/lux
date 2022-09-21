@@ -22,10 +22,13 @@ should produce the AST
   statement -> selection
   selection -> selector block
   selector -> "[" selection_expression "]"
-  
-  block -> "{" expression* "}"
 
-  expression -> identifier value NEW_LINE
+  expression_statement -> expression | statement
+  
+  block -> "{" expression_statement* "}"
+
+  expression -> apply
+  apply -> identifier value ";"
   parameter -> identifier ":" " "
 
   selection_expression -> value | range
