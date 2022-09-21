@@ -2,6 +2,10 @@ class Value
   def get
     raise NotImplementedError
   end
+
+  def to_s
+    "Value"
+  end
 end
 
 class StaticValue < Value
@@ -10,6 +14,10 @@ class StaticValue < Value
   end
 
   def get
-    @value
+    self
+  end
+
+  def to_s
+    "StaticValue(#{@value})"
   end
 end

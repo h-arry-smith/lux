@@ -19,9 +19,12 @@ should produce the AST
 * Grammar
 #+begin_src
   program -> statement*
-  statement -> selection
+  statement -> selection | timer
   selection -> selector block
   selector -> "[" selection_expression "]"
+
+  timer -> time block
+  time -> "@" NUMBER "s"
 
   expression_statement -> expression | statement
   

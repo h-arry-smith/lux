@@ -11,10 +11,10 @@ class ValueRange < Value
   end
 
   def get
-    return @finish if @current == @total
+    return StaticValue.new(@finish) if @current == @total
 
     value = @start + (@step * @current)
     @current += 1
-    value.round(2)
+    StaticValue.new(value.round(2))
   end
 end
