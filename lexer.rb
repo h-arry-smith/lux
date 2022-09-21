@@ -42,6 +42,10 @@ class Lexer
         advance
         add_token(Token::ARROW)
       end
+    when "/"
+      if peek == '/'
+        advance until peek == "\n"
+      end
     when " " then return
     when "\r" then return
     when "\t" then return

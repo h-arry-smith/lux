@@ -1,3 +1,10 @@
+// Support for comments
+
 [1->3] {
-  intensity: 100;
+  intensity: 50;
+
+  // Sub-selector should work in this context.
+  [2] {
+    intensity: 20;
+  }
 }
