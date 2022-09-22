@@ -11,10 +11,8 @@ class Fixture
     set_defaults
   end
   
-  def apply(parameter, value)
-    raise "value must be an sub-class of Value" unless value.is_a?(Value)
-
-    instance_variable_set("@#{parameter}", value.get())
+  def apply(parameter, value, time_context)
+    set_parameter(parameter, value)
   end
 
   def to_s
@@ -22,6 +20,18 @@ class Fixture
   end
 
   private
+
+  def set_parameter(parameter, value)
+    raise RuntimeError.new("Parameter #{parameter} not valid for fixture #{self.id}") unless instance_variable_defined?("@#{parameter}")
+
+    instance_variable_set("@#{parameter}", value)
+  end
+
+  def get_parameter(parameter)
+    raise RuntimeError.new("Parameter #{parameter} not valid for fixture #{self.id}") unless instance_variable_defined?("@#{parameter}")
+
+    instance_variable_get("@#{parameter}")
+  end
   
   def self.param(parameter)
     attr_accessor parameter
@@ -29,7 +39,7 @@ class Fixture
   end
 
   def debug_params
-    @@params.map { |param| "#{param}:#{instance_variable_get("@#{param}")}"}.join(" ")
+    @@params.map { |param| "#{param}:#{get_parameter(param)}"}.join(" ")
   end
 
   # Temporary, in the future defaults should be set from the param dsl :)
