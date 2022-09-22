@@ -7,6 +7,8 @@ class Fixture
 
   def initialize(id)
     @id = id
+
+    set_defaults
   end
   
   def apply(parameter, value)
@@ -28,6 +30,11 @@ class Fixture
 
   def debug_params
     @@params.map { |param| "#{param}:#{instance_variable_get("@#{param}")}"}.join(" ")
+  end
+
+  # Temporary, in the future defaults should be set from the param dsl :)
+  def set_defaults
+    @@params.each { |param| instance_variable_set("@#{param}", StaticValue.new(0)) }
   end
 end
 
