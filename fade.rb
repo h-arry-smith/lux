@@ -20,7 +20,15 @@ class Fade < Value
   def self.from(current, target, time_context)
     return current if current.value == target.value
 
-    if time_context.fade?
+    if time_context.fade_up && target > current
+      return Fade.new(current, target, time_context.fade_up)
+    end
+
+    if time_context.fade_down && target < current
+      return Fade.new(current, target, time_context.fade_down)
+    end
+
+    if time_context.fade
       return Fade.new(current, target, time_context.fade)
     end
 

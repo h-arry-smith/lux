@@ -1,13 +1,11 @@
-@fade 3s {
-  [2->3] {
-    intensity: 30 60;
-  }
-
-  [4->6] {
-    intensity: 40->60;
-  }
+[1->6] {
+  intensity: 50;
 }
 
-[1] {
-  intensity: 30;
+@fade_up 3s {
+  @fade_down 6s {
+    [1->6] {
+	intensity: 0->100;
+    }
+  }
 }

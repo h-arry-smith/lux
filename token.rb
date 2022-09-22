@@ -1,5 +1,4 @@
 require "ruby-enum"
-
 class Token
   include Ruby::Enum
 
@@ -39,6 +38,8 @@ class Token
 
   # Keywords
   define :FADE, 'fade'
+  define :FADE_UP, 'fade_up'
+  define :FADE_DOWN, 'fade_down'
 
   # define :AND, 'and'
   # define :CLASS, 'class'
@@ -59,3 +60,9 @@ class Token
 
   define :EOF, 'EOF'
 end
+
+TIME_KEYWORDS = [
+  Token::FADE,
+  Token::FADE_UP,
+  Token::FADE_DOWN
+]

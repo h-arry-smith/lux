@@ -19,6 +19,14 @@ class StaticValue < Value
     self
   end
 
+  def >(other)
+    @value > other.value
+  end
+
+  def <(other)
+    @value < other.value
+  end
+
   def to_s
     "StaticValue(#{@value})"
   end

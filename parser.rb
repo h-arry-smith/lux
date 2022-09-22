@@ -1,10 +1,6 @@
 require_relative "ast"
 require_relative "token"
 
-TIME_KEYWORDS = [
-  Token::FADE
-]
-
 class Parser
   def initialize(tokens)
     @tokens = tokens
