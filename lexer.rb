@@ -37,14 +37,20 @@ class Lexer
       add_token(Token::COLON)
     when ';'
       add_token(Token::SEMICOLON)
+    when '@'
+      add_token(Token::AT)
     when '-'
       if peek == '>'
         advance
         add_token(Token::ARROW)
       end
-    when "/"
+    when '/'
       if peek == '/'
-        advance until peek == "\n"
+        advance while peek != "\n" && !at_end?
+      end
+    when 's'
+      if peek == ' ' and digit?(peek_previous)
+        add_token(Token::SECONDS)
       end
     when " " then return
     when "\r" then return
@@ -78,7 +84,10 @@ class Lexer
     advance while alphanumeric?(peek)
 
     text = @source[@start...@current]
-    add_token(Token::IDENTIFIER, text)
+    type = Token.key(text)
+    type = :IDENTIFIER if type.nil?
+
+    add_token(Token.value(type), text)
   end
 
   def peek
@@ -89,6 +98,11 @@ class Lexer
   def peek_next
     "\0" if @current + 1 >= @source.length 
     @source[@current + 1]
+  end
+
+  def peek_previous
+    "" if @current == 0
+    @source[@current - 2]
   end
 
   def advance

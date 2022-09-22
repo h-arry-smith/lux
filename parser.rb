@@ -1,6 +1,10 @@
 require_relative "ast"
 require_relative "token"
 
+TIME_KEYWORDS = [
+  Token::FADE
+]
+
 class Parser
   def initialize(tokens)
     @tokens = tokens
@@ -22,7 +26,7 @@ class Parser
   end
 
   def expression_statement
-    return statement if check(Token::LEFT_BRACKET)
+    return statement if !check(Token::IDENTIFIER)
     return expression
   end
 
@@ -31,7 +35,36 @@ class Parser
   end
 
   def statement
-    selection
+    return selection if check(Token::LEFT_BRACKET)
+    return timer if check(Token::AT)
+  end
+
+  def timer
+    time_node = time
+
+    consume(Token::LEFT_BRACE, "Expect '{' after time clause")
+
+    return Ast::TimeBlock.new(time_node, block)
+  end
+
+  def time
+    consume(Token::AT, "Time clause must start with '@'")
+
+    keyword = time_keyword
+
+    consume(Token::NUMBER, "Expected number after time directive")
+    value = previous.literal
+    consume(Token::SECONDS, "Expected seconds 's' after number")
+
+    return Ast::Time.new(keyword, value)
+  end
+
+  def time_keyword
+    if match(*TIME_KEYWORDS)
+      return previous.lexeme
+    end
+
+    raise ParserError.new(peek, "Invalid time keyword")
   end
 
   def block

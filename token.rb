@@ -17,7 +17,9 @@ class Token
   define :SEMICOLON, 'SEMICOLON'
   # define :SLASH, 'SLASH'
   # define :STAR, 'STAR'
-  define :COLON, "COLON"
+  define :COLON, 'COLON'
+  define :AT, 'AT'
+  define :SECONDS, 'SECONDS'
 
   # One or two character tokens
   # define :BANG, 'BANG'
@@ -36,6 +38,8 @@ class Token
   define :NUMBER, 'NUMBER'
 
   # Keywords
+  define :FADE, 'fade'
+
   # define :AND, 'and'
   # define :CLASS, 'class'
   # define :ELSE, 'else'

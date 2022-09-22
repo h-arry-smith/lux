@@ -1,4 +1,5 @@
 require_relative "value"
+require_relative "fade"
 
 class Fixture
   attr_reader :id
@@ -12,6 +13,10 @@ class Fixture
   end
   
   def apply(parameter, value, time_context)
+    current = get_parameter(parameter)
+
+    value = Fade.from(current, value, time_context)
+    
     set_parameter(parameter, value)
   end
 

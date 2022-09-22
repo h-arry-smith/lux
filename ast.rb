@@ -1,9 +1,11 @@
 AST = {
   Apply: [:parameter, :value],
   Block: [:statements],
+  Range: [:start, :end],
   Selector: [:selector],
   Selection: [:selector, :block],
-  Range: [:start, :end],
+  Time: [:keyword, :value],
+  TimeBlock: [:time, :block],
   Value: [:value]
 }
 

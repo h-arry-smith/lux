@@ -16,6 +16,77 @@ should produce the AST
         Value 100
 #+end_src
 
+* Time Thoughts
+Types of time:
+- Fade
+  - Up Time
+  - Down Time
+- Delay
+  - Up Time
+  - Down Time
+- Timecode
+- Should have a shorcut to snap something,
+
+Any time syntax needs to handle all of these. Some desks have a concept of follow, which is probably going to be better represented with another syntax when I flesh out cues and cue states.
+
+#+begin_src
+  // everything in block fades over 3 seconds
+  @fade 3s {
+  }
+
+  // everything in block fades up in 3 seconds and down in 10 seconds
+  @fade 3s/10s {
+  }
+
+  // everything in block doesn't happen for 3 seconds
+  @delay 3s {
+  }
+
+  // everything in block does happen for 3 seconds
+  @delay 3s/10s {
+  }
+
+  // it should be possible to define times in line
+  [1] {
+    intensity: 100 @fade 3s;
+  }
+
+  // snap something inside a time block
+  @fade 3s {
+    [1->12] { intensity: 100 @snap; }
+  }
+#+end_src
+
+** Time Directives
+#+begin_src
+  @fade t
+  @fade u/d
+  @fade-up t
+  @fade-down t
+
+  @delay t
+  @delay u/d
+  @delay-up t
+  @delay-down t
+
+  @snap
+#+end_src
+
+** Implementation Notes
+A fade/delay must know the current value, the future value, and it's time params - stored on the property of the fixture.
+
+At some point it must handle the fact that fixture params will have min and maxs but I can worry about this in the future.
+
+The interpreter must manage a stack of time information as blocks are entered and left, with any value creation refrencing the time information inline -> then to the parent
+
+* Live Coding Environment
+It would be useful to start building a live coding environment for this project. For a couple of reasons:
+- IDE environment to help with writing Lux code
+- Visualisation pane (simple)
+- Run code examples with live time
+- Code pane is live evaluated, which allows changes to be seen life (restarting the cue time every time a valid state is found)
+- Allow for shows to be built in file like structure...
+
 * Grammar
 #+begin_src
   program -> statement*
@@ -24,7 +95,8 @@ should produce the AST
   selector -> "[" selection_expression "]"
 
   timer -> time block
-  time -> "@" NUMBER "s"
+  time -> "@" time_keyword NUMBER "s" time*
+  time_keyword -> "fade" | "fade_up" | "fade_down" | "delay" | "delay_up" | "delay_down"
 
   expression_statement -> expression | statement
   

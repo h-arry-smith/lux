@@ -1,6 +1,7 @@
 require_relative "fixture"
 require_relative "world"
 require_relative "selection_engine"
+require_relative "time_context"
 require_relative "value"
 require_relative "value_range"
 require_relative "value_sequence"
@@ -31,6 +32,24 @@ class Interpreter
     deselect_fixtures
   end
 
+  def visit_timeblock(expr)
+    time = evaluate(expr.time)
+
+    @world.push_time_context(time)
+
+    evaluate(expr.block)
+
+    @world.pop_time_context()
+  end
+
+  def visit_time(expr)
+    time = TimeContext.new
+
+    time[expr.keyword] = expr.value
+
+    return time
+  end
+
   def visit_selector(expr)
     evaluate(expr.selector)
   end
@@ -45,7 +64,7 @@ class Interpreter
     if value.length == 1
       value = value.first
       if value.is_a?(Numeric)
-        value = StaticValue.new(value.first)
+        value = StaticValue.new(value)
       elsif value.is_a?(Range)
         value = ValueRange.new(value.first, value.last, @world.fixtures.length)
       end
@@ -53,7 +72,7 @@ class Interpreter
       value = ValueSequence.new(value)
     end
 
-    @world.fixtures.each { |fixture| fixture.apply(expr.parameter, value) }
+    @world.fixtures.each { |fixture| fixture.apply(expr.parameter, value.get(), @world.time_context) }
   end
 
   def visit_value(expr)

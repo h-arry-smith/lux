@@ -9,6 +9,7 @@ class ValueSequence < Value
   def get
     current_value = @values[@current]
     next_value
+
     StaticValue.new(current_value)
   end
 

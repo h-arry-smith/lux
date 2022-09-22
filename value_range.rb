@@ -15,6 +15,7 @@ class ValueRange < Value
 
     value = @start + (@step * @current)
     @current += 1
+
     StaticValue.new(value.round(2))
   end
 end

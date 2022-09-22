@@ -52,6 +52,18 @@ class AstPrinter
     print_with_indent("RANGE #{node.start}->#{node.end}")
   end
 
+  def visit_timeblock(node)
+    print_with_indent("TIME BLOCK")
+    indent
+    self.print(node.time)
+    self.print(node.block)
+    dedent
+  end
+
+  def visit_time(node)
+    print_with_indent("TIME #{node.keyword} #{node.value}")
+  end
+
   private
 
   def print(node)
