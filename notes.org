@@ -94,7 +94,7 @@ It would be useful to start building a live coding environment for this project.
   selection -> selector block
   selector -> "[" selection_expression "]"
 
-  timer -> time block
+  timer -> time+ block
   time -> "@" time_keyword NUMBER "s" time*
   time_keyword -> "fade" | "fade_up" | "fade_down" | "delay" | "delay_up" | "delay_down"
 

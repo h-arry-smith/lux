@@ -36,11 +36,15 @@ class Parser
   end
 
   def timer
-    time_node = time
+    times = []
+
+    until check(Token::LEFT_BRACE)
+      times << time
+    end
 
     consume(Token::LEFT_BRACE, "Expect '{' after time clause")
 
-    return Ast::TimeBlock.new(time_node, block)
+    return Ast::TimeBlock.new(times, block)
   end
 
   def time

@@ -33,9 +33,9 @@ class Interpreter
   end
 
   def visit_timeblock(expr)
-    time = evaluate(expr.time)
+    @world.push_time_context(TimeContext.new)
 
-    @world.push_time_context(time)
+    expr.time.map { |time| evaluate(time) }
 
     evaluate(expr.block)
 
@@ -43,11 +43,7 @@ class Interpreter
   end
 
   def visit_time(expr)
-    time = TimeContext.new
-
-    time[expr.keyword] = expr.value
-
-    return time
+    @world.time_context[expr.keyword] = expr.value
   end
 
   def visit_selector(expr)

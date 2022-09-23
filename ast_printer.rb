@@ -55,7 +55,7 @@ class AstPrinter
   def visit_timeblock(node)
     print_with_indent("TIME BLOCK")
     indent
-    self.print(node.time)
+    node.time.each { |time| self.print(time) }
     self.print(node.block)
     dedent
   end
