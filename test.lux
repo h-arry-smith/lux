@@ -2,8 +2,8 @@
   intensity: 50;
 }
 
-@fade_up 3s {
-  @fade_down 6s {
+@up 3s {
+  @down 6s {
     [1->6] {
 	intensity: 0->100;
     }

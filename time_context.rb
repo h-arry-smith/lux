@@ -1,13 +1,13 @@
 class TimeContext
-  attr_reader :fade, :fade_up, :fade_down
+  attr_reader :fade, :up, :down
   attr_writer :parent
 
   def initialize(parent = nil)
     @parent = parent
 
     @fade = nil
-    @fade_up = nil
-    @fade_down = nil
+    @up = nil
+    @down = nil
   end
 
   def []=(keyword, value)
@@ -26,11 +26,11 @@ class TimeContext
   end
 
   def fade_up
-    get_time("fade_up")
+    get_time("up")
   end
 
   def fade_down
-    get_time("fade_down")
+    get_time("down")
   end
 
   def get_time(keyword)

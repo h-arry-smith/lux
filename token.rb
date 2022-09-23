@@ -38,8 +38,8 @@ class Token
 
   # Keywords
   define :FADE, 'fade'
-  define :FADE_UP, 'fade_up'
-  define :FADE_DOWN, 'fade_down'
+  define :FADE_UP, 'up'
+  define :FADE_DOWN, 'down'
 
   # define :AND, 'and'
   # define :CLASS, 'class'
