@@ -14,7 +14,7 @@ class Token
   # define :MINUS, 'MINUS'
   # define :PLUS, 'PLUS'
   define :SEMICOLON, 'SEMICOLON'
-  # define :SLASH, 'SLASH'
+  define :SLASH, 'SLASH'
   # define :STAR, 'STAR'
   define :COLON, 'COLON'
   define :AT, 'AT'

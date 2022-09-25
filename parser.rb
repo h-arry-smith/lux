@@ -39,7 +39,7 @@ class Parser
     times = []
 
     until check(Token::LEFT_BRACE)
-      times << time
+      times.concat(time)
     end
 
     consume(Token::LEFT_BRACE, "Expect '{' after time clause")
@@ -56,7 +56,28 @@ class Parser
     value = previous.literal
     consume(Token::SECONDS, "Expected seconds 's' after number")
 
-    return Ast::Time.new(keyword, value)
+    times = []
+
+    if keyword == Token::FADE || keyword == Token::DELAY
+      down_value = nil
+      if match(Token::SLASH)
+        consume(Token::NUMBER, "Expected number after time directive")
+        down_value = previous.literal
+        consume(Token::SECONDS, "Expected seconds 's' after number")
+      end
+
+      if !down_value.nil? && keyword == Token::FADE
+        times << Ast::Time.new(Token::FADE_UP, value)
+        times << Ast::Time.new(Token::FADE_DOWN, down_value)
+      elsif !down_value.nil? && keyword == Token::DELAY
+        times << Ast::Time.new(Token::DELAY_UP, value)
+        times << Ast::Time.new(Token::DELAY_DOWN, down_value)
+      else
+        times << Ast::Time.new(keyword, value)
+      end
+    end
+
+    times
   end
 
   def time_keyword

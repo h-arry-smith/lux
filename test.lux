@@ -2,7 +2,7 @@
   intensity: 50;
 }
 
-@up 3s @down 6s @dup 10s @ddown 5s {
+@fade 3s/6s @delay 10s/5s {
   [1->6] {
     intensity: 40 60;
   }

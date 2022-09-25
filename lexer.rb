@@ -47,9 +47,11 @@ class Lexer
     when '/'
       if peek == '/'
         advance while peek != "\n" && !at_end?
+      else
+        add_token(Token::SLASH)
       end
     when 's'
-      if peek == ' ' and digit?(peek_previous)
+      if digit?(peek_previous)
         add_token(Token::SECONDS)
       end
     when " " then return
