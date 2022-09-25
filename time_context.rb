@@ -1,5 +1,4 @@
 class TimeContext
-  attr_reader :fade, :up, :down
   attr_writer :parent
 
   def initialize(parent = nil)
@@ -8,6 +7,9 @@ class TimeContext
     @fade = nil
     @up = nil
     @down = nil
+    @delay = nil
+    @dup = nil
+    @ddown = nil
   end
 
   def []=(keyword, value)
@@ -33,6 +35,18 @@ class TimeContext
     get_time("down")
   end
 
+  def delay
+    get_time("delay")
+  end
+
+  def dup
+    get_time("dup")
+  end
+
+  def ddown
+    get_time("ddown")
+  end
+
   def get_time(keyword)
     if instance_variable_get("@#{keyword}").nil?
       return @parent.get_time(keyword) unless @parent.nil?
@@ -40,5 +54,9 @@ class TimeContext
     end
 
     return instance_variable_get("@#{keyword}")
+  end
+
+  def any_delay?
+    delay || dup || ddown
   end
 end

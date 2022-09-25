@@ -2,9 +2,7 @@
   intensity: 50;
 }
 
-// This is a comment
-
-@up 3s @down 6s {
+@up 3s @down 6s @dup 10s @ddown 5s {
   [1->6] {
     intensity: 40 60;
   }

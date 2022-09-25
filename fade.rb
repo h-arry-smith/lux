@@ -1,9 +1,10 @@
 require_relative "value"
 
 class Fade < Value
-  attr_reader :start, :finish, :attr_reader
+  attr_reader :start, :finish
   
   def initialize(start, finish, time)
+    super()
     @start = start
     @finish = finish
     @time = time
@@ -11,6 +12,10 @@ class Fade < Value
 
   def get
     self
+  end
+
+  def value
+    @finish.value
   end
 
   def to_s

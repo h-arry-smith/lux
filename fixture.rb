@@ -1,5 +1,6 @@
 require_relative "value"
 require_relative "fade"
+require_relative "delay"
 
 class Fixture
   attr_reader :id
@@ -16,6 +17,7 @@ class Fixture
     current = get_parameter(parameter)
 
     value = Fade.from(current, value, time_context)
+    value = Delay.from(current, value, time_context)
     
     set_parameter(parameter, value)
   end

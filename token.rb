@@ -40,6 +40,9 @@ class Token
   define :FADE, 'fade'
   define :FADE_UP, 'up'
   define :FADE_DOWN, 'down'
+  define :DELAY, 'delay'
+  define :DELAY_UP, 'dup'
+  define :DELAY_DOWN, 'ddown'
 
   # define :AND, 'and'
   # define :CLASS, 'class'
@@ -64,5 +67,8 @@ end
 TIME_KEYWORDS = [
   Token::FADE,
   Token::FADE_UP,
-  Token::FADE_DOWN
+  Token::FADE_DOWN,
+  Token::DELAY,
+  Token::DELAY_UP,
+  Token::DELAY_DOWN
 ]
