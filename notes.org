@@ -1,4 +1,4 @@
-
+* First milestone
 #+begin_src
   [1] {
     intensity: 100
@@ -79,6 +79,72 @@ At some point it must handle the fact that fixture params will have min and maxs
 
 The interpreter must manage a stack of time information as blocks are entered and left, with any value creation refrencing the time information inline -> then to the parent
 
+* Color and Position
+You should be able to talk multi-paramter contexts using a variety syntaxes.
+
+The first step in supporting this will be to support a tuple like structure that can both be named
+and unnamed.
+
+#+begin_src
+  (10 10) // unnamed tuple
+  (pan: 10, tilt: 20) // named tuple
+#+end_src
+
+Position is simpler in colour, that a position is always a combination of pan/tilt.
+#+begin_src
+  [101] {
+    position: (-120.4 68.9); // A deliminator is needed to differntiate between a ValueRange and a multi parameter
+  }
+
+  // Should be the same as
+
+  [101] {
+    pan: -120.4;
+    tilt: 68.9;
+  }
+#+end_src
+
+When apply to any parameter, we need to be able to see if a paticular fixture has it defined as a multi-parameter.
+This information comes from the fixture class building DSL. This seems overkill for position, where this is always the
+same but lays the ground work for color nicely. In a sense, position becomes a virtual parameter.
+
+When an unnamed tuple is passed to a group virtual parameter it is expanded into it's named form, which allows us to check that all relevant information has been provided.
+
+#+begin_src ruby
+  class MovingLight < Fixture
+    param :intensity
+    group :position do
+      param :pan
+      param :tilt
+    end
+  end
+  #+end_src
+
+  A virtual multi-paramter must always be provided the correct number of values in the tuple, and it's an error not to.
+  There should be a magic symbol to mean current, or no value. It should support ValueRanges etc.
+
+#+begin_src
+  // Alternate between two options
+  [101->106] {
+    position: (10 20) (20 10);
+  }
+
+  // Accept ranges
+  [101->106] {
+    position: (10->50 50->10)
+  }
+
+  // This should be an error
+  [101->106] {
+    position: (10)
+  }
+
+  // But this isn't
+  [101->106] {
+    position: (10 _)
+  }
+#+end_src
+
 * Live Coding Environment
 It would be useful to start building a live coding environment for this project. For a couple of reasons:
 - IDE environment to help with writing Lux code
@@ -103,14 +169,15 @@ It would be useful to start building a live coding environment for this project.
   block -> "{" expression_statement* "}"
 
   expression -> apply
-  apply -> identifier arguments ";"
+  apply -> parameter arguments ";"
   parameter -> identifier ":" " "
 
   selection_expression -> value | range
 
   arguments -> argument argument*
-  argument -> range | value
+  argument -> range | value | tuple
 
+  tuple -> "(" (parameter? argument ",")* ")"
   range -> NUMBER "->" NUMBER
   value -> NUMBER
   identifier -> ALPHANUMERIC+ ( "_" | ALPHANUMERIC )*
