@@ -6,6 +6,6 @@
 
 @up 3s @down 6s {
   [1->6] {
-    intensity: 0->100;
+    intensity: 40 60;
   }
 }

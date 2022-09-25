@@ -8,7 +8,7 @@ DEBUG_FLAGS = {
 
 lux = Lux.new(DEBUG_FLAGS)
 
-if ARGV.length == 0
+if ARGV.empty?
   puts "Lux Interpreter"
   puts "Enter '.exit' to exit"
 
@@ -27,5 +27,3 @@ if ARGV.length == 1
 
   lux.run(input)
 end
-
-
