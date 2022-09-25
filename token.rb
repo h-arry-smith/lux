@@ -43,6 +43,7 @@ class Token
   define :DELAY, 'delay'
   define :DELAY_UP, 'dup'
   define :DELAY_DOWN, 'ddown'
+  define :SNAP, 'snap'
 
   # define :AND, 'and'
   # define :CLASS, 'class'
@@ -70,5 +71,6 @@ TIME_KEYWORDS = [
   Token::FADE_DOWN,
   Token::DELAY,
   Token::DELAY_UP,
-  Token::DELAY_DOWN
+  Token::DELAY_DOWN,
+  Token::SNAP
 ]

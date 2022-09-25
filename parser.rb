@@ -52,6 +52,8 @@ class Parser
 
     keyword = time_keyword
 
+    return [Ast::Time.new(keyword, 0)] if keyword == Token::SNAP
+
     consume(Token::NUMBER, "Expected number after time directive")
     value = previous.literal
     consume(Token::SECONDS, "Expected seconds 's' after number")

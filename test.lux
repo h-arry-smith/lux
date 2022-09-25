@@ -3,7 +3,13 @@
 }
 
 @fade 3s/6s @delay 10s/5s {
-  [1->6] {
+  [1->4] {
     intensity: 40 60;
+  }
+
+  @up 1s @down 3s @snap {
+    [5->6] {
+      intensity: 20;
+    }
   }
 }

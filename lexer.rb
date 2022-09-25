@@ -53,6 +53,8 @@ class Lexer
     when 's'
       if digit?(peek_previous)
         add_token(Token::SECONDS)
+      else
+        identifier
       end
     when " " then return
     when "\r" then return

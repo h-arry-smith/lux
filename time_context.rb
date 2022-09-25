@@ -18,6 +18,15 @@ class TimeContext
     end
   end
 
+  def set_to_snap
+    @fade = 0
+    @up = 0
+    @down = 0
+    @delay = 0
+    @dup = 0
+    @ddown = 0
+  end
+
   def pop
     return self if @parent.nil?
     @parent
@@ -48,15 +57,25 @@ class TimeContext
   end
 
   def get_time(keyword)
+    time = nil
     if instance_variable_get("@#{keyword}").nil?
-      return @parent.get_time(keyword) unless @parent.nil?
-      return nil
+      time = @parent.get_time(keyword) unless @parent.nil?
+    else
+      time = instance_variable_get("@#{keyword}")
     end
 
-    return instance_variable_get("@#{keyword}")
+    if time.nil? || time == 0
+      return nil
+    else
+      return time
+    end
   end
 
   def any_delay?
     delay || dup || ddown
+  end
+
+  def any_fade?
+    fade || fade_up || fade_down
   end
 end

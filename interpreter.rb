@@ -43,7 +43,11 @@ class Interpreter
   end
 
   def visit_time(expr)
-    @world.time_context[expr.keyword] = expr.value
+    if expr.keyword == Token::SNAP
+      @world.time_context.set_to_snap
+    else
+      @world.time_context[expr.keyword] = expr.value
+    end
   end
 
   def visit_selector(expr)
