@@ -44,6 +44,17 @@ class AstPrinter
     dedent
   end
 
+  def visit_tuple(node)
+    print_with_indent("TUPLE {")
+    indent
+    node.values.each do |key, value|
+      print_with_indent("#{key} :")
+      self.print(value)
+    end
+    dedent
+    print_with_indent("}")
+  end
+
   def visit_value(node)
     print_with_indent("VALUE #{node.value}")
   end

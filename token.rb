@@ -3,13 +3,13 @@ class Token
   include Ruby::Enum
 
   # Single character tokens
-  # define :LEFT_PAREN, 'LEFT_PAREN'
-  # define :RIGHT_PAREN, 'RIGHT_PAREN'
+  define :LEFT_PAREN, 'LEFT_PAREN'
+  define :RIGHT_PAREN, 'RIGHT_PAREN'
   define :LEFT_BRACE, 'LEFT_BRACE'
   define :RIGHT_BRACE, 'RIGHT_BRACE'
   define :LEFT_BRACKET, 'LEFT_BRACKET'
   define :RIGHT_BRACKET, 'RIGHT_BRACKET'
-  # define :COMMA, 'COMMA'
+  define :COMMA, 'COMMA'
   # define :DOT, 'DOT'
   # define :MINUS, 'MINUS'
   # define :PLUS, 'PLUS'

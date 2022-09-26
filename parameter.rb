@@ -1,7 +1,7 @@
 require_relative "value"
 
 class ParameterInstance
-  attr_accessor :value
+  attr_accessor :parameter, :value
 
   def initialize(parameter)
     @parameter = parameter
@@ -10,11 +10,11 @@ class ParameterInstance
 end
 
 class Parameter
-  attr_reader :parameter, :default
+  attr_reader :id, :default
   attr_accessor :value
 
-  def initialize(parameter, default)
-    @parameter = parameter
+  def initialize(id, default)
+    @id = id
     @default = StaticValue.new(default)
   end
 
@@ -24,10 +24,10 @@ class Parameter
 end
 
 class GroupParameter
-  attr_reader :parameter, :children
+  attr_reader :id, :children
 
-  def initialize(parameter)
-    @parameter = parameter
+  def initialize(id)
+    @id = id
     @children = []
   end
 

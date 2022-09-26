@@ -1,15 +1,8 @@
-[1->6] {
-  intensity: 50;
+[101] {
+  position: (-120.4, 68.9);
 }
 
-@fade 3s/6s @delay 10s/5s {
-  [1->4] {
-    intensity: 40 60;
-  }
-
-  @up 1s @down 3s @snap {
-    [5->6] {
-      intensity: 20;
-    }
-  }
+[102] {
+  pan: -120.4;
+  tilt: 68.9;
 }

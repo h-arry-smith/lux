@@ -39,13 +39,16 @@ class Fixture
     initialize_parameters
   end
   
-  def apply(parameter, value, time_context)
-    current = get_parameter(parameter)
+  def apply(identifier, value, time_context)
+    parameter = get_parameter(identifier)
 
-    value = Fade.from(current, value, time_context)
-    value = Delay.from(current, value, time_context)
-    
-    set_parameter(parameter, value)
+    if parameter.is_a?(ParameterInstance)
+      return apply_parameter(parameter, value, time_context)
+    elsif parameter.is_a?(GroupParameter)
+      return apply_group(parameter, value, time_context)
+    end
+
+    raise RuntimeError.new("Unhandled parameter type: #{parameter}")
   end
 
   def to_s
@@ -61,6 +64,45 @@ class Fixture
 
   private
 
+  def apply_parameter(instance, value, time_context)
+    current = instance.value
+
+    value = Fade.from(current, value, time_context)
+    value = Delay.from(current, value, time_context)
+
+    set_parameter(instance.parameter.id, value)
+  end
+
+  def apply_group(group, values, time_context)
+    raise RuntimeError.new("Expected a hash to apply to a group") unless values.is_a?(Hash)
+
+    if named_tuple_with_correct_arity(values, group)
+      return values.each do |parameter, value|
+        instance = get_parameter(parameter.to_s)
+        apply_parameter(instance, value, time_context)
+      end
+    elsif anonymous_tuple_with_correct_arity(values, group)
+      return group.children.each_with_index do |parameter, index|
+        instance = get_parameter(parameter.to_s)
+        apply_parameter(instance, values[:"_#{index}"], time_context)
+      end
+    end
+
+    raise RuntimeError.new("Provided tuple has the wrong keys / values")
+  end
+
+  def named_tuple_with_correct_arity(values, group)
+    values.keys == group.children
+  end
+
+  def anonymous_tuple_with_correct_arity(values, group)
+    unless values.all? { |k, _| k.to_s.start_with?("_") }
+      raise RuntimeError.new("Do not mix anonymous tuple with keyed tuple")
+    end
+
+    values.keys.length == group.children.length
+  end
+
   def set_parameter(parameter, value)
     raise RuntimeError.new("Parameter #{parameter} not valid for fixture #{id}") unless @params.key?(parameter)
 
@@ -68,13 +110,19 @@ class Fixture
   end
 
   def get_parameter(parameter)
-    raise RuntimeError.new("Parameter #{parameter} not valid for fixture #{id}") unless @params.key?(parameter)
+    groups = self.class.instance_variable_get(:@groups)
 
-    @params[parameter].value
+    if @params.key?(parameter)
+      return @params[parameter]
+    elsif groups.key?(parameter)
+      return groups[parameter]
+    end
+
+    raise RuntimeError.new("Parameter #{parameter} not valid for fixture #{id}")
   end
 
   def debug_params
-    @params.map { |param, _| "#{param}:#{get_parameter(param)}"}.join(" ")
+    @params.map { |param, _| "#{param}:#{get_parameter(param).value}"}.join(" ")
   end
 end
 

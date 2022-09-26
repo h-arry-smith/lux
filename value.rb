@@ -12,7 +12,6 @@ class StaticValue < Value
   attr_reader :value
 
   def initialize(value)
-    super()
     @value = value
   end
 
@@ -30,5 +29,19 @@ class StaticValue < Value
 
   def to_s
     "StaticValue(#{@value})"
+  end
+end
+
+class ValueTuple < Value
+  def initialize(values)
+    @values = values
+  end
+
+  def get
+    return @values
+  end
+
+  def to_s
+    "Tuple { #{@values} }"
   end
 end

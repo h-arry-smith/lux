@@ -4,6 +4,7 @@ AST = {
   Range: [:start, :end],
   Selector: [:selector],
   Selection: [:selector, :block],
+  Tuple: [:values],
   Time: [:keyword, :value],
   TimeBlock: [:time, :block],
   Value: [:value]

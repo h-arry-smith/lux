@@ -16,6 +16,7 @@ class Interpreter
 
     # Temporary World
     6.times { |x| @world.add(Dimmer.new(x + 1)) }
+    6.times { |x| @world.add(MovingLight.new(x + 101)) }
     
     @selection_engine = SelectionEngine.new()
     @query_builder = QueryBuilder.new()
@@ -60,6 +61,7 @@ class Interpreter
 
   def visit_apply(expr)
     value = expr.value.map { |value| evaluate(value) }
+    value = value.map { |value| generate_value(value) }
 
     if value.length == 1
       value = value.first
@@ -73,6 +75,25 @@ class Interpreter
     end
 
     @world.fixtures.each { |fixture| fixture.apply(expr.parameter, value.get(), @world.time_context) }
+  end
+
+  def generate_value(value)
+    if value.is_a?(Numeric)
+      return StaticValue.new(value)
+    elsif value.is_a?(Range)
+      return ValueRange.new(value.first, value.last, @world.fixtures.length)
+    elsif value.is_a?(Hash)
+      value.each { |k, v| value[k] = generate_value(v) }
+      return ValueTuple.new(value)
+    end
+  end
+
+  def visit_tuple(expr)
+    tuple = {}
+
+    expr.values.each { |k, v| tuple[k] = evaluate(v) }
+
+    tuple
   end
 
   def visit_value(expr)

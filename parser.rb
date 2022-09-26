@@ -130,16 +130,41 @@ class Parser
     args = []
 
     until check(Token::SEMICOLON)
-      val = value
+      val = nil
 
-      if check(Token::ARROW)
-        val = range
+      if match(Token::LEFT_PAREN)
+        val = tuple
+      else
+        val = value
+
+        if check(Token::ARROW)
+          val = range
+        end
       end
 
       args << val
     end
 
     args
+  end
+
+  def tuple
+    literal = {}
+    index = 0
+
+    until check(Token::RIGHT_PAREN)
+      literal[:"_#{index}"] = value
+      index += 1
+
+      # all values end with comma unless this is the last one
+      unless check(Token::RIGHT_PAREN)
+        consume(Token::COMMA, "Values in tuple must be seperated by commas")
+      end
+    end
+
+    consume(Token::RIGHT_PAREN, "A tuple is closed by a right paren")
+
+    return Ast::Tuple.new(literal)
   end
 
   def value

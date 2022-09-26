@@ -25,6 +25,10 @@ class Lexer
   def scan_token
     c = advance
     case c
+    when '('
+      add_token(Token::LEFT_PAREN)
+    when ')'
+      add_token(Token::RIGHT_PAREN)
     when '['
       add_token(Token::LEFT_BRACKET)
     when ']'
@@ -39,6 +43,8 @@ class Lexer
       add_token(Token::SEMICOLON)
     when '@'
       add_token(Token::AT)
+    when ','
+      add_token(Token::COMMA)
     when '-'
       if peek == '>'
         advance
