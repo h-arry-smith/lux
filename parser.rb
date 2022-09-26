@@ -130,22 +130,26 @@ class Parser
     args = []
 
     until check(Token::SEMICOLON)
-      val = nil
-
-      if match(Token::LEFT_PAREN)
-        val = tuple
-      else
-        val = value
-
-        if check(Token::ARROW)
-          val = range
-        end
-      end
-
-      args << val
+      args << argument
     end
 
     args
+  end
+
+  def argument
+    val = nil
+
+    if match(Token::LEFT_PAREN)
+      val = tuple
+    else
+      val = value
+
+      if check(Token::ARROW)
+        val = range
+      end
+    end
+
+    return val
   end
 
   def tuple
@@ -153,8 +157,14 @@ class Parser
     index = 0
 
     until check(Token::RIGHT_PAREN)
-      literal[:"_#{index}"] = value
-      index += 1
+      if match(Token::IDENTIFIER)
+        id = previous.lexeme.to_sym
+        consume(Token::COLON, "Expected colon after identifier")
+        literal[id] = argument
+      elsif check(Token::NUMBER)
+        literal[:"_#{index}"] = argument
+        index += 1
+      end
 
       # all values end with comma unless this is the last one
       unless check(Token::RIGHT_PAREN)
@@ -162,7 +172,7 @@ class Parser
       end
     end
 
-    consume(Token::RIGHT_PAREN, "A tuple is closed by a right paren")
+    consume(Token::RIGHT_PAREN, "Tuple must be closed with ')'.")
 
     return Ast::Tuple.new(literal)
   end

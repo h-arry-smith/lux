@@ -65,11 +65,6 @@ class Interpreter
 
     if value.length == 1
       value = value.first
-      if value.is_a?(Numeric)
-        value = StaticValue.new(value)
-      elsif value.is_a?(Range)
-        value = ValueRange.new(value.first, value.last, @world.fixtures.length)
-      end
     else
       value = ValueSequence.new(value)
     end
