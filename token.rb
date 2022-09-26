@@ -11,7 +11,7 @@ class Token
   define :RIGHT_BRACKET, 'RIGHT_BRACKET'
   define :COMMA, 'COMMA'
   # define :DOT, 'DOT'
-  # define :MINUS, 'MINUS'
+  define :MINUS, 'MINUS'
   # define :PLUS, 'PLUS'
   define :SEMICOLON, 'SEMICOLON'
   define :SLASH, 'SLASH'

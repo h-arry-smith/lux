@@ -49,6 +49,8 @@ class Lexer
       if peek == '>'
         advance
         add_token(Token::ARROW)
+      elsif digit?(peek)
+        number
       end
     when '/'
       if peek == '/'
@@ -78,7 +80,7 @@ class Lexer
     end
   end
 
-  def number
+  def number()
     advance while digit?(peek)
 
     if peek == "." && digit?(peek_next)
