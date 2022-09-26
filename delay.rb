@@ -19,6 +19,7 @@ class Delay < Value
   end
 
   def self.from(current, target, time_context)
+    return current if target.nil?
     return target unless time_context.any_delay?
 
     if time_context.dup && target.value > current.value

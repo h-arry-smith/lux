@@ -10,7 +10,7 @@ class ValueSequence < Value
     current_value = @values[@current]
     next_value
 
-    current_value.get
+    current_value&.get
   end
 
   private

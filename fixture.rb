@@ -74,17 +74,18 @@ class Fixture
   end
 
   def apply_group(group, values, time_context)
+    return if values.nil?
     raise RuntimeError.new("Expected a hash to apply to a group") unless values.is_a?(Hash)
 
     if named_tuple_with_correct_arity(values, group)
       return values.each do |parameter, value|
         instance = get_parameter(parameter.to_s)
-        apply_parameter(instance, value.get(), time_context)
+        apply_parameter(instance, value&.get(), time_context)
       end
     elsif anonymous_tuple_with_correct_arity(values, group)
       return group.children.each_with_index do |parameter, index|
         instance = get_parameter(parameter.to_s)
-        apply_parameter(instance, values[:"_#{index}"].get(), time_context)
+        apply_parameter(instance, values[:"_#{index}"]&.get(), time_context)
       end
     end
 

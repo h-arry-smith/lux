@@ -139,7 +139,9 @@ class Parser
   def argument
     val = nil
 
-    if match(Token::LEFT_PAREN)
+    if match(Token::UNDERSCORE)
+      val = Ast::Value.new(nil)
+    elsif match(Token::LEFT_PAREN)
       val = tuple
     else
       val = value
@@ -161,7 +163,7 @@ class Parser
         id = previous.lexeme.to_sym
         consume(Token::COLON, "Expected colon after identifier")
         literal[id] = argument
-      elsif check(Token::NUMBER)
+      elsif check(Token::NUMBER) || check(Token::UNDERSCORE)
         literal[:"_#{index}"] = argument
         index += 1
       end

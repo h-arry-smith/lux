@@ -19,6 +19,7 @@ class Token
   define :COLON, 'COLON'
   define :AT, 'AT'
   define :SECONDS, 'SECONDS'
+  define :UNDERSCORE, 'UNDERSCORE'
 
   # One or two character tokens
   # define :BANG, 'BANG'

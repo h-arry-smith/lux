@@ -45,6 +45,12 @@ class Lexer
       add_token(Token::AT)
     when ','
       add_token(Token::COMMA)
+    when '_'
+      if !alphanumeric?(peek) 
+        add_token(Token::UNDERSCORE)
+      else
+        identifier
+      end
     when '-'
       if peek == '>'
         advance
