@@ -9,3 +9,7 @@
 [104->106] {
   position: (_, 1->3) @fade 3s;
 }
+
+[1->6] {
+ intensity: 0 _ 20 @fade 3s;
+}

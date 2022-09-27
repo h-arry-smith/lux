@@ -7,7 +7,7 @@ class ValueRange < Value
     @total = total - 1
 
     @current = 0
-    @step = ((finish-start) / total)
+    @step = ((finish-start) / @total)
   end
 
   def get
