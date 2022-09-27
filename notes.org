@@ -177,7 +177,7 @@ It would be useful to start building a live coding environment for this project.
   arguments -> argument argument*
   argument -> range | value | tuple
 
-  tuple -> "(" (parameter? argument ",")* ")"
+  tuple -> "("," argument ")"
   range -> NUMBER "->" NUMBER
   value -> NUMBER
   identifier -> ALPHANUMERIC+ ( "_" | ALPHANUMERIC )*

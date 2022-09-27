@@ -105,11 +105,16 @@ class Parser
   def apply
     param = parameter
 
-    val = arguments
+    val, times = arguments
 
     consume(Token::SEMICOLON, "Expected semicolon after apply")
 
-    return Ast::Apply.new(param, val)
+    if times.empty?
+      return Ast::Apply.new(param, val)
+    else
+      block = Ast::Block.new([Ast::Apply.new(param, val)])
+      return Ast::TimeBlock.new(times, block)
+    end
   end
 
   def parameter
@@ -128,12 +133,17 @@ class Parser
 
   def arguments
     args = []
+    times = []
 
     until check(Token::SEMICOLON)
-      args << argument
+      if check(Token::AT)
+        times.concat(time)
+      else
+        args << argument
+      end
     end
 
-    args
+    [args, times]
   end
 
   def argument
