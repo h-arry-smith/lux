@@ -24,7 +24,7 @@ class Fade < Value
 
   def self.from(current, target, time_context)
     return target unless time_context.any_fade?
-    return current if target.nil? || current.value == target.value
+    target = current if target.nil?
 
     if time_context.fade_up && target > current
       return Fade.new(current, target, time_context.fade_up)

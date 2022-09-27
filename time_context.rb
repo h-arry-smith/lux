@@ -64,18 +64,14 @@ class TimeContext
       time = instance_variable_get("@#{keyword}")
     end
 
-    if time.nil? || time == 0
-      return nil
-    else
-      return time
-    end
+    time
   end
 
   def any_delay?
-    delay || dup || ddown
+    delay&.>(0) || dup&.>(0) || ddown&.>(0)
   end
 
   def any_fade?
-    fade || fade_up || fade_down
+    fade&.>(0) || fade_up&.>(0) || fade_down&.>(0)
   end
 end
