@@ -69,8 +69,8 @@ class Interpreter
   end
 
   def visit_apply(expr)
-    value = expr.value.map { |value| evaluate(value) }
-    value = value.map { |value| generate_value(value) }
+    value = expr.value.map { |val| evaluate(val) }
+    value = value.map { |val| generate_value(val) }
 
     if value.length == 1
       value = value.first
@@ -78,19 +78,19 @@ class Interpreter
       value = ValueSequence.new(value)
     end
 
-    @world.fixtures.each { |fixture| fixture.apply(expr.parameter, value.get(), @world.time_context) }
+    @world.fixtures.each { |fixture| fixture.apply(expr.parameter, value.get, @world.time_context) }
   end
 
   def generate_value(value)
-    if value.is_a?(Numeric)
-      return StaticValue.new(value)
-    elsif value.is_a?(Range)
-      return ValueRange.new(value.first, value.last, @world.fixtures.length)
-    elsif value.is_a?(Hash)
-      value.each { |k, v| value[k] = generate_value(v) }
-      return ValueTuple.new(value)
-    elsif value.is_a?(Value)
-      return value
+    case value
+    when Numeric
+      StaticValue.new(value)
+    when Range
+      ValueRange.new(value.first, value.last, @world.fixtures.length)
+    when Hash
+      ValueTuple.new(value)
+    when Value
+      value
     end
   end
 
