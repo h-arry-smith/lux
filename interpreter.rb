@@ -6,6 +6,7 @@ require_relative "value"
 require_relative "value_range"
 require_relative "value_sequence"
 require_relative "query_builder"
+require_relative "function_registry"
 
 class Interpreter
   attr_reader :world
@@ -20,6 +21,7 @@ class Interpreter
     
     @selection_engine = SelectionEngine.new()
     @query_builder = QueryBuilder.new()
+    @functions = FunctionRegister
   end
 
   def visit_selection(expr)
@@ -51,6 +53,13 @@ class Interpreter
     end
   end
 
+  def visit_call(expr)
+    args = expr.arguments.map { |argument| evaluate(argument) }
+    args = args.map { |argument| generate_value(argument) }
+
+    @functions.get(expr.identifier).call(*args)
+  end
+
   def visit_selector(expr)
     evaluate(expr.selector)
   end
@@ -80,6 +89,8 @@ class Interpreter
     elsif value.is_a?(Hash)
       value.each { |k, v| value[k] = generate_value(v) }
       return ValueTuple.new(value)
+    elsif value.is_a?(Value)
+      return value
     end
   end
 

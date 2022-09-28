@@ -151,6 +151,8 @@ class Parser
 
     if match(Token::UNDERSCORE)
       val = Ast::Value.new(nil)
+    elsif match(Token::IDENTIFIER)
+      val = call
     elsif match(Token::LEFT_PAREN)
       val = tuple
     else
@@ -162,6 +164,25 @@ class Parser
     end
 
     return val
+  end
+
+  def call
+    id = previous.lexeme
+    args = []
+
+    consume(Token::LEFT_PAREN, "Call must start with '('.")
+
+    until check(Token::RIGHT_PAREN)
+      args << argument
+
+      unless check(Token::RIGHT_PAREN)
+        consume(Token::COMMA, "Arguments must be seperated by a comma")
+      end
+    end
+
+    consume(Token::RIGHT_PAREN, "Function call must be closed with ')'")
+
+    return Ast::Call.new(id, args)
   end
 
   def tuple

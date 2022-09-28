@@ -1,6 +1,7 @@
 AST = {
   Apply: [:parameter, :value],
   Block: [:statements],
+  Call: [:identifier, :arguments],
   Range: [:start, :end],
   Selector: [:selector],
   Selection: [:selector, :block],

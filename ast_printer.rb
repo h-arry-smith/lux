@@ -55,6 +55,16 @@ class AstPrinter
     print_with_indent("}")
   end
 
+  def visit_call(node)
+    print_with_indent("CALL #{node.identifier}")
+    indent
+    node.arguments.each_with_index do |arg, index|
+      print_with_indent "ARG #{index}"
+      self.print(arg)
+    end
+    dedent
+  end
+
   def visit_value(node)
     print_with_indent("VALUE #{node.value}")
   end
