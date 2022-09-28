@@ -2,6 +2,7 @@ require_relative "value"
 require_relative "fade"
 require_relative "delay"
 require_relative "parameter"
+require_relative "color_space"
 
 module FixtureApi
   def self.included(base)
@@ -23,6 +24,13 @@ module FixtureApi
       @current_group = @groups[group_parameter.to_s]
       yield
       @current_group = nil
+    end
+
+    def color(color_space)
+      @color_space = color_space
+      group :color do
+        ColorSpace.value(color_space).each { |color| param(color) }
+      end
     end
   end
 end
@@ -69,6 +77,10 @@ class Fixture
 
   def fixture_groups
     self.class.instance_variable_get(:@groups)
+  end
+
+  def fixture_color_space
+    self.class.instance_variable_get(:@color_space)
   end
 
   def apply_parameter(instance, value, time_context)
@@ -143,4 +155,6 @@ class MovingLight < Fixture
     param :pan
     param :tilt
   end
+
+  color :rgb
 end
