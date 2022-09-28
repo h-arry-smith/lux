@@ -56,13 +56,20 @@ class Fixture
   end
 
   def initialize_parameters
-    params = self.class.instance_variable_get(:@params)
-    params.each do |symbol, parameter|
+    fixture_params.each do |symbol, parameter|
       @params[symbol] = ParameterInstance.new(parameter)
     end
   end
 
   private
+
+  def fixture_params
+    self.class.instance_variable_get(:@params)
+  end
+
+  def fixture_groups
+    self.class.instance_variable_get(:@groups)
+  end
 
   def apply_parameter(instance, value, time_context)
     current = instance.value
@@ -111,12 +118,11 @@ class Fixture
   end
 
   def get_parameter(parameter)
-    groups = self.class.instance_variable_get(:@groups)
 
     if @params.key?(parameter)
       return @params[parameter]
-    elsif groups.key?(parameter)
-      return groups[parameter]
+    elsif fixture_groups.key?(parameter)
+      return fixture_groups[parameter]
     end
 
     raise RuntimeError.new("Parameter #{parameter} not valid for fixture #{id}")

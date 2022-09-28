@@ -80,6 +80,7 @@ At some point it must handle the fact that fixture params will have min and maxs
 The interpreter must manage a stack of time information as blocks are entered and left, with any value creation refrencing the time information inline -> then to the parent
 
 * Color and Position
+** Position
 You should be able to talk multi-paramter contexts using a variety syntaxes.
 
 The first step in supporting this will be to support a tuple like structure that can both be named
@@ -145,6 +146,61 @@ When an unnamed tuple is passed to a group virtual parameter it is expanded into
   }
 #+end_src
 
+** Color
+In principle colour is a simple as the following:
+#+begin_src ruby
+  class MovingLight < Fixture
+    param :intensity
+    group :position do
+      param :pan
+      param :tilt
+    end
+
+    color :rgb # initial support :rgb :cmy
+    # is really:
+    # color_space :rgb
+    # group :color
+    #   param :red
+    #   param :green
+    #   param :blue
+    # end
+  end
+#+end_src
+
+And then we talk to the fixture using the tuple functionality already developed, basically giving the basics of this for free..
+
+#+begin_src
+  [101] {
+    color: (100, 0, 0); // Full red for example
+  }
+
+  [102] {
+    color: (red: 100, green: 100, blue: 0); // Yellow
+  }
+
+  [103] {
+    color: (_, _, 25); // Partial application
+  }
+#+end_src
+
+But what we really want to be able to do is translate between colourspaces, for example rgb vs rgba vs cmy
+
+#+begin_src
+  [101] {
+    color: (cyan: 100, magenta: 0, yellow: 0) // This auto converts to RGB at application
+  }
+#+end_src
+
+This is because a user should be able to use whatever colourspace they want and it should work.
+
+The next step is that we want to be able to use syntax like the following, which is the beginning of allowing functions that return values.
+
+#+begin_src
+  [101] {
+    color: rgb(100, 0, 0) rgb(0, 100, 0) // returns a call node with a function identifier and argument list
+                                         // which interpreter runs returning a ValueTuple(red: 100, ...)
+  }
+#+end_src
 * Live Coding Environment
 It would be useful to start building a live coding environment for this project. For a couple of reasons:
 - IDE environment to help with writing Lux code
