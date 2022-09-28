@@ -96,12 +96,16 @@ class Fixture
     return if values.nil?
     raise RuntimeError.new("Expected a hash to apply to a group") unless values.is_a?(Hash)
 
-    if named_tuple_with_correct_arity(values, group)
+    if group.id == "color" && named_tuple?(values)
+      values = ColorSpace.convert(values, fixture_color_space)
+    end
+
+    if named_tuple_with_correct_arity?(values, group)
       return values.each do |parameter, value|
         instance = get_parameter(parameter.to_s)
         apply_parameter(instance, value&.get(), time_context)
       end
-    elsif anonymous_tuple_with_correct_arity(values, group)
+    elsif anonymous_tuple_with_correct_arity?(values, group)
       return group.children.each_with_index do |parameter, index|
         instance = get_parameter(parameter.to_s)
         apply_parameter(instance, values[:"_#{index}"]&.get(), time_context)
@@ -111,11 +115,15 @@ class Fixture
     raise RuntimeError.new("Provided tuple has the wrong keys / values")
   end
 
-  def named_tuple_with_correct_arity(values, group)
+  def named_tuple?(values)
+    values.all? { |k, _| !k.to_s.start_with?("_") }
+  end
+
+  def named_tuple_with_correct_arity?(values, group)
     values.keys == group.children
   end
 
-  def anonymous_tuple_with_correct_arity(values, group)
+  def anonymous_tuple_with_correct_arity?(values, group)
     unless values.all? { |k, _| k.to_s.start_with?("_") }
       raise RuntimeError.new("Do not mix anonymous tuple with keyed tuple")
     end

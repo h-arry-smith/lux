@@ -97,7 +97,7 @@ class Interpreter
   def visit_tuple(expr)
     tuple = {}
 
-    expr.values.each { |k, v| tuple[k] = evaluate(v) }
+    expr.values.each { |k, v| tuple[k] = generate_value(evaluate(v)) }
 
     tuple
   end
