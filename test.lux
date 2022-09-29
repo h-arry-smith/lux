@@ -1,10 +1,5 @@
-#red { color: rgb(100, 0, 0); }
-#green { color: rgb(0, 100, 0); }
-#blue { color: rgb(0, 0, 100); }
-
-#front_wash { position: (10, 10); }
-
-[101->106] {
-  color: #red #green #blue; // alternate between the three
-  color: #front_wash; // does nothing
+#low { intensity: 10; }
+#high { intensity: 100; }
+[1->6] {
+  intensity: #low->#high;
 }

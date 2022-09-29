@@ -165,10 +165,13 @@ class Parser
     elsif match(Token::LEFT_PAREN)
       val = tuple
     else
+      p "getting value #{peek}"
       val = value
+      p val
 
       if check(Token::ARROW)
-        val = range
+        p "getting a range #{peek}"
+        val = range(val)
       end
     end
 
@@ -223,6 +226,7 @@ class Parser
     if match(Token::NUMBER)
       return Ast::Value.new(previous.literal)
     elsif match(Token::HASH)
+      p "getting var #{peek}"
       return variable
     end
 
@@ -245,7 +249,7 @@ class Parser
       select = Ast::Selector.new(first)
 
       if check(Token::ARROW)
-        select =  Ast::Selector.new(range)
+        select =  Ast::Selector.new(range(first))
       end
 
       consume(Token::RIGHT_BRACKET, "Expect ']' to end selector")
@@ -255,16 +259,12 @@ class Parser
     error(peek, "Expected valid selector")
   end
 
-  def range
-    first = previous.literal
-
+  def range(first)
     consume(Token::ARROW, "Expect -> for range.")
 
-    if match(Token::NUMBER)
-      return Ast::Range.new(first, previous.literal)
-    end
+    return Ast::Range.new(first, value)
 
-    error(peek, "Expected a end number for range.")
+    error(peek, "Expected ending value for a range")
   end
 
   def match(*types)

@@ -118,7 +118,16 @@ class Interpreter
   end
 
   def visit_range(expr)
-    (expr.start..expr.end)
+    start = evaluate(expr.start)
+    finish = evaluate(expr.end)
+
+    # If you try to range between multiple values that will fallback to
+    # taking the first value in the sequence, because this behaviour is
+    # unusual and not really supported.
+    start = start.first if start.is_a? Array
+    finish = finish.first if finish.is_a? Array
+    
+    (start..finish)
   end
 
   def visit_vardefine(expr)
