@@ -22,15 +22,12 @@ class Parser
   end
 
   def expression_statement
-    return statement if !check(Token::IDENTIFIER)
-    return expression
-  end
-
-  def expression
+    return statement unless check(Token::IDENTIFIER)
     apply
   end
 
   def statement
+    return block if match(Token::LEFT_BRACE)
     return selection if check(Token::LEFT_BRACKET)
     return timer if check(Token::AT)
   end
@@ -91,6 +88,7 @@ class Parser
   end
 
   def block
+    puts "inside block", peek
     statements = []
 
     while !check(Token::RIGHT_BRACE) && !at_end?

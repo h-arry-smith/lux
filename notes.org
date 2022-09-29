@@ -201,6 +201,48 @@ The next step is that we want to be able to use syntax like the following, which
                                          // which interpreter runs returning a ValueTuple(red: 100, ...)
   }
 #+end_src
+* Palletes
+It should obviously be possible to store information as referential data, like palletes in desk. To support this, we need to be able to execute a block inside a selection already, so this code should work
+#+begin_src
+  [101->106] {
+    {
+      position: (10, 10);
+    }
+
+    color: rgb(100, 0, 0);
+  }
+#+end_src
+
+This should allow the following syntax to be applicable then, which is referred to as global application - literally inserting the block into the selection.
+
+#+begin_src
+  #front {
+    position: (10, 10);
+  }
+
+  #red {
+    color: rgb(100, 0, 0);
+  }
+
+  [101->106] {
+    #front;
+    #red;
+  }
+#+end_src
+
+It should also be possible to do partial application, which will resolve just that paramater from the block, to support this we need to be able to ask a variable for only that parameter, or give context to the intepretation of a block that it is being filtered for only say :color, etc.
+
+#+begin_src
+  #red { color: rgb(100, 0, 0); }
+  #green { color: rgb(0, 100, 0); }
+  #blue { color: rgb(0, 0, 100); }
+
+  [101->106] {
+    color: #red #green #blue; // alternate between the three
+  }
+#+end_src
+
+All palletes are declared globally, in the top level scope only.
 * Live Coding Environment
 It would be useful to start building a live coding environment for this project. For a couple of reasons:
 - IDE environment to help with writing Lux code
