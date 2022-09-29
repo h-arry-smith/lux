@@ -225,8 +225,8 @@ This should allow the following syntax to be applicable then, which is referred 
   }
 
   [101->106] {
-    #front;
-    #red;
+    #front
+    #red
   }
 #+end_src
 

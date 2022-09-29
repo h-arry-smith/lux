@@ -8,7 +8,9 @@ AST = {
   Tuple: [:values],
   Time: [:keyword, :value],
   TimeBlock: [:time, :block],
-  Value: [:value]
+  Value: [:value],
+  VarDefine: [:identifier, :block],
+  VarFetch: [:identifier]
 }
 
 module Ast

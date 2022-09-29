@@ -20,6 +20,7 @@ class Token
   define :AT, 'AT'
   define :SECONDS, 'SECONDS'
   define :UNDERSCORE, 'UNDERSCORE'
+  define :HASH, 'HASH'
 
   # One or two character tokens
   # define :BANG, 'BANG'

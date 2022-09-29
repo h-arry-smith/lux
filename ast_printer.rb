@@ -85,6 +85,17 @@ class AstPrinter
     print_with_indent("TIME #{node.keyword} #{node.value}")
   end
 
+  def visit_vardefine(node)
+    print_with_indent("VARDEFINE #{node.identifier}")
+    indent
+    self.print(node.block)
+    dedent
+  end
+
+  def visit_varfetch(node)
+    print_with_indent("VARFETCH #{node.identifier}")
+  end
+
   private
 
   def print(node)

@@ -22,14 +22,26 @@ class Parser
   end
 
   def expression_statement
+    return variable if match(Token::HASH)
     return statement unless check(Token::IDENTIFIER)
     apply
   end
 
   def statement
+    return variable if match(Token::HASH)
     return block if match(Token::LEFT_BRACE)
     return selection if check(Token::LEFT_BRACKET)
     return timer if check(Token::AT)
+  end
+
+  def variable
+    id = identifier
+
+    if match(Token::LEFT_BRACE)
+      return Ast::VarDefine.new(id, block)
+    else
+      return Ast::VarFetch.new(id)
+    end
   end
 
   def timer
@@ -88,7 +100,6 @@ class Parser
   end
 
   def block
-    puts "inside block", peek
     statements = []
 
     while !check(Token::RIGHT_BRACE) && !at_end?
@@ -211,6 +222,8 @@ class Parser
   def value
     if match(Token::NUMBER)
       return Ast::Value.new(previous.literal)
+    elsif match(Token::HASH)
+      return variable
     end
 
     error(peek, "Expected a valid value")

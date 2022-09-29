@@ -1,4 +1,5 @@
 require_relative "fixture"
+require_relative "ast"
 require_relative "world"
 require_relative "selection_engine"
 require_relative "time_context"
@@ -14,6 +15,7 @@ class Interpreter
   def initialize(ast)
     @ast = ast
     @world = World.new()
+    @current_param = nil
 
     # Temporary World
     6.times { |x| @world.add(Dimmer.new(x + 1)) }
@@ -22,6 +24,7 @@ class Interpreter
     @selection_engine = SelectionEngine.new()
     @query_builder = QueryBuilder.new()
     @functions = FunctionRegister
+    @globals = {}
   end
 
   def visit_selection(expr)
@@ -69,8 +72,9 @@ class Interpreter
   end
 
   def visit_apply(expr)
+    @current_param = expr.parameter
     value = expr.value.map { |val| evaluate(val) }
-    value = value.map { |val| generate_value(val) }
+    value = value.flat_map { |val| generate_value(val, expr.parameter) }
 
     if value.length == 1
       value = value.first
@@ -78,10 +82,11 @@ class Interpreter
       value = ValueSequence.new(value)
     end
 
-    @world.fixtures.each { |fixture| fixture.apply(expr.parameter, value.get, @world.time_context) }
+    @world.fixtures.each { |fixture| fixture.apply(expr.parameter, value&.get, @world.time_context) }
+    @current_param = nil
   end
 
-  def generate_value(value)
+  def generate_value(value, parameter = nil)
     case value
     when Numeric
       StaticValue.new(value)
@@ -89,8 +94,14 @@ class Interpreter
       ValueRange.new(value.first, value.last, @world.fixtures.length)
     when Hash
       ValueTuple.new(value)
-    when Value
+    else
       value
+    end
+  end
+
+  def get_from_block(block, parameter)
+    block.statements.filter do |statement|
+      statement.is_a?(Ast::Apply) && statement.parameter == parameter
     end
   end
 
@@ -110,6 +121,18 @@ class Interpreter
     (expr.start..expr.end)
   end
 
+  def visit_vardefine(expr)
+    @globals[expr.identifier] = expr.block
+  end
+
+  def visit_varfetch(expr)
+    if @current_param
+      get_value_from_block(@globals[expr.identifier], @current_param)
+    else
+      evaluate(@globals[expr.identifier])
+    end
+  end
+
   def interpret
     @ast.each { |statement| evaluate(statement) }
   end
@@ -118,6 +141,14 @@ class Interpreter
 
   def evaluate(expr)
     expr.accept(self)
+  end
+
+  def get_value_from_block(block, parameter)
+    statement = block.statements.find do |statement|
+      statement.is_a?(Ast::Apply) && statement.parameter == parameter
+    end
+
+    statement.value.map { |val| evaluate(val) } unless statement.nil?
   end
 
   def select_fixtures(query)
