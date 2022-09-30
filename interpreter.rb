@@ -18,8 +18,8 @@ class Interpreter
     @current_param = nil
 
     # Temporary World
-    6.times { |x| @world.add(Dimmer.new(x + 1)) }
-    6.times { |x| @world.add(MovingLight.new(x + 101)) }
+    6.times { |x| @world.add(Dimmer.new(x + 1, 1, 1 + x)) }
+    # 6.times { |x| @world.add(MovingLight.new(x + 101)) }
     
     @selection_engine = SelectionEngine.new()
     @query_builder = QueryBuilder.new()

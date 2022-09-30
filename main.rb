@@ -1,9 +1,10 @@
 require_relative "lux"
 
 DEBUG_FLAGS = {
-  token: true,
+  token: false,
   ast: true,
-  lx_state: true
+  lx_state: true,
+  dump_universe: true
 }
 
 lux = Lux.new(DEBUG_FLAGS)
@@ -18,12 +19,14 @@ if ARGV.empty?
 
     break if input == ".exit"
 
-    lux.run(input)
+    lux.evaluate(input)
   end
 end
 
 if ARGV.length == 1
   input = File.read(ARGV[0])
 
-  lux.run(input)
+  world = lux.evaluate(input)
+
+  lux.run(world)
 end

@@ -273,7 +273,7 @@ The lighting engine takes the evaluated world state and runs it with a time vari
 4. If not, create the required universe and then do it
 
 ** Implementation Strategy
-- [ ] Get the auto dmx offset working in the fixture DSL
+- [x] Get the auto dmx offset working in the fixture DSL
 - [ ] Get this working for a simple dimmer rig, with debug output and the likes
 - [ ] Get this working for the current moving light
 - [ ] Add min, max and fine to the DSL

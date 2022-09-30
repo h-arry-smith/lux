@@ -3,6 +3,10 @@ class Value
     raise NotImplementedError
   end
 
+  def run(_time)
+    raise NotImplementedError
+  end
+
   def to_s
     "Value"
   end
@@ -17,6 +21,10 @@ class StaticValue < Value
 
   def get
     self
+  end
+
+  def run(_time)
+    @value
   end
 
   def >(other)

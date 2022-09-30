@@ -52,10 +52,12 @@ end
 class Fixture
   include FixtureApi
 
-  attr_reader :id, :params
+  attr_reader :id, :params, :universe, :address
 
-  def initialize(id)
+  def initialize(id, universe, address)
     @id = id
+    @universe = universe
+    @address = address
     @params = {}
 
     initialize_parameters
@@ -71,6 +73,17 @@ class Fixture
     end
 
     raise RuntimeError.new("Unhandled parameter type: #{parameter}")
+  end
+
+  def run(time)
+    data = Array.new(fixture_footprint, 0)
+
+    @params.values.each do |parameter|
+      dmx_value = parameter.run(time)
+      data[parameter.offset] = dmx_value
+    end
+
+    data
   end
 
   def to_s

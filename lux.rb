@@ -2,13 +2,22 @@ require_relative "ast_printer"
 require_relative "interpreter"
 require_relative "lexer"
 require_relative "parser"
+require_relative "lighting_engine"
 
 class Lux
   def initialize(debug_flags)
     @debug_flags = debug_flags
+    @lighting_engine = LightingEngine.new()
   end
 
-  def run(input)
+  def run(world)
+    @lighting_engine.run(world)
+    if @debug_flags[:dump_universe]
+      @lighting_engine.dump_universes
+    end
+  end
+
+  def evaluate(input)
     lexer = Lexer.new(input)
     lexer.scan_tokens
 
@@ -36,5 +45,7 @@ class Lux
       puts "# LIGHTING STATE #"
       interpreter.world.fixtures.each { |fixture| puts fixture }
     end
+
+    return interpreter.world
   end
 end
