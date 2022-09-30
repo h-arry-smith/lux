@@ -24,7 +24,7 @@ class StaticValue < Value
   end
 
   def run(_time)
-    @value
+    rand(@value)
   end
 
   def >(other)

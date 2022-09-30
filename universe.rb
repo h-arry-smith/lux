@@ -1,4 +1,6 @@
 class Universe
+  attr_reader :number, :data
+
   def initialize(number)
     @number = number
     @data = Array.new(512, 0)

@@ -1,6 +1,8 @@
 require_relative "universe"
 
 class LightingEngine
+  attr_reader :universes
+
   def initialize
     @universes = []
   end
@@ -26,7 +28,7 @@ class LightingEngine
     universe = universe - 1
     
     if @universes[universe].nil?
-      @universes[universe] = Universe.new(universe)
+      @universes[universe] = Universe.new(universe + 1)
     end
 
     @universes[universe]

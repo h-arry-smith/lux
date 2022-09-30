@@ -1,11 +1,15 @@
 require_relative "lux"
+require_relative "lib/sacn"
 
 DEBUG_FLAGS = {
   token: false,
   ast: true,
   lx_state: true,
-  dump_universe: true
+  dump_universe: false,
+  broadcast: true
 }
+
+IP = "127.0.0.1"
 
 lux = Lux.new(DEBUG_FLAGS)
 
@@ -28,5 +32,21 @@ if ARGV.length == 1
 
   world = lux.evaluate(input)
 
-  lux.run(world)
+  engine = lux.run(world)
+
+  if DEBUG_FLAGS[:broadcast]
+    puts "Broadcasting on #{IP}"
+    server = SACN::Server.new(IP, "Lux")
+    server.connect()
+
+    loop do
+      engine.universes.each do |universe|
+        packet = SACN::DataPacket.new(server, universe.data, universe.number)
+        server.send(packet)
+      end
+
+      sleep(1 / 20.0)
+      engine = lux.run(world)
+    end
+  end
 end

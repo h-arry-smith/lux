@@ -15,6 +15,10 @@ class Lux
     if @debug_flags[:dump_universe]
       @lighting_engine.dump_universes
     end
+
+    # Temporary, one day there will be a real event loop with UI but for now
+    # we just want to get at the engine so we can broadcast it's universes
+    @lighting_engine
   end
 
   def evaluate(input)

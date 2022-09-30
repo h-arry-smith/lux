@@ -330,3 +330,5 @@ It would be useful to start building a live coding environment for this project.
 - Effects Standard Library
 - DMX Value Literal
 - Gobo & Color Wheel & Special Modes DSL w/ 'local' variables for assigning
+- Proper Event Loop w edit UI, code running and executing and editing - aka a real usable experience
+  fun idea: curses??
