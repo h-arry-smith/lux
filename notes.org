@@ -243,6 +243,41 @@ It should also be possible to do partial application, which will resolve just th
 #+end_src
 
 All palletes are declared globally, in the top level scope only.
+* LightingEngine World State -> Outputted DMX
+Given the current lighting state, we should be able to ask every fixture for it's DMX Values and then apply them to a universe of data. The first step to doing this is to give the fixture DSL the information it needs
+
+#+begin_src ruby
+  class MovingLight < Fixture
+    param :intensity, 1
+    group :position do
+      param :pan, 2, min: -270, max: 270, fine: true
+      param :tilt, 4, min: -123, max: 123, fine: true
+    end
+
+    color :rgb, 5
+  end
+#+end_src
+
+But it would also be nice, I suppose to omit those dmx offsets, if you define them in order it should be able to just tell what the correct offsets are.
+
+When a fixture is instantiated it should be instantiated with a universe and a address.
+
+The lighting engine takes the evaluated world state and runs it with a time variable that is always incrementing, for this first pass we will let it be static and ignore it. It works like this
+
+1. Loop through all the fixtures in the world state
+2. Ask each fixture for it's DMX Values
+   1. The value array is a 0 instantiated array until the max offset
+   2. The fixture asks each of its parameters to return a DMX value and inserts into the array
+   3. The parameter instance provides it's numeric percentage based value to the parameter which calcs a 0-255 range for it (or two if the param is fine)
+3. If the fixture universe exists in the universe index of the lighting engine insert the values
+4. If not, create the required universe and then do it
+
+** Implementation Strategy
+- [ ] Get the auto dmx offset working in the fixture DSL
+- [ ] Get this working for a simple dimmer rig, with debug output and the likes
+- [ ] Get this working for the current moving light
+- [ ] Add min, max and fine to the DSL
+- [ ] Give the lighting engine real time and eval delay and fades properly
 * Live Coding Environment
 It would be useful to start building a live coding environment for this project. For a couple of reasons:
 - IDE environment to help with writing Lux code
@@ -283,3 +318,15 @@ It would be useful to start building a live coding environment for this project.
   NUMBER -> NUMERIC ( "." NUMERIC+ )?
   NEW_LINE -> "\n"
 #+end_src
+
+* Future Work To Do
+- Palletes should have unit specific information, for example palletes for position are built up with speciifc information for each unit. This probably already works when doing general applicaiton, but will it for specific application?
+- Complex query language features, by tags, by lighting position and more - the more powerful the better
+- Group definitions
+- Fixture patching and definition statements
+- Fixture profiles
+- Cues & Cue Stacks
+- Faders & Executors
+- Effects Standard Library
+- DMX Value Literal
+- Gobo & Color Wheel & Special Modes DSL w/ 'local' variables for assigning

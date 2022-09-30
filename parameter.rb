@@ -13,9 +13,10 @@ class Parameter
   attr_reader :id, :default
   attr_accessor :value
 
-  def initialize(id, default)
+  def initialize(id, default, offset)
     @id = id
     @default = StaticValue.new(default)
+    @offset = offset
   end
 
   def to_s
