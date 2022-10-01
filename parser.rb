@@ -184,6 +184,9 @@ class Parser
     until check(Token::RIGHT_PAREN)
       args << argument
 
+      # discard any seconds we find in the arguments
+      match(Token::SECONDS)
+      
       unless check(Token::RIGHT_PAREN)
         consume(Token::COMMA, "Arguments must be seperated by a comma")
       end

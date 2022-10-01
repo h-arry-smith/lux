@@ -275,9 +275,9 @@ The lighting engine takes the evaluated world state and runs it with a time vari
 ** Implementation Strategy
 - [x] Get the auto dmx offset working in the fixture DSL
 - [x] Get this working for a simple dimmer rig, with debug output and the likes
-- [ ] Get this working for the current moving light
-- [ ] Add min, max and fine to the DSL
-- [ ] Give the lighting engine real time and eval delay and fades properly
+- [x] Get this working for the current moving light
+- [x] Add min, max and fine to the DSL
+- [x] Give the lighting engine real time and eval delay and fades properly
 * Live Coding Environment
 It would be useful to start building a live coding environment for this project. For a couple of reasons:
 - IDE environment to help with writing Lux code
