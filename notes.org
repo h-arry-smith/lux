@@ -274,7 +274,7 @@ The lighting engine takes the evaluated world state and runs it with a time vari
 
 ** Implementation Strategy
 - [x] Get the auto dmx offset working in the fixture DSL
-- [ ] Get this working for a simple dimmer rig, with debug output and the likes
+- [x] Get this working for a simple dimmer rig, with debug output and the likes
 - [ ] Get this working for the current moving light
 - [ ] Add min, max and fine to the DSL
 - [ ] Give the lighting engine real time and eval delay and fades properly
@@ -332,3 +332,4 @@ It would be useful to start building a live coding environment for this project.
 - Gobo & Color Wheel & Special Modes DSL w/ 'local' variables for assigning
 - Proper Event Loop w edit UI, code running and executing and editing - aka a real usable experience
   fun idea: curses??
+- You should be able to range @time directives

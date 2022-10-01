@@ -22,14 +22,24 @@ class Parameter
   attr_reader :id, :default, :offset
   attr_accessor :value
 
-  def initialize(id, default, offset)
+  def initialize(id, default, offset, min, max)
     @id = id
     @default = StaticValue.new(default)
     @offset = offset
+    @min = min
+    @max = max
   end
 
   def to_dmx(current_value)
-    ((current_value / 100.0) * 255).round
+    return 255 if current_value >= @max
+    return 0 if current_value <= @min
+
+    difference = @max - @min
+    relative_value = current_value - @min
+    factor = relative_value / difference
+    
+
+    (factor * 255).round
   end
 
   def to_s

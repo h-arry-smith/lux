@@ -19,7 +19,7 @@ class Interpreter
 
     # Temporary World
     6.times { |x| @world.add(Dimmer.new(x + 1, 1, 1 + x)) }
-    # 6.times { |x| @world.add(MovingLight.new(x + 101)) }
+    6.times { |x| @world.add(MovingLight.new(x + 101, 1, 101+(6*x))) }
     
     @selection_engine = SelectionEngine.new()
     @query_builder = QueryBuilder.new()

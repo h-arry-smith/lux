@@ -10,7 +10,7 @@ module FixtureApi
   end
 
   module ApiMethods
-    def param(parameter, default: 0, offset: nil)
+    def param(parameter, default: 0, offset: nil, min: 0, max: 100)
       @max_offset = 0 if @max_offset.nil?
       @current_offset = 0 if @current_offset.nil?
       @params = {} if @params.nil?
@@ -22,7 +22,7 @@ module FixtureApi
 
       @max_offset = offset if offset > @max_offset
 
-      @params[parameter.to_s] = Parameter.new(parameter.to_s, default, offset)
+      @params[parameter.to_s] = Parameter.new(parameter.to_s, default, offset, min, max)
       @current_group&.add_child_parameter(parameter)
     end
 
@@ -191,9 +191,9 @@ end
 class MovingLight < Fixture
   param :intensity
   group :position do
-    param :pan
-    param :tilt
+    param :pan, min: -270, max: 270
+    param :tilt, min: -123, max: 123
   end
 
-  color :rgb, offset: 10
+  color :rgb
 end
