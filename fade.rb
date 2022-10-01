@@ -40,6 +40,23 @@ class Fade < Value
   end
 
   def self.from(current, target, time_context)
+    if current.is_a?(ValueTuple) && target.is_a?(ValueTuple)
+      hash_with_fades = {}
+
+      puts "current: #{current}"
+
+      target.name_as(current) if target.anonymous_tuple?
+
+      puts "target: #{target}"
+
+      current.value.each do |parameter, current_value|
+        fade = self.from(current_value, target.value[parameter], time_context)
+        hash_with_fades[parameter] = fade
+      end
+
+      return ValueTuple.new(hash_with_fades)
+    end
+
     return target unless time_context.any_fade?
     target = current if target.nil?
 

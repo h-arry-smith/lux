@@ -45,11 +45,37 @@ class ValueTuple < Value
     @values = values
   end
 
+  def value
+    @values
+  end
+
   def get
-    return @values
+    ValueTuple.new(@values.transform_values { |v| v&.get })
+  end
+
+  def run(time)
+    @values 
   end
 
   def to_s
     "Tuple { #{@values} }"
+  end
+
+  def name_as(tuple)
+    index = 0
+    @values.transform_keys! do
+      key = tuple.value.keys[index]
+      index += 1
+      key
+    end
+    self
+  end
+
+  def named_tuple?
+    @values.all? { |k, _| !k.to_s.start_with?("_") }
+  end
+
+  def anonymous_tuple?
+    @values.all? { |k, _| k.to_s.start_with?("_") }
   end
 end

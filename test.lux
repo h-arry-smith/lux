@@ -1,3 +1,19 @@
-[1->6] {
-  intensity: sin(0, 100, 1s, 0->1);
+#red {
+  color: rgb(100, 0, 0);
+}
+
+#green {
+  color: rgb(0, 100, 0);
+}
+
+#blue {
+  color: rgb(0, 0, 100);
+}
+
+@delay 3s @fade 10s {
+  [101->106] {
+    intensity: 50 25 100 75;
+    position: (0->100, 100->0);
+    color: (_, 100, 100);
+  }
 }

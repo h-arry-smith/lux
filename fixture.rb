@@ -22,15 +22,19 @@ module FixtureApi
 
       @max_offset = offset if offset > @max_offset
 
-      @params[parameter.to_s] = Parameter.new(parameter.to_s, default, offset, min, max)
-      @current_group&.add_child_parameter(parameter)
+      if @current_group
+        @current_group[parameter.to_s] = Parameter.new(parameter.to_s, default, offset, min, max)
+      else
+        @params[parameter.to_s] = Parameter.new(parameter.to_s, default, offset, min, max)
+      end
     end
 
     def group(group_parameter)
-      @groups = {} if @groups.nil?
+      @params = {} if @params.nil?
+      @current_offset = 0 if @current_offset.nil?
 
-      @groups[group_parameter.to_s] = GroupParameter.new(group_parameter.to_s)
-      @current_group = @groups[group_parameter.to_s]
+      @params[group_parameter.to_s] = GroupParameter.new(group_parameter.to_s, @current_offset)
+      @current_group = @params[group_parameter.to_s]
       yield
       @current_group = nil
     end
@@ -66,13 +70,7 @@ class Fixture
   def apply(identifier, value, time_context)
     parameter = get_parameter(identifier)
 
-    if parameter.is_a?(ParameterInstance)
-      return apply_parameter(parameter, value, time_context)
-    elsif parameter.is_a?(GroupParameter)
-      return apply_group(parameter, value, time_context)
-    end
-
-    raise RuntimeError.new("Unhandled parameter type: #{parameter}")
+    parameter.apply(value, time_context)
   end
 
   def run(time)
@@ -80,7 +78,12 @@ class Fixture
 
     @params.values.each do |parameter|
       dmx_value = parameter.run(time)
-      data[parameter.offset] = dmx_value
+
+      if dmx_value.is_a?(Numeric)
+        data[parameter.offset] = dmx_value
+      elsif dmx_value.is_a?(Array)
+        data[parameter.offset..(dmx_value.length-1)] = dmx_value
+      end
     end
 
     data
@@ -92,7 +95,7 @@ class Fixture
 
   def initialize_parameters
     fixture_params.each do |symbol, parameter|
-      @params[symbol] = ParameterInstance.new(parameter)
+      @params[symbol] = parameter.instantiate()
     end
   end
 
@@ -112,15 +115,6 @@ class Fixture
 
   def fixture_footprint
     self.class.instance_variable_get(:@max_offset)
-  end
-
-  def apply_parameter(instance, value, time_context)
-    current = instance.value
-
-    value = Fade.from(current, value, time_context)
-    value = Delay.from(current, value, time_context)
-
-    set_parameter(instance.parameter.id, value)
   end
 
   def apply_group(group, values, time_context)

@@ -58,7 +58,7 @@ class Interpreter
 
   def visit_call(expr)
     args = expr.arguments.map { |argument| evaluate(argument) }
-    args = args.map { |argument| generate_value(argument) }
+    args = args.flat_map { |argument| generate_value(argument) }
 
     @functions.get(expr.identifier).call(*args)
   end
@@ -96,12 +96,6 @@ class Interpreter
       ValueTuple.new(value)
     else
       value
-    end
-  end
-
-  def get_from_block(block, parameter)
-    block.statements.filter do |statement|
-      statement.is_a?(Ast::Apply) && statement.parameter == parameter
     end
   end
 
