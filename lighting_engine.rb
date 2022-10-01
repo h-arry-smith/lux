@@ -8,11 +8,11 @@ class LightingEngine
     @universes = []
   end
 
-  def run(world)
+  def run(world, elapsed_time)
     world.fixtures.each do |fixture|
       universe = get_or_create_universe(fixture.universe)
 
-      data = fixture.run(0)
+      data = fixture.run(elapsed_time)
 
       universe.apply(fixture.address, data)
     end

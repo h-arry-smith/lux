@@ -13,6 +13,17 @@ class Delay < Value
     self
   end
 
+  def run(elapsed_time)
+    if elapsed_time < @time
+      return @start.run(elapsed_time)
+    end
+
+    # We subtract the delay time here because we would want a fade to act as
+    # if it had just started, in essence delaying it's 0s mark forward in
+    # time
+    @finish.run(elapsed_time - @time)
+  end
+
   def to_s
     "Delay @0s #{@start} -> @#{@time}s #{@finish}"
   end

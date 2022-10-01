@@ -14,6 +14,23 @@ class Fade < Value
     self
   end
 
+  def run(elapsed_time)
+    start_value = @start.run(elapsed_time)
+    finish_value = @finish.run(elapsed_time)
+    change = finish_value - start_value
+    
+    if elapsed_time == 0
+      return start_value
+    end
+
+    if elapsed_time > @time
+      return finish_value
+    end
+
+    time_factor = elapsed_time / @time
+    return start_value + (change * time_factor)
+  end
+
   def value
     @finish.value
   end

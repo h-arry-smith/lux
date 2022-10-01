@@ -1,25 +1,5 @@
-#low { intensity: 10; }
-#high { intensity: 100; }
-
-[1->6] {
-  intensity: #low->#high;
-}
-
-#red {
-  color: rgb(100, 0, 0);
-}
-
-#green {
-  color: rgb(0, 100, 0);
-}
-
-#blue {
-  color: rgb(0, 0, 100);
-}
-
-#front_wash { position: (pan: 100, tilt: 30); }
-
-[101->106] {
-  #front_wash
-  color: #red #green #blue;
+@delay 10s @fade 10s {
+  [1->6] {
+    intensity: 50->100;
+  }
 }

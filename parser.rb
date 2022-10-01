@@ -165,12 +165,9 @@ class Parser
     elsif match(Token::LEFT_PAREN)
       val = tuple
     else
-      p "getting value #{peek}"
       val = value
-      p val
 
       if check(Token::ARROW)
-        p "getting a range #{peek}"
         val = range(val)
       end
     end
@@ -226,7 +223,6 @@ class Parser
     if match(Token::NUMBER)
       return Ast::Value.new(previous.literal)
     elsif match(Token::HASH)
-      p "getting var #{peek}"
       return variable
     end
 

@@ -4,29 +4,35 @@ require_relative "lexer"
 require_relative "parser"
 require_relative "lighting_engine"
 require_relative "output"
+require_relative "timer"
 
 class Lux
   def initialize(debug_flags)
     @debug_flags = debug_flags
     @lighting_engine = LightingEngine.new()
+    @time = Timer.new()
 
     @output = SACNOutput.new("127.0.0.1")
     @output.connect()
   end
 
   def run(world)
-    @lighting_engine.run(world)
+    @time.start
 
-    if @debug_flags[:dump_universe]
-      @lighting_engine.dump_universes
-    end
+    loop do
+      @time.delta_start
+      
+      @lighting_engine.run(world, @time.elapsed)
 
-    if @debug_flags[:broadcast]
-      puts "Broadcasting SACN Output"
-      loop do
-        @output.broadcast(@lighting_engine.universes)
-        sleep(1 / 20.0)
+      if @debug_flags[:dump_universe]
+        @lighting_engine.dump_universes
       end
+
+      if @debug_flags[:broadcast]
+        @output.broadcast(@lighting_engine.universes)
+      end
+
+      sleep(@time.target_hz(20))
     end
   end
 
