@@ -1,4 +1,5 @@
 require_relative "universe"
+require_relative "output"
 
 class LightingEngine
   attr_reader :universes

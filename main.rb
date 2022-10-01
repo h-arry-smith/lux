@@ -33,20 +33,4 @@ if ARGV.length == 1
   world = lux.evaluate(input)
 
   engine = lux.run(world)
-
-  if DEBUG_FLAGS[:broadcast]
-    puts "Broadcasting on #{IP}"
-    server = SACN::Server.new(IP, "Lux")
-    server.connect()
-
-    loop do
-      engine.universes.each do |universe|
-        packet = SACN::DataPacket.new(server, universe.data, universe.number)
-        server.send(packet)
-      end
-
-      sleep(1 / 20.0)
-      engine = lux.run(world)
-    end
-  end
 end

@@ -3,22 +3,31 @@ require_relative "interpreter"
 require_relative "lexer"
 require_relative "parser"
 require_relative "lighting_engine"
+require_relative "output"
 
 class Lux
   def initialize(debug_flags)
     @debug_flags = debug_flags
     @lighting_engine = LightingEngine.new()
+
+    @output = SACNOutput.new("127.0.0.1")
+    @output.connect()
   end
 
   def run(world)
     @lighting_engine.run(world)
+
     if @debug_flags[:dump_universe]
       @lighting_engine.dump_universes
     end
 
-    # Temporary, one day there will be a real event loop with UI but for now
-    # we just want to get at the engine so we can broadcast it's universes
-    @lighting_engine
+    if @debug_flags[:broadcast]
+      puts "Broadcasting SACN Output"
+      loop do
+        @output.broadcast(@lighting_engine.universes)
+        sleep(1 / 20.0)
+      end
+    end
   end
 
   def evaluate(input)
