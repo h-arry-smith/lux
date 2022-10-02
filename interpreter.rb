@@ -151,7 +151,7 @@ class Interpreter
       statement.is_a?(Ast::Apply) && statement.parameter == parameter
     end
 
-    statement.value.map { |val| evaluate(val) } unless statement.nil?
+    statement.value.map { |val| generate_value(evaluate(val)) } unless statement.nil?
   end
 
   def select_fixtures(query)
