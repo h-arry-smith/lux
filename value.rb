@@ -58,7 +58,7 @@ class ValueTuple < Value
   end
 
   def to_s
-    "Tuple { #{@values} }"
+    "ValueTuple { #{@values} }"
   end
 
   def name_as(tuple)

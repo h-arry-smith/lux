@@ -59,7 +59,6 @@ class GroupParameterInstance
 
   def default_tuple_from_children
     defaults = {}
-    p @children
     @children.each { |id, child| defaults[id.to_sym] = child.value }
     ValueTuple.new(defaults)
   end

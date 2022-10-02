@@ -9,6 +9,10 @@ class Delay < Value
     @time = time
   end
 
+  def value
+    @finish
+  end
+
   def get
     self
   end

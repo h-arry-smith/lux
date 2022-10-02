@@ -12,8 +12,18 @@
 
 @delay 3s @fade 10s {
   [101->106] {
-    intensity: 50 25 100 75;
-    position: (0->100, 100->0);
-    color: (_, 100, 100);
+     color: cycle(0.2, #red, #green, #blue);
+  }
+}
+
+@delay 13s {
+  [101->106] {
+    color: rgb(sin(), sin(), 0);
+  }
+}
+
+@delay 20s {
+  [101->106] {
+    color: cycle(0.2, #red, #green);
   }
 }
