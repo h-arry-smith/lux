@@ -5,24 +5,31 @@ require_relative "parser"
 require_relative "lighting_engine"
 require_relative "output"
 require_relative "timer"
+require_relative "world"
 
 class Lux
   def initialize(debug_flags)
     @debug_flags = debug_flags
-    @lighting_engine = LightingEngine.new()
     @time = Timer.new()
 
     @output = SACNOutput.new("127.0.0.1")
     @output.connect()
+
+    @fresh_world = World.new()
+    # Temporary World
+    6.times { |x| @fresh_world.add(Dimmer.new(x + 1, 1, 1 + x)) }
+    6.times { |x| @fresh_world.add(MovingLight.new(x + 101, 1, 101+(6*x))) }
+
+    @world = @fresh_world.copy()
+
+    @lighting_engine = LightingEngine.new(@world, @time)
   end
 
-  def run(world)
-    @time.start
-
-    loop do
+  def run()
+    while true
       @time.delta_start
       
-      @lighting_engine.run(world, @time.elapsed)
+      @lighting_engine.run()
 
       if @debug_flags[:dump_universe]
         @lighting_engine.dump_universes
@@ -57,7 +64,7 @@ class Lux
       ast_printer.print_ast(ast)
     end
 
-    interpreter = Interpreter.new(ast)
+    interpreter = Interpreter.new(ast, @fresh_world.copy)
     interpreter.interpret
 
     if @debug_flags[:lx_state]
@@ -65,6 +72,10 @@ class Lux
       interpreter.world.fixtures.each { |fixture| fixture.debug() }
     end
 
-    return interpreter.world
+    @world = interpreter.world
+  end
+
+  def reload
+    @lighting_engine.world = @world
   end
 end

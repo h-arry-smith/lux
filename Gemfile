@@ -3,4 +3,5 @@
 source "https://rubygems.org"
 
 gem "ruby-enum"
+gem "listen"
 gem "rubocop-shopify", require: false

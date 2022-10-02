@@ -3,16 +3,19 @@ require_relative "output"
 
 class LightingEngine
   attr_reader :universes
+  attr_writer :world
 
-  def initialize
+  def initialize(world, timer)
+    @timer = timer
+    @world = world
     @universes = []
   end
 
-  def run(world, elapsed_time)
-    world.fixtures.each do |fixture|
+  def run()
+    @world.fixtures.each do |fixture|
       universe = get_or_create_universe(fixture.universe)
 
-      data = fixture.run(elapsed_time)
+      data = fixture.run(@timer.elapsed)
 
       universe.apply(fixture.address, data)
     end

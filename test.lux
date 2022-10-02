@@ -11,27 +11,20 @@
 }
 
 #low {
-  intensity: 20;
+  intensity: 60;
 }
 
 #high {
-  intensity: 70;
+  intensity: 10;
+}
+
+[1->6] {
+  intensity: 100->0;
 }
 
 @fade 3s {
   [101->106] {
-    intensity: cycle(1s, #low, #high);
-  }
-}
-
-@delay 3s {
-  [101->106] {
     color: #red;
-  }
-}
-
-@delay 6s {
-  [101->106] {
-    color: #blue;
+    intensity: cycle(1s, #low, #high);
   }
 }
