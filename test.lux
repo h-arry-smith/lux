@@ -10,20 +10,14 @@
   color: rgb(0, 0, 100);
 }
 
-@delay 3s @fade 10s {
+@delay 3s {
   [101->106] {
-     color: cycle(0.2, #red, #green, #blue);
+    color: #red;
   }
 }
 
-@delay 13s {
+@delay 6s {
   [101->106] {
-    color: rgb(sin(), sin(), 0);
-  }
-}
-
-@delay 20s {
-  [101->106] {
-    color: cycle(0.2, #red, #green);
+    color: #blue;
   }
 }
