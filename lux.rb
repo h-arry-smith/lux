@@ -8,6 +8,8 @@ require_relative "timer"
 require_relative "world"
 
 class Lux
+  attr_reader :world
+
   def initialize(debug_flags)
     @debug_flags = debug_flags
     @time = Timer.new()
@@ -15,14 +17,18 @@ class Lux
     @output = SACNOutput.new("127.0.0.1")
     @output.connect()
 
-    @fresh_world = World.new()
-    # Temporary World
-    6.times { |x| @fresh_world.add(Dimmer.new(x + 1, 1, 1 + x)) }
-    6.times { |x| @fresh_world.add(MovingLight.new(x + 101, 1, 101+(6*x))) }
-
-    @world = @fresh_world.copy()
+    @world = make_world
 
     @lighting_engine = LightingEngine.new(@world, @time)
+  end
+
+  def make_world
+    world = World.new()
+    # Temporary World
+    6.times { |x| world.add(Dimmer.new(x + 1, 1, 1 + x)) }
+    6.times { |x| world.add(MovingLight.new(x + 101, 1, 101+(6*x))) }
+
+    world
   end
 
   def run()
@@ -39,7 +45,8 @@ class Lux
         @output.broadcast(@lighting_engine.universes)
       end
 
-      sleep(@time.target_hz(20))
+      delay = @time.target_hz(20)
+      sleep(delay) if delay.positive?
     end
   end
 
@@ -64,7 +71,7 @@ class Lux
       ast_printer.print_ast(ast)
     end
 
-    interpreter = Interpreter.new(ast, @fresh_world.copy)
+    interpreter = Interpreter.new(ast, make_world)
     interpreter.interpret
 
     if @debug_flags[:lx_state]

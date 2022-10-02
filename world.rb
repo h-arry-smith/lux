@@ -12,10 +12,6 @@ class World
     end
   end
 
-  def copy
-    World.new(@fixtures, @parent)
-  end
-
   # TODO : Any selection never has duplicates..
   def add(fixture)
     if fixture.is_a?(Array)

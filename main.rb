@@ -5,7 +5,7 @@ require_relative "lib/sacn"
 DEBUG_FLAGS = {
   token: false,
   ast: false,
-  lx_state: false,
+  lx_state: true,
   dump_universe: false,
   broadcast: true
 }
@@ -23,6 +23,7 @@ listener = Listen.to('./', only: /\.lux$/) do |modified, added, removed|
 
   ms = ((finish-start)*1000).round
   puts "Reloading lighting state... #{ms}ms"
+  puts lux.world
 end
 
 if ARGV.empty?
