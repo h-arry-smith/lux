@@ -59,7 +59,7 @@ class Fade < Value
   end
 
   def to_s
-    "Fade(#{@start}->#{@finish}, #{@time}s)"
+    "#{@start} -> #{@time}s -> #{@finish}"
   end
 
   def self.from(current, target, time_context)

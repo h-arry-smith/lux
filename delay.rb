@@ -29,7 +29,7 @@ class Delay < Value
   end
 
   def to_s
-    "Delay @0s #{@start} -> @#{@time}s #{@finish}"
+    "#{@start} @#{@time}s #{@finish}"
   end
 
   def self.from(current, target, time_context)

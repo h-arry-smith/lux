@@ -7,9 +7,32 @@ require_relative "color_space"
 module FixtureApi
   def self.included(base)
     base.extend ApiMethods
+    base.include FixtureMethods
+  end
+
+  module FixtureMethods
+    def fixture_params
+      self.class.instance_variable_get(:@params)
+    end
+
+    def fixture_color_space
+      self.class.instance_variable_get(:@color_space)
+    end
+
+    def fixture_footprint
+      self.class.instance_variable_get(:@max_offset)
+    end
+
+    def fixture_name
+      self.class.instance_variable_get(:@name)
+    end
   end
 
   module ApiMethods
+    def name(name)
+      @name = name
+    end
+
     def param(parameter, default: 0, offset: nil, min: 0, max: 100)
       @max_offset = 0 if @max_offset.nil?
       @current_offset = 0 if @current_offset.nil?
@@ -89,33 +112,20 @@ class Fixture
     data
   end
 
-  def to_s
-    "##{@id} #{debug_params}"
-  end
-
   def initialize_parameters
     fixture_params.each do |symbol, parameter|
       @params[symbol] = parameter.instantiate()
     end
   end
 
+  def debug
+    puts "Fixture #{id} - #{fixture_name}"
+    @params.values.each do |instance|
+      puts "  #{instance.parameter.id}: #{instance.value}"
+    end
+  end
+
   private
-
-  def fixture_params
-    self.class.instance_variable_get(:@params)
-  end
-
-  def fixture_groups
-    self.class.instance_variable_get(:@groups)
-  end
-
-  def fixture_color_space
-    self.class.instance_variable_get(:@color_space)
-  end
-
-  def fixture_footprint
-    self.class.instance_variable_get(:@max_offset)
-  end
 
   def apply_group(group, values, time_context)
     return if values.nil?
@@ -172,17 +182,15 @@ class Fixture
 
     raise RuntimeError.new("Parameter #{parameter} not valid for fixture #{id}")
   end
-
-  def debug_params
-    @params.map { |param, _| "#{param}:#{get_parameter(param).value}"}.join(" ")
-  end
 end
 
 class Dimmer < Fixture
+  name "Dimmer"
   param :intensity
 end
 
 class MovingLight < Fixture
+  name "Moving Light"
   param :intensity
   group :position do
     param :pan, min: -270, max: 270

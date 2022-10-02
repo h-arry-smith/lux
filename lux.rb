@@ -62,7 +62,7 @@ class Lux
 
     if @debug_flags[:lx_state]
       puts "# LIGHTING STATE #"
-      interpreter.world.fixtures.each { |fixture| puts fixture }
+      interpreter.world.fixtures.each { |fixture| fixture.debug() }
     end
 
     return interpreter.world

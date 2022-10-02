@@ -278,6 +278,78 @@ The lighting engine takes the evaluated world state and runs it with a time vari
 - [x] Get this working for the current moving light
 - [x] Add min, max and fine to the DSL
 - [x] Give the lighting engine real time and eval delay and fades properly
+
+* Show Files & Cue Stacks
+** File Watching & Dev Console
+Before any more work can continue the debug output needs to improve vastly and I need to be able to interact with a dev console outside of the main event loop.
+
+This really only requires three seperate components
+- A main view which shows the current state of the fixtures
+- A REPL input that can send lines to the interpreter (interrupting the main loop)
+- And a file watcher for the file passed to lux.
+
+The main view can just show the fixture number and it's DMX values, debug output will still be in the main terminal window - which needs a lot of improving.
+
+- [ ] Improve Debug Output of World Lighting State
+- [ ] Implement a single file watcher that reloads the world state every time it changes
+- [ ] Create a dev console which allows interaction with the lighting state while it's running.
+
+** Basic Show Files
+A Show file is a folder of a predefined structure. In the simple case before their is cue stacks this should only consist of a handful of files.
+- Some sort of show information configuration file (.yml or similar)
+- patch.lux - executed on show load to patch the show and any time it is changed. this creates a stored world in memory that is considered the base state - which will be useful for getting back to "the beginning" as it were
+- main.lux - the main entry point to the show
+
+This will serve for a first pass, though the show structure will evolve in all sorts of ways in the future, including when we add the ability to import other files. This allows colour definitions etc. to be in other files.
+
+All shows are contained in a folder called shows, and the name of this is passed to the lux program.
+The lux program starts an event loop, loading in the show.
+It starts a watcher that will watch files for changes, and respond to them as needed - which for some of the default file structure might need special actions.
+
+- [ ] Create a CLI command that creates a new show file and instantiates a basic structure
+- [ ] Create a file watcher that watches for changes in all those files
+- [ ] Load the test show file and execute main.lux
+
+** Basic Folder/File Cue Lists
+There is a folder called cues, which there are folders inside which are the cue lists, which can be called whatever you like - song names etc.
+In each cuelist folder there are individual .lux files which are cues - it should be plenty fast enough to read in cues as they are needed. It may at some point be pertinent to cache file reads / AST's - for example cue stacks that loop there is no need to keep reloading the file and reinterpreting it.
+It should be possible really to load a whole cue stack into memory at once, and discard of it when it's no longer being used but also seems complicated.
+
+Cue lists are sorted alphabetical and numerically, but the nominal way is to do number order
+
+You should be able to set times in the global scope of a cue, and each cue should always begin with a fresh root time context, of which the global statements mutate.
+
+#+begin_src
+  @fade 3s
+
+  [101->105] {
+    intensity: 100;
+  }
+
+  ...etc
+#+end_src
+
+There are some language command keywords that need to be implemented with the following semantics
+
+#+begin_src
+  load [cuelist] - set the main cuelist
+
+  go - execute the next cue in the main cuelist
+  go [cuelist] - execute the next cue in some other cuelist
+
+  goto [cue] - go to a cue in the main cuelist, reexecuting all preceeding cues
+  goto [cuelist] [cue] - go to a cue in the other cuelist, rexecuting all preceeding cues
+
+  execute [cue] - run the code in the cue of the main cuelist without running the preceeding cues
+  execute [cue] [cuelist] - run the code in a cuelist without running the preceeding cues
+#+end_src
+
+- [ ] Implement the global level time directives in main.lux
+- [ ] Create a cuelist folder and cues insie of it
+- [ ] Load a cuelist (by default for this purpose) and enter the first cue successfully
+- [ ] Implement the load, go and goto, execute in it's basic form
+- [ ] Implement the more complex versions, keeping track of each cuelist that's running and it's current cue position
+
 * Live Coding Environment
 It would be useful to start building a live coding environment for this project. For a couple of reasons:
 - IDE environment to help with writing Lux code

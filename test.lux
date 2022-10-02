@@ -10,6 +10,20 @@
   color: rgb(0, 0, 100);
 }
 
+#low {
+  intensity: 20;
+}
+
+#high {
+  intensity: 70;
+}
+
+@fade 3s {
+  [101->106] {
+    intensity: cycle(1s, #low, #high);
+  }
+}
+
 @delay 3s {
   [101->106] {
     color: #red;

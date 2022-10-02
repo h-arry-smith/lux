@@ -24,6 +24,6 @@ class DynamicValue < Value
   end
 
   def to_s
-    "DynamicValue<#{@function.name}>(#{@arguments.join(", ")})"
+    "< #{@function.name}(#{@arguments.join(", ")}) >"
   end
 end

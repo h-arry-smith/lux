@@ -36,7 +36,7 @@ class StaticValue < Value
   end
 
   def to_s
-    "StaticValue(#{@value})"
+    "Static(#{@value})"
   end
 end
 
@@ -58,7 +58,8 @@ class ValueTuple < Value
   end
 
   def to_s
-    "ValueTuple { #{@values} }"
+    values = @values.values.map(&:to_s).join(" ")
+    "Tuple{ #{values} }"
   end
 
   def name_as(tuple)
