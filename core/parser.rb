@@ -2,12 +2,19 @@ require_relative "ast"
 require_relative "token"
 
 class Parser
-  def initialize(tokens)
+  def initialize
+    @tokens = nil
+    @current = 0
+  end
+
+  def tokens=(tokens)
     @tokens = tokens
     @current = 0
   end
 
   def parse
+    raise RuntimeError, "No tokens to parse" if @tokens.nil?
+
     program
   end
 

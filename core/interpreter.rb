@@ -11,17 +11,19 @@ require_relative "function_registry"
 
 class Interpreter
   attr_reader :world
+  attr_writer :ast
   
-  def initialize(ast, world)
-    @ast = ast
+  def initialize(world)
     @world = world
     @current_param = nil
 
-    
     @selection_engine = SelectionEngine.new()
     @query_builder = QueryBuilder.new()
     @functions = FunctionRegister
     @globals = {}
+
+    @defined_globals = []
+    @previous_defined_globals = []
   end
 
   def visit_selection(expr)
@@ -123,6 +125,7 @@ class Interpreter
 
   def visit_vardefine(expr)
     @globals[expr.identifier] = expr.block
+    @defined_globals << expr.identifier
   end
 
   def visit_varfetch(expr)
@@ -133,8 +136,12 @@ class Interpreter
     end
   end
 
-  def interpret
-    @ast.each { |statement| evaluate(statement) }
+  def interpret(ast)
+    @previous_defined_globals = @defined_globals
+    @defined_globals = []
+    ast.each { |statement| evaluate(statement) }
+
+    cleanup_globals
   end
 
   private
@@ -149,6 +156,14 @@ class Interpreter
     end
 
     statement.value.map { |val| generate_value(evaluate(val)) } unless statement.nil?
+  end
+
+  def cleanup_globals
+    return if @previous_defined_globals == @defined_globals
+
+    removed_variables = @previous_defined_globals.difference(@defined_globals)
+
+    removed_variables.each { |variable| @globals.delete(variable) }
   end
 
   def select_fixtures(query)

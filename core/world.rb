@@ -21,6 +21,10 @@ class World
     end
   end
 
+  def reset
+    @fixtures.each { |fixture| fixture.reset }
+  end
+
   def push_time_context(context)
     context.parent = @time_context
     @time_context = context

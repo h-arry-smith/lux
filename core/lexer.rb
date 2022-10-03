@@ -3,7 +3,15 @@ require_relative "token"
 class Lexer
   attr_reader :tokens
 
-  def initialize(source)
+  def initialize()
+    @source = nil
+    @tokens = []
+    @start = 0
+    @current = 0
+    @line = 1
+  end
+
+  def source=(source)
     @source = source
     @tokens = []
     @start = 0
@@ -12,6 +20,8 @@ class Lexer
   end
 
   def scan_tokens
+    raise RuntimeError, "No source to scan!" if @source.nil?
+
     while !at_end?
       @start = @current
       scan_token

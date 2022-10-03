@@ -112,6 +112,10 @@ class Fixture
     data
   end
 
+  def reset
+    @params.values.each { |parameter| parameter.reset }
+  end
+
   def initialize_parameters
     fixture_params.each do |symbol, parameter|
       @params[symbol] = parameter.instantiate()

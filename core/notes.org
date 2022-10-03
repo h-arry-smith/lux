@@ -291,7 +291,8 @@ This really only requires three seperate components
 The main view can just show the fixture number and it's DMX values, debug output will still be in the main terminal window - which needs a lot of improving.
 
 - [X] Improve Debug Output of World Lighting State
-- [ ] Implement a single file watcher that reloads the world state every time it changes
+- [x] Implement a single file watcher that reloads the world state every time it changes
+- [ ] Seperate out core lux into it's own folder and restructure code running 
 - [ ] Create a dev console which allows interaction with the lighting state while it's running.
 
 ** Basic Show Files

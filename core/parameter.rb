@@ -10,6 +10,10 @@ class GroupParameterInstance
     @time_context = nil
   end
 
+  def reset
+    @value = default_tuple_from_children
+  end
+
   def apply(new_value, time_context)
     new_value = Fade.from(@value, new_value, time_context)
     new_value = Delay.from(@value, new_value, time_context)
@@ -69,6 +73,10 @@ class ParameterInstance
 
   def initialize(parameter)
     @parameter = parameter
+    @value = parameter.default
+  end
+
+  def reset
     @value = parameter.default
   end
 
