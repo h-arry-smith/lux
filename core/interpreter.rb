@@ -60,9 +60,7 @@ module Core
       args = expr.arguments.map { |argument| evaluate(argument) }
       args = args.map { |argument| generate_value(argument) }
 
-      p args
-
-      @functions.get(expr.identifier).call(*args)
+      @functions.get(expr.identifier).call(@world.fixtures.length, *args)
     end
 
     def visit_selector(expr)

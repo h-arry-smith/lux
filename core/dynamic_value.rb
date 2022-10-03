@@ -2,15 +2,16 @@ require_relative "value"
 
 module Core
   class DynamicValue < Value
-    def initialize(function, arguments)
+    def initialize(function, fixture_count, arguments)
       @function = function
+      @fixture_count = fixture_count
       @arguments = arguments
     end
 
     def get
       # this handle arguments wih ranges by making sure when we get, we return
       # a version with those resolved
-      return DynamicValue.new(@function, @arguments.map { |arg| arg.get })
+      return DynamicValue.new(@function, @fixture_count, @arguments.map { |arg| arg.get })
     end
 
     # A dynamic value should always be faded or delayed to, set it returns some
@@ -20,8 +21,30 @@ module Core
     end
 
     def run(time)
-      ran_arguments = @arguments.map { |argument| argument.run(time) }
-      @function.call(time, *ran_arguments)
+      result = @function.call(context(time), *run_arguments(time))
+
+      if result.is_a?(DynamicValue)
+        result.run(time)
+      else
+        result
+      end
+    end
+
+    def run_arguments(time)
+      @arguments.map do |argument|
+        if argument.is_a?(Value)
+          argument.run(time)
+        else
+          argument
+        end
+      end
+    end
+
+    def context(time)
+      {
+        time: time,
+        count: @fixture_count
+      }
     end
 
     def to_s

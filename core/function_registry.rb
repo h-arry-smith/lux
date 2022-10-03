@@ -20,10 +20,12 @@ module Core
 
   FunctionRegister = FunctionRegistry.new()
 
-  FunctionRegister.add("rgb", ->(r, g, b) { return ValueTuple.new({ red: r, green: g, blue: b }) })
-  FunctionRegister.add("cmy", ->(c, m, y) { return ValueTuple.new({ cyan: c, magenta: m, yellow: y }) })
+  FunctionRegister.add("rgb", ->(_, r, g, b) { return ValueTuple.new({ red: r, green: g, blue: b }) })
+  FunctionRegister.add("cmy", ->(_, c, m, y) { return ValueTuple.new({ cyan: c, magenta: m, yellow: y }) })
 
-  FunctionRegister.add("sin", ->(*args) { return DynamicValue.new(FX.method(:sin), args) })
-
-  FunctionRegister.add("cycle", ->(*args) { return DynamicValue.new(FX.method(:cycle), args) })
+  FunctionRegister.add("sin", ->(fc, *args) { return DynamicValue.new(FX.method(:sin), fc, args) })
+  FunctionRegister.add("square", ->(fc, *args) { return DynamicValue.new(FX.method(:square), fc, args) })
+  FunctionRegister.add("pulse", ->(fc, *args) { return DynamicValue.new(FX.method(:pulse), fc, args) })
+  FunctionRegister.add("cycle", ->(fc, *args) { return DynamicValue.new(FX.method(:cycle), fc, args) })
+  FunctionRegister.add("chase", ->(fc, *args) { FX.chase(fc, *args) })
 end
