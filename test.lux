@@ -1,3 +1,22 @@
-[1->6] {
-  intensity: sin(0, 20, 1s, 0->1);
+#one {
+  intensity: 0 0 0 0 0 40;
+}
+#two {
+  intensity: 0 0 0 0 40 0;
+}
+#three {
+  intensity: 0 0 0 40 0 0;
+}
+#four {
+  intensity: 0 0 40 0 0 0;
+}
+#five {
+  intensity: 0 40 0 0 0 0;
+}
+#six {
+  intensity: 40 0 0 0 0 0;
+}
+
+[1->18] {
+  intensity: cycle(0.5s, #one, #two, #three, #four, #five, #six);
 }

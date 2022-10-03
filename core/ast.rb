@@ -13,15 +13,18 @@ AST = {
   VarFetch: [:identifier]
 }
 
-module Ast
+module Core
+  module Ast
+  end
+
+  AST.each_pair do |name, params|
+    Ast.const_set(
+      name,
+      Struct.new(*params) do
+        define_method(:accept) do |visitor|
+          visitor.public_send("visit_#{name.downcase}", self)
+        end
+      end)
+  end
 end
 
-AST.each_pair do |name, params|
-  Ast.const_set(
-    name,
-    Struct.new(*params) do
-      define_method(:accept) do |visitor|
-        visitor.public_send("visit_#{name.downcase}", self)
-      end
-    end)
-end
