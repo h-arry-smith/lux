@@ -1,4 +1,5 @@
 require_relative "value"
+require_relative "dynamic_value"
 
 module Core
   class GroupParameterInstance
@@ -16,14 +17,22 @@ module Core
     end
 
     def apply(new_value, time_context)
+      return if new_value.nil?
+
+      if new_value.is_a?(DynamicValue)
+        new_value.resolve_nil_values(@value)
+      end
+
       new_value = Fade.from(@value, new_value, time_context)
       new_value = Delay.from(@value, new_value, time_context)
+
 
       @value = new_value
     end
 
     def run(time)
       value = @value.run(time)
+      return if @value.nil?
 
       if named_tuple? value
         value.each do |id, value|
@@ -83,6 +92,9 @@ module Core
 
     def apply(new_value, time_context)
       return if new_value.nil?
+
+      new_value.resolve_nil_values(@value) if new_value.is_a?(DynamicValue)
+
       new_value = Fade.from(@value, new_value, time_context)
       new_value = Delay.from(@value, new_value, time_context)
 

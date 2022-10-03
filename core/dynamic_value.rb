@@ -11,7 +11,17 @@ module Core
     def get
       # this handle arguments wih ranges by making sure when we get, we return
       # a version with those resolved
-      return DynamicValue.new(@function, @fixture_count, @arguments.map { |arg| arg.get })
+      return DynamicValue.new(@function, @fixture_count, @arguments.map { |arg| arg&.get })
+    end
+
+    def resolve_nil_values(value)
+      @arguments.map! do |arg|
+        if arg.nil?
+          value
+        else
+          arg
+        end
+      end
     end
 
     # A dynamic value should always be faded or delayed to, set it returns some

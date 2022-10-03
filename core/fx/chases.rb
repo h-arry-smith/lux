@@ -14,8 +14,6 @@ module FX
 
     def chase(count, period = nil, low = nil, high = nil)
       period = Core::StaticValue.new(1) if period.nil?
-      low = Core::StaticValue.new(0) if low.nil?
-      high = Core::StaticValue.new(100) if high.nil?
 
       total_period = Core::StaticValue.new(count * period.value)
 
