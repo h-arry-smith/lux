@@ -40,6 +40,8 @@ module Core
       return block if match(Token::LEFT_BRACE)
       return selection if check(Token::LEFT_BRACKET)
       return timer if check(Token::AT)
+
+      error(peek, "Unexpected token.")
     end
 
     def variable
