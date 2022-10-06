@@ -36,12 +36,6 @@ module Core
       @value = new_value
     end
 
-    def resolve(time)
-      if @value.is_a?(Fade) || @value.is_a?(Delay)
-        @value.resolve(time)
-      end
-    end
-
     def run(time)
       value = @value.run(time)
       return if @value.nil?

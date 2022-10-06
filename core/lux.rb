@@ -173,9 +173,9 @@ module Core
 
       if only_file_is_current_cue?(files_to_rerun)
         rebuild_world_from_files(files_to_rerun)
-        reset_time
       else
         rebuild_world_from_files(files_to_rerun)
+        reset_time
       end
     end
 

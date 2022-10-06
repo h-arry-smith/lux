@@ -9,7 +9,7 @@ module Core
       @start = start
       @finish = finish
       @time = time
-      @run_from = nil
+      @run_from = 0
     end
 
     def get
@@ -17,9 +17,7 @@ module Core
     end
 
     def run(elapsed_time)
-      unless @run_from.nil?
-        elapsed_time += @run_from
-      end
+      elapsed_time += @run_from
 
       start_value = @start.run(elapsed_time)
       finish_value = @finish.run(elapsed_time)
@@ -75,8 +73,9 @@ module Core
         end
       end
 
-      @run_from = elapsed_time
+      @run_from += elapsed_time
 
+      p "resolving to: #{result}"
       result
     end
 

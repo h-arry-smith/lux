@@ -1,4 +1,5 @@
-@fade 30s;
+@fade 3s;
+@delay 3s;
 
 [1->2] {
   intensity: 30;
