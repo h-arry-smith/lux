@@ -1,3 +1,5 @@
+@fade 10s;
+
 [3->4] {
   intensity: 60;
 }

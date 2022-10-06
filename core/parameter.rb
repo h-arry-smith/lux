@@ -16,6 +16,12 @@ module Core
       @value = default_tuple_from_children
     end
 
+    def resolve(time)
+      if @value.is_a?(Fade) || @value.is_a?(Delay)
+        @value = @value.resolve(time)
+      end
+    end
+
     def apply(new_value, time_context)
       return if new_value.nil?
 
@@ -28,6 +34,12 @@ module Core
 
 
       @value = new_value
+    end
+
+    def resolve(time)
+      if @value.is_a?(Fade) || @value.is_a?(Delay)
+        @value.resolve(time)
+      end
     end
 
     def run(time)
@@ -88,6 +100,12 @@ module Core
 
     def reset
       @value = parameter.default
+    end
+
+    def resolve(time)
+      if @value.is_a?(Fade) || @value.is_a?(Delay)
+        @value = @value.resolve(time)
+      end
     end
 
     def apply(new_value, time_context)

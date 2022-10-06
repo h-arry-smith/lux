@@ -117,6 +117,10 @@ module Core
       @params.values.each { |parameter| parameter.reset }
     end
 
+    def resolve(elapsed_time)
+      @params.each { |id, parameter| parameter.resolve(elapsed_time) }
+    end
+
     def initialize_parameters
       fixture_params.each do |symbol, parameter|
         @params[symbol] = parameter.instantiate()

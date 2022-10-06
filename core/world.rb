@@ -22,6 +22,10 @@ module Core
       end
     end
 
+    def resolve_fades(elapsed_time)
+      @fixtures.each { |fixture| fixture.resolve(elapsed_time) }
+    end
+
     def reset
       @fixtures.each { |fixture| fixture.reset }
     end
@@ -39,7 +43,8 @@ module Core
       return @parent
     end
 
-    def get_time_context
+    def reset_time
+      @time_context = TimeContext.new
     end
   end
 end

@@ -8,6 +8,7 @@ module Core
       @start = start
       @finish = finish
       @time = time
+      @run_from = nil
     end
 
     def value
@@ -19,6 +20,10 @@ module Core
     end
 
     def run(elapsed_time)
+      unless @run_from.nil?
+        elapsed_time += @run_from
+      end
+
       if elapsed_time < @time
         return @start.run(elapsed_time)
       end
@@ -31,6 +36,22 @@ module Core
 
     def to_s
       "#{@start} @#{@time}s #{@finish}"
+    end
+
+    def resolve(elapsed_time)
+      result = self
+
+      if elapsed_time >= @time
+        if @finish.is_a?(Fade) || @finish.is_a?(Delay)
+          result = @finish.resolve(elapsed_time)
+        else
+          result = @finish
+        end
+      end
+
+      @run_from = elapsed_time
+
+      result
     end
 
     def self.from(current, target, time_context)

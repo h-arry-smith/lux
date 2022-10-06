@@ -122,9 +122,12 @@ module Core
       when :load
         @cue_engine.load(data[:identifier])
         evaluate_file(@cue_engine.current.cue)
+        reset_time
       when :go
         @cue_engine.current.go
+        @world.resolve_fades(@time.elapsed)
         evaluate_file(@cue_engine.current.cue)
+        reset_time
       when :goto
         rebuild, files_to_run = @cue_engine.current.goto(data[:cue])
         if rebuild
@@ -132,7 +135,13 @@ module Core
         else
           run_files(files_to_run)
         end
+        reset_time
       end
+    end
+
+    def reset_time
+      @time.start
+      @world.reset_time
     end
 
     def loaded_cuelist
@@ -161,12 +170,27 @@ module Core
     def modified_file(file)
       puts "Detected change in: #{file}"
       files_to_rerun = @cue_engine.files_to_rerun(file)
-      rebuild_world_from_files(files_to_rerun)
+
+      if only_file_is_current_cue?(files_to_rerun)
+        rebuild_world_from_files(files_to_rerun)
+        reset_time
+      else
+        rebuild_world_from_files(files_to_rerun)
+      end
+    end
+
+    def only_file_is_current_cue?(files_to_rerun)
+      return false if files_to_rerun.length > 1
+      file = files_to_rerun.first
+
+      @cue_engine.current.cue == file
     end
 
     def rebuild_world_from_files(files_to_rerun)
-      @world.reset unless files_to_rerun.empty?
-      run_files(files_to_rerun)
+      unless files_to_rerun.empty?
+        @world.reset unless files_to_rerun.empty?
+        run_files(files_to_rerun)
+      end
     end
 
     def run_files(files_to_run)
