@@ -2,10 +2,11 @@ require "io/console"
 require_relative "core/lux"
 
 DEBUG_FLAGS = {
-  token: false,
-  ast: false,
-  lx_state: false,
+  token: true,
+  ast: true,
+  lx_state: true,
   dump_universe: false,
+  dev_console: true,
   broadcast: true
 }
 
@@ -36,7 +37,10 @@ if ARGV.length == 1
   lux = Core::Lux.new(working_directory, DEBUG_FLAGS)
 
   lux_thread = Thread.new { lux.start(entry_file) }
-  console_thread = Thread.new { temporary_console(lux) }
+
+  if DEBUG_FLAGS[:dev_console]
+    console_thread = Thread.new { temporary_console(lux) }
+  end
 
   lux_thread.join
 end
