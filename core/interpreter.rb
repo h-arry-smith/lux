@@ -167,6 +167,7 @@ module Core
     private
 
     def evaluate(expr)
+      @world.refresh_time_context
       expr.accept(self)
     end
 

@@ -2,9 +2,9 @@
 @delay 3s;
 
 [1->2] {
-  intensity: 30;
+  intensity: 100;
 }
 
 [101->102] {
-  position: (30, 30);
+  position: (30, 0);
 }

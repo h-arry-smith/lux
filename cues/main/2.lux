@@ -1,5 +1,5 @@
 @fade 15s;
 
 [5->6] {
-  intensity: 90;
+  intensity: 10;
 }

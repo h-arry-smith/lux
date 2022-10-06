@@ -43,6 +43,10 @@ module Core
       @time_context = @time_context.pop
     end
 
+    def refresh_time_context
+      @time_context = TimeContext.new
+    end
+
     def deselect
       return @parent
     end

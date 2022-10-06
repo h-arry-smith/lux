@@ -7,6 +7,7 @@ require_relative "parser"
 require_relative "cue_engine"
 require_relative "lighting_engine"
 require_relative "output"
+require_relative "time_context"
 require_relative "timer"
 require_relative "world"
 
@@ -183,6 +184,7 @@ module Core
       return false if files_to_rerun.length > 1
       file = files_to_rerun.first
 
+      p file, @cue_engine.current.cue
       @cue_engine.current.cue == file
     end
 
