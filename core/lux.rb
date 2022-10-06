@@ -84,7 +84,14 @@ module Core
       end
 
       @parser.tokens = @lexer.tokens
-      ast = @parser.parse
+
+      begin
+        ast = @parser.parse
+      rescue ParserError => e
+        puts e
+        return
+      end
+        
 
       if @debug_flags[:ast]
         puts "# AST #"
@@ -93,6 +100,7 @@ module Core
         ast_printer.print_ast(ast)
       end
 
+      p "interpreting"
       @interpreter.interpret(ast)
 
       if @debug_flags[:lx_state]

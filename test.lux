@@ -1,4 +1,4 @@
 [1->18] { intensity: 20; }
 [1->4] {
-  intensity: chase(1, _, 100);
+  intensity: chase(1, _, 30);
 }
