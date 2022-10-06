@@ -117,14 +117,21 @@ module Core
       evaluate_file(file)
     end
 
-    def command(symbol, *arguments)
+    def command(symbol, data = nil)
       case symbol
       when :load
-        @cue_engine.load(arguments.first)
+        @cue_engine.load(data[:identifier])
         evaluate_file(@cue_engine.current.cue)
       when :go
         @cue_engine.current.go
         evaluate_file(@cue_engine.current.cue)
+      when :goto
+        rebuild, files_to_run = @cue_engine.current.goto(data[:cue])
+        if rebuild
+          rebuild_world_from_files(files_to_run)
+        else
+          run_files(files_to_run)
+        end
       end
     end
 
@@ -154,12 +161,17 @@ module Core
     def modified_file(file)
       puts "Detected change in: #{file}"
       files_to_rerun = @cue_engine.files_to_rerun(file)
+      rebuild_world_from_files(files_to_rerun)
+    end
 
-      puts files_to_rerun
+    def rebuild_world_from_files(files_to_rerun)
+      @world.reset unless files_to_rerun.empty?
+      run_files(files_to_rerun)
+    end
 
-      unless files_to_rerun.empty?
-        @world.reset
-        files_to_rerun.each { |file| evaluate_file(file) }
+    def run_files(files_to_run)
+      unless files_to_run.empty?
+        files_to_run.each { |file| evaluate_file(file) }
       end
     end
 

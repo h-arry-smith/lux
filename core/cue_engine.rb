@@ -62,8 +62,22 @@ module Core
       @current = 0 if @current >= @cues.length
     end
 
+    # TODO: Cues should be able to named as well as numbered, so
+    # we have to be more careful how we check for cues existance
     def goto(n)
-      @current = 0
+      return [] if n >= @cues.length || @current == n
+
+
+      old = @current
+      @current = n
+
+      return [true, [cue]] if @current == 0
+
+      if n > old
+        [false, files_to_run = @cues[old..n]]
+      elsif n < old
+        [true, @cues[..@current]]
+      end
     end
 
     def cue

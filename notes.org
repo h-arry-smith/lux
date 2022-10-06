@@ -346,8 +346,8 @@ There are some language command keywords that need to be implemented with the fo
 #+end_src
 
 - [ ] Implement the global level time directives in main.lux
-- [ ] Create a cuelist folder and cues insie of it
-- [ ] Load a cuelist (by default for this purpose) and enter the first cue successfully
+- [X] Create a cuelist folder and cues inside of it
+- [X] Load a cuelist (by default for this purpose) and enter the first cue successfully
 - [ ] Implement the load, go and goto, execute in it's basic form
 - [ ] Implement the more complex versions, keeping track of each cuelist that's running and it's current cue position
 

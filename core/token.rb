@@ -51,6 +51,7 @@ module Core
 
     define :LOAD, 'load'
     define :GO, 'go'
+    define :GOTO, 'goto'
 
     # define :AND, 'and'
     # define :CLASS, 'class'
@@ -84,6 +85,7 @@ module Core
 
   COMMAND_KEYWORDS = [
     Token::LOAD,
-    Token::GO
+    Token::GO,
+    Token::GOTO
   ]
 end

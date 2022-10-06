@@ -3,6 +3,7 @@ AST = {
   Block: [:statements],
   Call: [:identifier, :arguments],
   Go: [:identifier],
+  Goto: [:cue],
   Load: [:identifier],
   Range: [:start, :end],
   Selector: [:selector],

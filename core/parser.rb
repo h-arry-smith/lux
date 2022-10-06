@@ -57,6 +57,9 @@ module Core
         end
       when Token::GO
         command = Ast::Go.new(nil)
+      when Token::GOTO
+        cue = value
+        command = Ast::Goto.new(cue.value)
       end
 
       consume(Token::SEMICOLON, "Commands must end with a semicolon.")

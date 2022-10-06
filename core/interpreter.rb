@@ -144,8 +144,12 @@ module Core
       @lux.command(:go)
     end
 
+    def visit_goto(expr)
+      @lux.command(:goto, {cue: expr.cue})
+    end
+
     def visit_load(expr)
-      @lux.command(:load, expr.identifier.lexeme)
+      @lux.command(:load, {identifier: expr.identifier.lexeme})
     end
 
     def interpret(ast)

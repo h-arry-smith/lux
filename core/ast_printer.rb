@@ -101,6 +101,10 @@ module Core
       print_with_indent("GO")
     end
 
+    def visit_go(node)
+      print_with_indent("GOTO #{node.cue}")
+    end
+
     def visit_load(node)
       print_with_indent("LOAD #{node.identifier.lexeme}")
     end
