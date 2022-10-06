@@ -195,7 +195,15 @@ module Core
 
     def run_files(files_to_run)
       unless files_to_run.empty?
-        files_to_run.each { |file| evaluate_file(file) }
+        fast_foward_cues = files_to_run[...-1]
+        actual_cue = files_to_run.last
+
+        fast_foward_cues.each do |file|
+          evaluate_file(file)
+          @world.fast_foward
+        end
+
+        evaluate_file(actual_cue)
       end
     end
 

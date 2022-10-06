@@ -26,6 +26,10 @@ module Core
       @fixtures.each { |fixture| fixture.resolve(elapsed_time) }
     end
 
+    def fast_foward
+      @fixtures.each { |fixture| fixture.fast_forward }
+    end
+
     def reset
       @fixtures.each { |fixture| fixture.reset }
     end

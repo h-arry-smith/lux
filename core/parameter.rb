@@ -22,6 +22,12 @@ module Core
       end
     end
 
+    def fast_foward
+      if @value.is_a?(Fade) || @value.is_a?(Delay)
+        @value = @value.fast_foward
+      end
+    end
+
     def apply(new_value, time_context)
       return if new_value.nil?
 
@@ -99,6 +105,12 @@ module Core
     def resolve(time)
       if @value.is_a?(Fade) || @value.is_a?(Delay)
         @value = @value.resolve(time)
+      end
+    end
+
+    def fast_foward
+      if @value.is_a?(Fade) || @value.is_a?(Delay)
+        @value = @value.fast_foward
       end
     end
 

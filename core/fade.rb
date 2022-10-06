@@ -79,6 +79,12 @@ module Core
       result
     end
 
+    def fast_foward
+      result = @finish
+      result = @finish.fast_foward if @finish.is_a?(Fade) || @finish.is_a?(Delay)
+      result
+    end
+
     def to_s
       "#{@start} -> #{@time}s -> #{@finish}"
     end

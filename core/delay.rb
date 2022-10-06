@@ -52,6 +52,13 @@ module Core
       result
     end
 
+    def fast_foward
+      result = @finish
+      result = @finish.fast_foward if @finish.is_a?(Fade) || @finish.is_a?(Delay)
+
+      result
+    end
+
     def self.from(current, target, time_context)
       target = current if target.nil?
       return current if target.value == current.value && !time_context.any_delay?

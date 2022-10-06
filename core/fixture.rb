@@ -121,6 +121,10 @@ module Core
       @params.each { |id, parameter| parameter.resolve(elapsed_time) }
     end
 
+    def fast_forward
+      @params.each { |id, parameter| parameter.fast_foward }
+    end
+
     def initialize_parameters
       fixture_params.each do |symbol, parameter|
         @params[symbol] = parameter.instantiate()
