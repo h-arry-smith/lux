@@ -6,6 +6,7 @@ module Core
     def initialize
       @tokens = nil
       @current = 0
+      @inside_block = false
     end
 
     def tokens=(tokens)
@@ -79,13 +80,18 @@ module Core
     def timer
       times = []
 
-      until check(Token::LEFT_BRACE)
+      until check(Token::LEFT_BRACE) || check(Token::SEMICOLON)
         times.concat(time)
       end
 
-      consume(Token::LEFT_BRACE, "Expect '{' after time clause")
-
-      return Ast::TimeBlock.new(times, block)
+      if check(Token::LEFT_BRACE)
+        consume(Token::LEFT_BRACE, "Expect '{' after time clause")
+        return Ast::TimeBlock.new(times, block)
+      elsif check(Token::SEMICOLON)
+        error(peek, "Can not declare glboal times inside a block") if @inside_block
+        consume(Token::SEMICOLON, "Expect ';' after global time declaration")
+        return Ast::GlobalTimes.new(times)
+      end
     end
 
     def time
@@ -132,6 +138,7 @@ module Core
     end
 
     def block
+      @inside_block = true
       statements = []
 
       while !check(Token::RIGHT_BRACE) && !at_end?
@@ -140,6 +147,7 @@ module Core
       
       consume(Token::RIGHT_BRACE, "Expect '}' after block")
 
+      @inside_block = false
       return Ast::Block.new(statements)
     end
 

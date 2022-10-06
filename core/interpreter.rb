@@ -57,6 +57,10 @@ module Core
       end
     end
 
+    def visit_globaltimes(expr)
+      expr.times.each { |time| evaluate(time) }
+    end
+
     def visit_call(expr)
       args = expr.arguments.map { |argument| evaluate(argument) }
       args = args.map { |argument| generate_value(argument) }

@@ -3,8 +3,8 @@ require_relative "core/lux"
 
 DEBUG_FLAGS = {
   token: false,
-  ast: false,
-  lx_state: false,
+  ast: true,
+  lx_state: true,
   dump_universe: false,
   dev_console: true,
   broadcast: true,

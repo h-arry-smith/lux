@@ -101,12 +101,19 @@ module Core
       print_with_indent("GO")
     end
 
-    def visit_go(node)
+    def visit_goto(node)
       print_with_indent("GOTO #{node.cue}")
     end
 
     def visit_load(node)
       print_with_indent("LOAD #{node.identifier.lexeme}")
+    end
+
+    def visit_globaltimes(node)
+      print_with_indent("GLOBAL TIMES")
+      indent
+      node.times.each { |time| self.print(time) }
+      dedent
     end
 
     private

@@ -4,6 +4,7 @@ AST = {
   Call: [:identifier, :arguments],
   Go: [:identifier],
   Goto: [:cue],
+  GlobalTimes: [:times],
   Load: [:identifier],
   Range: [:start, :end],
   Selector: [:selector],
