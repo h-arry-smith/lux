@@ -22,7 +22,7 @@ module Core
 
       @lexer = Lexer.new()
       @parser = Parser.new()
-      @interpreter = Interpreter.new(@world)
+      @interpreter = Interpreter.new(self)
       @lighting_engine = LightingEngine.new(@world, @time)
 
       @output = SACNOutput.new("127.0.0.1")
@@ -100,7 +100,6 @@ module Core
         ast_printer.print_ast(ast)
       end
 
-      p "interpreting"
       @interpreter.interpret(ast)
 
       if @debug_flags[:lx_state]
@@ -114,6 +113,10 @@ module Core
     def reload(file)
       @world.reset
       evaluate_file(file)
+    end
+
+    def command(symbol, *arguments)
+      puts "COMMAND #{symbol} args: #{arguments.join(", ")}"
     end
 
     private

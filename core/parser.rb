@@ -36,12 +36,32 @@ module Core
     end
 
     def statement
+      puts COMMAND_KEYWORDS.include?(peek)
+      return command if match(*COMMAND_KEYWORDS)
       return variable if match(Token::HASH)
       return block if match(Token::LEFT_BRACE)
       return selection if check(Token::LEFT_BRACKET)
       return timer if check(Token::AT)
 
       error(peek, "Unexpected token.")
+    end
+
+    def command
+      command = nil
+
+      case previous.type
+      when Token::LOAD
+        if match(Token::IDENTIFIER)
+          command = Ast::Load.new(previous)
+        else
+          peek(error, "Expected a cue list identifier after load command")
+        end
+      when Token::GO
+        command = Ast::Go.new(nil)
+      end
+
+      consume(Token::SEMICOLON, "Commands must end with a semicolon.")
+      command
     end
 
     def variable

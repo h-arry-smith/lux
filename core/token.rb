@@ -49,6 +49,9 @@ module Core
     define :DELAY_DOWN, 'ddown'
     define :SNAP, 'snap'
 
+    define :LOAD, 'load'
+    define :GO, 'go'
+
     # define :AND, 'and'
     # define :CLASS, 'class'
     # define :ELSE, 'else'
@@ -77,5 +80,10 @@ module Core
     Token::DELAY_UP,
     Token::DELAY_DOWN,
     Token::SNAP
+  ]
+
+  COMMAND_KEYWORDS = [
+    Token::LOAD,
+    Token::GO
   ]
 end

@@ -14,8 +14,9 @@ module Core
     attr_reader :world
     attr_writer :ast
     
-    def initialize(world)
-      @world = world
+    def initialize(lux)
+      @lux = lux
+      @world = lux.world
       @current_param = nil
 
       @selection_engine = SelectionEngine.new()
@@ -137,6 +138,14 @@ module Core
       else
         evaluate(@globals[expr.identifier])
       end
+    end
+
+    def visit_go(expr)
+      @lux.command(:go)
+    end
+
+    def visit_load(expr)
+      @lux.command(:load, expr.identifier.lexeme)
     end
 
     def interpret(ast)

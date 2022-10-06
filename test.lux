@@ -1,1 +1,4 @@
-[1] {};
+load main;
+go;
+go;
+go;

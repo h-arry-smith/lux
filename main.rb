@@ -4,10 +4,10 @@ require_relative "core/lux"
 DEBUG_FLAGS = {
   token: true,
   ast: true,
-  lx_state: true,
+  lx_state: false,
   dump_universe: false,
-  dev_console: true,
-  broadcast: true
+  dev_console: false,
+  broadcast: false
 }
 
 def temporary_console(lux)
