@@ -36,7 +36,6 @@ module Core
     end
 
     def statement
-      puts COMMAND_KEYWORDS.include?(peek)
       return command if match(*COMMAND_KEYWORDS)
       return variable if match(Token::HASH)
       return block if match(Token::LEFT_BRACE)

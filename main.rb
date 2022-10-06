@@ -2,12 +2,12 @@ require "io/console"
 require_relative "core/lux"
 
 DEBUG_FLAGS = {
-  token: true,
-  ast: true,
+  token: false,
+  ast: false,
   lx_state: false,
   dump_universe: false,
-  dev_console: false,
-  broadcast: false
+  dev_console: true,
+  broadcast: true,
 }
 
 def temporary_console(lux)
@@ -15,6 +15,8 @@ def temporary_console(lux)
   $stdout.clear_screen
 
   puts "Temporary Dev Console"
+  puts "-"*80
+  puts lux.loaded_cuelist
   puts "-"*80
 
   while true
@@ -24,6 +26,9 @@ def temporary_console(lux)
 
     begin
       lux.evaluate(input)
+      puts "-"*80
+      puts lux.loaded_cuelist
+      puts "-"*80
     rescue RuntimeError => e
       puts e
     end

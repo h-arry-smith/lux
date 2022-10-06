@@ -4,6 +4,7 @@ require_relative "ast_printer"
 require_relative "interpreter"
 require_relative "lexer"
 require_relative "parser"
+require_relative "cue_engine"
 require_relative "lighting_engine"
 require_relative "output"
 require_relative "timer"
@@ -24,6 +25,7 @@ module Core
       @parser = Parser.new()
       @interpreter = Interpreter.new(self)
       @lighting_engine = LightingEngine.new(@world, @time)
+      @cue_engine = CueEngine.new("cues/")
 
       @output = SACNOutput.new("127.0.0.1")
       @output.connect()
@@ -116,7 +118,18 @@ module Core
     end
 
     def command(symbol, *arguments)
-      puts "COMMAND #{symbol} args: #{arguments.join(", ")}"
+      case symbol
+      when :load
+        @cue_engine.load(arguments.first)
+        evaluate_file(@cue_engine.current.cue)
+      when :go
+        @cue_engine.current.go
+        evaluate_file(@cue_engine.current.cue)
+      end
+    end
+
+    def loaded_cuelist
+      @cue_engine.current
     end
 
     private
@@ -126,6 +139,8 @@ module Core
         start = Time.now.to_f
 
         modified.each { |file| modified_file(file) }
+        added.each { |file| added_file(file) }
+        removed.each { |file| removed_file(file) }
 
         finish = Time.now.to_f
 
@@ -134,8 +149,26 @@ module Core
       end
     end
 
+    # TODO : If file is current cue, can we just run from the previous state of the
+    # last cue, if it exists?
     def modified_file(file)
-      reload(file)
+      puts "Detected change in: #{file}"
+      files_to_rerun = @cue_engine.files_to_rerun(file)
+
+      puts files_to_rerun
+
+      unless files_to_rerun.empty?
+        @world.reset
+        files_to_rerun.each { |file| evaluate_file(file) }
+      end
+    end
+
+    def added_file(file)
+      puts "Added file: #{file}"
+    end
+
+    def removed_file(file)
+      puts "Removed file: #{file}"
     end
   end
 end
