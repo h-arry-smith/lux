@@ -106,7 +106,7 @@ module Core
         return previous.lexeme
       end
 
-      raise ParserError.new(peek, "Invalid time keyword")
+      error(peek, "Invalid time keyword")
     end
 
     def block
