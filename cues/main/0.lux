@@ -1,8 +1,8 @@
-@fade 3s;
+@fade 6s;
 @delay 3s;
 
 [1->2] {
-  intensity: sin();
+  intensity: 10;
 }
 
 [101->102] {

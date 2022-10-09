@@ -8,13 +8,11 @@ module Core
     end
 
     def apply(address, data)
-      # Addresses are 1 indexed, not 0
-      address = address - 1
-      @data[address..(address+data.length-1)] = data
+      @data[address_range(address, data.length)] = data
     end
 
     def get(start, footprint)
-      @data[start..(start+footprint)]
+      @data[address_range(start, footprint)]
     end
 
     def dump
@@ -26,6 +24,12 @@ module Core
         printf("%03d ", value)
         print("\n") if (index + 1) % 32 == 0
       end
+    end
+
+    private
+
+    def address_range(start, size)
+      (start-1)..(start+size-1)
     end
   end
 end

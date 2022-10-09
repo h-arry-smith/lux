@@ -98,9 +98,30 @@ module Console
       @main.clrtoeol
       @main << "\n"
 
-      @lux.world.fixtures.each { |fixture| draw_fixture(fixture) }
-      @main << "\n"
-      @main << "\n"
+      draw_fixtures
+    end
+
+    def draw_fixtures
+      grouped_fixtures = @lux.world.fixtures.group_by { |f| f.fixture_name }
+
+      grouped_fixtures.each do |name, fixtures|
+        slice_size = (@main.maxx - 10) / fixture_string_length(fixtures.first)
+        @main << "-"*178
+        @main.attron(Curses::A_BOLD) { @main << " #{name} - #{fixtures.length} - #{slice_size}\n" }
+        fixtures.each_slice(slice_size) do |row|
+          row.each { |f| draw_fixture(f) }
+          @main.clrtoeol
+          @main << "\n"
+        end
+      end
+    end
+
+    def fixture_string_length(fixture)
+      id = format("%4d", fixture.id)
+      dmx_values = Array.new(fixture.fixture_footprint + 1, 0)
+      dmx_string = dmx_values.map { |v| format("%03d", v) }.join(" ")
+
+      "#{id} | #{dmx_string}".length
     end
 
     def draw_fixture(fixture)
@@ -116,8 +137,6 @@ module Console
       @main.attroff(Curses.color_pair(YELLOW_ON_BLACK))
 
       @main << dmx_string
-      @main.clrtoeol
-      @main << "\n"
     end
 
     def clear_rest
