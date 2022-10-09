@@ -41,11 +41,11 @@ if ARGV.length == 1
   working_directory = File.dirname(File.expand_path(entry_file))
 
   lux = Core::Lux.new(working_directory, DEBUG_FLAGS)
-  console = Console::Console.new(lux)
 
   lux_thread = Thread.new { lux.start(entry_file) }
 
   if DEBUG_FLAGS[:dev_console]
+    console = Console::Console.new(lux)
     console_thread = Thread.new { console.run() }
   end
 

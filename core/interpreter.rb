@@ -159,6 +159,8 @@ module Core
     def interpret(ast)
       @previous_defined_globals = @defined_globals
       @defined_globals = []
+      @world.refresh_time_context
+
       ast.each { |statement| evaluate(statement) }
 
       cleanup_globals
@@ -167,7 +169,6 @@ module Core
     private
 
     def evaluate(expr)
-      @world.refresh_time_context
       expr.accept(self)
     end
 
