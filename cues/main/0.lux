@@ -2,7 +2,7 @@
 @delay 3s;
 
 [1->2] {
-  intensity: 100;
+  intensity: sin();
 }
 
 [101->102] {

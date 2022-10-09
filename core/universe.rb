@@ -13,6 +13,10 @@ module Core
       @data[address..(address+data.length-1)] = data
     end
 
+    def get(start, footprint)
+      @data[start..(start+footprint)]
+    end
+
     def dump
       puts "-"*4*32
       puts "Universe #{@number} - #{@data.length}"
