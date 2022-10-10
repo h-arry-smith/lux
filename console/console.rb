@@ -2,6 +2,7 @@ require "curses"
 require_relative "colors"
 require_relative "tab"
 require_relative "cue_list"
+require_relative "main_console"
 
 module Console
   class Console < Widget
@@ -9,7 +10,7 @@ module Console
       @lux = lux
 
       @tablist = TabList.new()
-      @tablist << Tab.new("console", nil)
+      @tablist << Tab.new("console", MainConsole.new(@lux))
       @tablist << Tab.new("cue list", CueList.new(@lux.cue_engine))
 
       initialize_curses
@@ -25,14 +26,11 @@ module Console
         loop do
           @win.setpos(0, 0)
           draw_border
-          draw_tabs
 
-          case @tablist.current_tab.name
-          when "console"
-            draw_console
-          when "cue list"
-            @tablist.current_tab.draw(@main)
-          end
+          @main.setpos(0, 0)
+
+          @tablist.draw(@main)
+          @tablist.current_tab.draw(@main)
 
           clear_rest(@main)
 
@@ -111,57 +109,6 @@ module Console
       format("%02d:%02d:%02d", hours, minutes, seconds)
     end
 
-    def draw_tabs
-      @main.setpos(0, 0)
-      @tablist.draw(@main)
-    end
-
-    def draw_console
-      @main.setpos(1, 0)
-      @main << " "
-      @main << @lux.loaded_cuelist.to_s
-      @main.clrtoeol
-      @main << "\n"
-
-      draw_fixtures
-    end
-
-    def draw_fixtures
-      grouped_fixtures = @lux.world.fixtures.group_by { |f| f.fixture_name }
-
-      grouped_fixtures.each do |name, fixtures|
-        slice_size = (@main.maxx - 10) / fixture_string_length(fixtures.first)
-        @main.attron(Curses::A_BOLD) { @main << " #{name} - #{fixtures.length} - #{slice_size}\n" }
-        fixtures.each_slice(slice_size) do |row|
-          row.each { |f| draw_fixture(f) }
-          @main.clrtoeol
-          @main << "\n"
-        end
-      end
-    end
-
-    def fixture_string_length(fixture)
-      id = format("%4d", fixture.id)
-      dmx_values = Array.new(fixture.fixture_footprint + 1, 0)
-      dmx_string = dmx_values.map { |v| format("%03d", v) }.join(" ")
-
-      "#{id} | #{dmx_string}".length
-    end
-
-    def draw_fixture(fixture)
-      return if @lux.lighting_engine.universes.empty?
-
-      id = format("%4d", fixture.id)
-      universe = @lux.lighting_engine.universes[fixture.universe - 1]
-      dmx_values = universe.get(fixture.address, fixture.fixture_footprint)
-      dmx_string = dmx_values.map { |v| format("%03d", v) }.join(" ")
-
-      @main.attron(Curses.color_pair(YELLOW_ON_BLACK))
-      @main << " #{id} | "
-      @main.attroff(Curses.color_pair(YELLOW_ON_BLACK))
-
-      @main << dmx_string
-    end
 
     def clear_rest(win)
       (win.maxy - win.cury).times {win.deleteln()}
