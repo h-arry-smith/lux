@@ -1,4 +1,5 @@
 require "listen"
+require "pathname"
 
 require_relative "ast_printer"
 require_relative "interpreter"
@@ -180,6 +181,15 @@ module Core
       end
     end
 
+    def added_file(file)
+      puts "Added file: #{file}"
+      path = Pathname.new(file)
+      cuelist_identifier = path.dirname.basename.to_s
+
+      @cue_engine.reload(cuelist_identifier)
+    end
+
+
     def only_file_is_current_cue?(files_to_rerun)
       return false if files_to_rerun.length > 1
       file = files_to_rerun.first
@@ -207,10 +217,6 @@ module Core
 
         evaluate_file(actual_cue)
       end
-    end
-
-    def added_file(file)
-      puts "Added file: #{file}"
     end
 
     def removed_file(file)

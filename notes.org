@@ -293,7 +293,7 @@ The main view can just show the fixture number and it's DMX values, debug output
 - [X] Improve Debug Output of World Lighting State
 - [X] Implement a single file watcher that reloads the world state every time it changes
 - [X] Seperate out core lux into it's own folder and restructure code running 
-- [ ] Create a dev console which allows interaction with the lighting state while it's running.
+- [X] Create a dev console which allows interaction with the lighting state while it's running.
 
 ** Basic Show Files
 A Show file is a folder of a predefined structure. In the simple case before their is cue stacks this should only consist of a handful of files.
@@ -308,7 +308,10 @@ The lux program starts an event loop, loading in the show.
 It starts a watcher that will watch files for changes, and respond to them as needed - which for some of the default file structure might need special actions.
 
 - [ ] Create a CLI command that creates a new show file and instantiates a basic structure
-- [ ] Create a file watcher that watches for changes in all those files
+- [X] Create a file watcher that watches for changes in all those files
+  - [ ] Handle Added Files
+  - [ ] Handle Removed Files
+  - [ ] Handle 'always eval' files - definitions folder?
 - [ ] Load the test show file and execute main.lux
 
 ** Basic Folder/File Cue Lists
@@ -345,7 +348,7 @@ There are some language command keywords that need to be implemented with the fo
   execute [cue] [cuelist] - run the code in a cuelist without running the preceeding cues
 #+end_src
 
-- [ ] Implement the global level time directives in main.lux
+- [X] Implement the global level time directives in main.lux
 - [X] Create a cuelist folder and cues inside of it
 - [X] Load a cuelist (by default for this purpose) and enter the first cue successfully
 - [ ] Implement the load, go and goto, execute in it's basic form

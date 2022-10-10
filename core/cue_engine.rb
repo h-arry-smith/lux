@@ -32,6 +32,12 @@ module Core
       end
     end
 
+    def reload(identifier)
+      if @cuelists[identifier]
+        @cuelists[identifier].reload
+      end
+    end
+
     private
 
     def initialize_cuelists
@@ -93,6 +99,13 @@ module Core
 
     def all_cues_till_current
       @cues[..@current]
+    end
+
+    def reload
+      current_cue_path = @cues[@current]
+
+      @cues = cue_paths
+      @current = @cues.find_index { |cue| cue == current_cue_path }
     end
 
     def to_s
