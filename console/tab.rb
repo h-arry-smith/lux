@@ -43,7 +43,7 @@ module Console
     end
 
     def draw(window)
-      # @widget.draw(window)
+      @widget.draw(window)
     end
 
     def draw_tab(window)

@@ -1,6 +1,7 @@
 require "curses"
 require_relative "colors"
 require_relative "tab"
+require_relative "cue_list"
 
 module Console
   class Console < Widget
@@ -9,7 +10,7 @@ module Console
 
       @tablist = TabList.new()
       @tablist << Tab.new("console", nil)
-      @tablist << Tab.new("cue list", nil)
+      @tablist << Tab.new("cue list", CueList.new(@lux.cue_engine))
 
       initialize_curses
     end
@@ -30,8 +31,10 @@ module Console
           when "console"
             draw_console
           when "cue list"
-            draw_cue_list
+            @tablist.current_tab.draw(@main)
           end
+
+          clear_rest(@main)
 
           key = @win.getch.to_s
           @win.setpos(0, 40)
@@ -113,42 +116,6 @@ module Console
       @tablist.draw(@main)
     end
 
-    def draw_cue_list
-      @main.setpos(1, 0)
-
-      @main.attron(Curses.color_pair(BLACK_ON_WHITE))
-      @main << " "
-      @main << @lux.cue_engine.current.to_s
-      space_to_end(@main)
-      @main.attroff(Curses.color_pair(BLACK_ON_WHITE))
-
-      @lux.cue_engine.current.cues.each_with_index do |cue, index|
-        if cue == @lux.cue_engine.current.cue
-          @main.attron(Curses.color_pair(YELLOW_ON_BLUE))
-          draw_cue(cue, index)
-          @main.attroff(Curses.color_pair(YELLOW_ON_BLUE))
-        else
-          draw_cue(cue, index)
-        end
-      end
-
-      clear_rest(@main)
-    end
-
-    def draw_cue(cue, index)
-      @main << format(" %4d", index)
-      @main << " | "
-
-      if cue.metadata["title"]
-        @main << cue.metadata["title"]
-      else
-        @main << cue.name
-      end
-
-      space_to_end(@main)
-    end
-
-
     def draw_console
       @main.setpos(1, 0)
       @main << " "
@@ -157,7 +124,6 @@ module Console
       @main << "\n"
 
       draw_fixtures
-      clear_rest(@main)
     end
 
     def draw_fixtures
