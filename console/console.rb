@@ -1,12 +1,16 @@
 require "curses"
 require_relative "colors"
+require_relative "tab"
 
 module Console
-  class Console
+  class Console < Widget
     def initialize(lux)
       @lux = lux
-      @tabs = ["console", "cue list"]
-      @current_tab = 0
+
+      @tablist = TabList.new()
+      @tablist << Tab.new("console", nil)
+      @tablist << Tab.new("cue list", nil)
+
       initialize_curses
     end
 
@@ -22,7 +26,7 @@ module Console
           draw_border
           draw_tabs
 
-          case @tabs[@current_tab]
+          case @tablist.current_tab.name
           when "console"
             draw_console
           when "cue list"
@@ -47,20 +51,6 @@ module Console
 
     private
 
-    def handle_key(key)
-      case key
-      when ' '
-        @lux.evaluate("go;")
-      when '9'
-        advance_tab
-      end
-    end
-
-    def advance_tab
-      @current_tab += 1
-      @current_tab = 0 if @current_tab >= @tabs.length
-    end
-
     def initialize_curses
       Curses.init_screen
       Curses.start_color
@@ -69,6 +59,15 @@ module Console
       Curses.init_pair(BLACK_ON_WHITE, 0, 7)
       Curses.init_pair(YELLOW_ON_BLACK, 3, 0)
       Curses.init_pair(YELLOW_ON_BLUE, 3, 4)
+    end
+
+    def handle_key(key)
+      case key
+      when ' '
+        @lux.evaluate("go;")
+      when '9'
+        @tablist.advance
+      end
     end
 
     def create_window
@@ -111,16 +110,7 @@ module Console
 
     def draw_tabs
       @main.setpos(0, 0)
-      @tabs.each_with_index do |tab, index|
-        tab_string = "   #{tab}   "
-        if @current_tab == index
-          @main.attron(Curses.color_pair(YELLOW_ON_BLUE)) { @main << tab_string }
-        else
-          @main << tab_string
-        end
-      end
-      @main.clrtoeol
-      @main << "\n"
+      @tablist.draw(@main)
     end
 
     def draw_cue_list
@@ -158,10 +148,6 @@ module Console
       space_to_end(@main)
     end
 
-    def space_to_end(win)
-      spaces = win.maxx - win.curx
-      win << " " * spaces
-    end
 
     def draw_console
       @main.setpos(1, 0)
