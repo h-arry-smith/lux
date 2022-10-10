@@ -128,6 +128,9 @@ module Core
       when :go
         @cue_engine.current.go
         @world.resolve_fades(@time.elapsed)
+
+        puts "#{"#"*20}    CUE #{@cue_engine.current.cue}    #{"#"*20}"
+
         evaluate_file(@cue_engine.current.cue)
         reset_time
       when :goto

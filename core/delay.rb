@@ -61,7 +61,7 @@ module Core
 
     def self.from(current, target, time_context)
       target = current if target.nil?
-      return current if target.value == current.value && !time_context.any_delay?
+      return target if target.value == current.value && !time_context.any_delay?
       return target unless time_context.any_delay?
 
       if time_context.dup && target.value > current.value

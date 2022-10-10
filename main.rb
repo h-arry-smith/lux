@@ -5,7 +5,7 @@ require_relative "console/console"
 DEBUG_FLAGS = {
   token: false,
   ast: false,
-  lx_state: false,
+  lx_state: true,
   dump_universe: false,
   dev_console: true,
   broadcast: false,
@@ -20,14 +20,15 @@ if ARGV.length == 1
   lux_thread = Thread.new { lux.start(entry_file) }
 
   if DEBUG_FLAGS[:dev_console]
-    $stdout = File.new( '/tmp/output', 'w' )
+    $stdout = File.new('tmp/output', 'w')
     console = Console::Console.new(lux)
     console_thread = Thread.new { console.run() }
   end
 
   lux_thread.join
-end
 
-@stdout = STDOUT
+  lux.execute("go;")
+  lux.execute("go;")
+end
 
 puts "Usage: lux <entry_file>"
