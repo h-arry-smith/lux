@@ -174,7 +174,33 @@ module Core
     # last cue, if it exists?
     def modified_file(file)
       puts "Detected change in: #{file}"
+      rebuild_from_file(file)
+    end
+
+    def added_file(file)
+      puts "Added file: #{file}"
+      path = Pathname.new(file)
+      cuelist_identifier = path.dirname.basename.to_s
+
+      @cue_engine.reload(cuelist_identifier)
+
+      rebuild_from_file(file)
+    end
+
+    def removed_file(file)
+      puts "Removed file: #{file}"
+      path = Pathname.new(file)
+      cuelist_identifier = path.dirname.basename.to_s
+      @cue_engine.reload(cuelist_identifier)
+
+      rebuild_from_file(file)
+    end
+
+    def rebuild_from_file(file)
       files_to_rerun = @cue_engine.files_to_rerun(file)
+
+      puts "REBUILDING FILES"
+      p files_to_rerun
 
       if only_file_is_current_cue?(files_to_rerun)
         rebuild_world_from_files(files_to_rerun)
@@ -184,20 +210,10 @@ module Core
       end
     end
 
-    def added_file(file)
-      puts "Added file: #{file}"
-      path = Pathname.new(file)
-      cuelist_identifier = path.dirname.basename.to_s
-
-      @cue_engine.reload(cuelist_identifier)
-    end
-
-
     def only_file_is_current_cue?(files_to_rerun)
       return false if files_to_rerun.length > 1
       file = files_to_rerun.first
 
-      p file, @cue_engine.current.cue
       @cue_engine.current.cue == file
     end
 
@@ -222,8 +238,5 @@ module Core
       end
     end
 
-    def removed_file(file)
-      puts "Removed file: #{file}"
-    end
   end
 end

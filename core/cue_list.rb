@@ -40,6 +40,12 @@ module Core
       index <= @current
     end
 
+    def cue_exists?(target_cue)
+      cue = @cues.find { |cue| cue.to_s == target_cue }
+
+      !cue.nil?
+    end
+
     def all_cues_till_current
       @cues[..@current]
     end
@@ -49,6 +55,8 @@ module Core
 
       @cues = cue_paths
       @current = @cues.find_index { |cue| cue == current_cue_path }
+      # If you remove the current cue, just go to the first cue
+      @current = 0 if @current.nil?
     end
 
     def to_s

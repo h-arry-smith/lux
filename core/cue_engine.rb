@@ -29,6 +29,8 @@ module Core
 
       if @current.cue_is_before_current?(file)
         @current.all_cues_till_current
+      elsif !@current.cue_exists?(file)
+        @current.all_cues_till_current
       else
         []
       end
