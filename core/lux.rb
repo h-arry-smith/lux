@@ -123,7 +123,7 @@ module Core
       case symbol
       when :load
         @cue_engine.load(data[:identifier])
-        evaluate_file(@cue_engine.current.cue)
+        evaluate_file(@cue_engine.current.cue.path)
         reset_time
       when :go
         @cue_engine.current.go
@@ -131,7 +131,7 @@ module Core
 
         puts "#{"#"*20}    CUE #{@cue_engine.current.cue}    #{"#"*20}"
 
-        evaluate_file(@cue_engine.current.cue)
+        evaluate_file(@cue_engine.current.cue.path)
         reset_time
       when :goto
         rebuild, files_to_run = @cue_engine.current.goto(data[:cue])
@@ -170,12 +170,17 @@ module Core
       end
     end
 
-    # TODO : If file is current cue, can we just run from the previous state of the
+    # TODO: If file is current cue, can we just run from the previous state of the
     # last cue, if it exists?
+
+    # TODO: Detect what a file is, if it isn't a cue, then is it something we
+    # need to reevaluate?
+
     def modified_file(file)
       puts "Detected change in: #{file}"
       rebuild_from_file(file)
     end
+
 
     def added_file(file)
       puts "Added file: #{file}"

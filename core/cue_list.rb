@@ -1,8 +1,10 @@
+require_relative "cue"
+
 module Core
   class CueList
     def initialize(path)
       @path = path
-      @cues = cue_paths
+      @cues = generate_cues
       @current = 0
     end
 
@@ -33,15 +35,15 @@ module Core
       @cues[@current]
     end
 
-    def cue_is_before_current?(target_cue)
-      index = @cues.find_index { |cue| cue.to_s == target_cue }
+    def cue_is_before_current?(target_cue_path)
+      index = @cues.find_index { |cue| cue.path == target_cue_path }
       return false if index.nil?
 
       index <= @current
     end
 
-    def cue_exists?(target_cue)
-      cue = @cues.find { |cue| cue.to_s == target_cue }
+    def cue_exists?(target_cue_path)
+      cue = @cues.find { |cue| cue.path == target_cue_path }
 
       !cue.nil?
     end
@@ -51,22 +53,22 @@ module Core
     end
 
     def reload
-      current_cue_path = @cues[@current]
+      current_cue_path = @cues[@current].path
 
-      @cues = cue_paths
-      @current = @cues.find_index { |cue| cue == current_cue_path }
+      @cues = generate_cues
+      @current = @cues.find_index { |cue| cue.path == current_cue_path }
       # If you remove the current cue, just go to the first cue
       @current = 0 if @current.nil?
     end
 
     def to_s
-      "CueList '#{@path.basename.to_s}' - Total: #{@cues.length} - Active: #{cue.basename}"
+      "CueList '#{@path.basename}' - Total: #{@cues.length} - Active: #{cue.name}"
     end
 
     private
 
-    def cue_paths
-      @path.children.sort.map { |child| child.expand_path }
+    def generate_cues
+      @path.children.sort.map { |child| Cue.new(child.expand_path) }
     end
   end
 end

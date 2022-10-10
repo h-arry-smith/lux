@@ -21,16 +21,16 @@ module Core
 
     def current_file?(file)
       return false if @current.nil?
-      @current.cue == file
+      @current.cue.path == file
     end
 
     def files_to_rerun(file)
       return [] if @current.nil?
 
       if @current.cue_is_before_current?(file)
-        @current.all_cues_till_current
+        @current.all_cues_till_current.map { |cue| cue.path }
       elsif !@current.cue_exists?(file)
-        @current.all_cues_till_current
+        @current.all_cues_till_current.map { |cue| cue.path }
       else
         []
       end
