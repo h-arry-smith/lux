@@ -2,6 +2,8 @@ require_relative "cue"
 
 module Core
   class CueList
+    attr_reader :cues
+
     def initialize(path)
       @path = path
       @cues = generate_cues

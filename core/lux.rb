@@ -14,7 +14,7 @@ require_relative "world"
 
 module Core
   class Lux
-    attr_reader :world, :lighting_engine, :time
+    attr_reader :world, :lighting_engine, :time, :cue_engine
 
     def initialize(root_directory, debug_flags)
       @root_directory = root_directory

@@ -5,6 +5,8 @@ module Console
   class Console
     def initialize(lux)
       @lux = lux
+      @tabs = ["console", "cue list"]
+      @current_tab = 0
       initialize_curses
     end
 
@@ -18,7 +20,14 @@ module Console
         loop do
           @win.setpos(0, 0)
           draw_border
-          draw_console
+          draw_tabs
+
+          case @tabs[@current_tab]
+          when "console"
+            draw_console
+          when "cue list"
+            draw_cue_list
+          end
 
           key = @win.getch.to_s
           @win.setpos(0, 40)
@@ -42,7 +51,14 @@ module Console
       case key
       when ' '
         @lux.evaluate("go;")
+      when '9'
+        advance_tab
       end
+    end
+
+    def advance_tab
+      @current_tab += 1
+      @current_tab = 0 if @current_tab >= @tabs.length
     end
 
     def initialize_curses
@@ -52,6 +68,7 @@ module Console
       Curses.noecho
       Curses.init_pair(BLACK_ON_WHITE, 0, 7)
       Curses.init_pair(YELLOW_ON_BLACK, 3, 0)
+      Curses.init_pair(YELLOW_ON_BLUE, 3, 4)
     end
 
     def create_window
@@ -92,13 +109,69 @@ module Console
       format("%02d:%02d:%02d", hours, minutes, seconds)
     end
 
+    def draw_tabs
+      @main.setpos(0, 0)
+      @tabs.each_with_index do |tab, index|
+        tab_string = "   #{tab}   "
+        if @current_tab == index
+          @main.attron(Curses.color_pair(YELLOW_ON_BLUE)) { @main << tab_string }
+        else
+          @main << tab_string
+        end
+      end
+      @main.clrtoeol
+      @main << "\n"
+    end
+
+    def draw_cue_list
+      @main.setpos(1, 0)
+
+      @main.attron(Curses.color_pair(BLACK_ON_WHITE))
+      @main << " "
+      @main << @lux.cue_engine.current.to_s
+      space_to_end(@main)
+      @main.attroff(Curses.color_pair(BLACK_ON_WHITE))
+
+      @lux.cue_engine.current.cues.each_with_index do |cue, index|
+        if cue == @lux.cue_engine.current.cue
+          @main.attron(Curses.color_pair(YELLOW_ON_BLUE))
+          draw_cue(cue, index)
+          @main.attroff(Curses.color_pair(YELLOW_ON_BLUE))
+        else
+          draw_cue(cue, index)
+        end
+      end
+
+      clear_rest(@main)
+    end
+
+    def draw_cue(cue, index)
+      @main << format(" %4d", index)
+      @main << " | "
+
+      if cue.metadata["title"]
+        @main << cue.metadata["title"]
+      else
+        @main << cue.name
+      end
+
+      space_to_end(@main)
+    end
+
+    def space_to_end(win)
+      spaces = win.maxx - win.curx
+      win << " " * spaces
+    end
+
     def draw_console
-      @main.setpos(0, 1)
+      @main.setpos(1, 0)
+      @main << " "
       @main << @lux.loaded_cuelist.to_s
       @main.clrtoeol
       @main << "\n"
 
       draw_fixtures
+      clear_rest(@main)
     end
 
     def draw_fixtures
@@ -106,7 +179,6 @@ module Console
 
       grouped_fixtures.each do |name, fixtures|
         slice_size = (@main.maxx - 10) / fixture_string_length(fixtures.first)
-        @main << "-"*178
         @main.attron(Curses::A_BOLD) { @main << " #{name} - #{fixtures.length} - #{slice_size}\n" }
         fixtures.each_slice(slice_size) do |row|
           row.each { |f| draw_fixture(f) }
@@ -139,8 +211,8 @@ module Console
       @main << dmx_string
     end
 
-    def clear_rest
-      (@win.maxy - @win.cury - 2).times {@win.deleteln()}
+    def clear_rest(win)
+      (win.maxy - win.cury).times {win.deleteln()}
     end
   end
 end
