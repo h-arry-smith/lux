@@ -139,12 +139,13 @@ module Core
     attr_reader :id, :default, :offset
     attr_accessor :value
 
-    def initialize(id, default, offset, min, max)
+    def initialize(id, default, offset, min, max, fine)
       @id = id
       @default = StaticValue.new(default)
       @offset = offset
       @min = min
       @max = max
+      @fine = fine
     end
 
     def instantiate
@@ -152,15 +153,32 @@ module Core
     end
 
     def to_dmx(current_value)
+      return to_dmx_fine(current_value) if @fine
       return 255 if current_value >= @max
       return 0 if current_value <= @min
 
+      (factor(current_value) * 255).round
+    end
+    
+    def to_dmx_fine(current_value)
+      return [255, 255] if current_value >= @max
+      return [0, 0] if current_value <= @min
+      
+      percent_factor = factor(current_value) * 100
+      
+      main_factor = factor(current_value).floor / 100.0
+      fractional_factor = factor(current_value) % 1
+
+      main_part = (main_factor * 255).round
+      fractional_part = (fractional_factor * 255).round
+      
+      [main_part, fractional_part]
+    end
+    
+    def factor(current_value)
       difference = @max - @min
       relative_value = current_value - @min
-      factor = relative_value / difference
-      
-
-      (factor * 255).round
+      relative_value / difference
     end
 
     def to_s

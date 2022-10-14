@@ -26,7 +26,12 @@ module Core
 			add_parameters(fixture_class, data["params"])
 			
 			if data["color"]
-				fixture_class.color data["color"].to_sym
+				if data["color"].is_a?(String)
+					fixture_class.color data["color"].to_sym
+				elsif data["color"].is_a?(Hash)
+					opts = { offset: data["color"]["offset"] }
+					fixture_class.color data["color"]["space"].to_sym, **opts
+				end
 			end
 
 			@fixtures[fixture_identifier(file)] = fixture_class

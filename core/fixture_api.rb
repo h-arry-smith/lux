@@ -31,22 +31,25 @@ module Core
         @name = name
       end
 
-      def param(parameter, default: 0, offset: nil, min: 0, max: 100)
+      def param(parameter, default: 0, offset: nil, min: 0, max: 100, fine: false)
         @max_offset = 0 if @max_offset.nil?
         @current_offset = 0 if @current_offset.nil?
         @params = {} if @params.nil?
 
-        if offset.nil?
-          offset = @current_offset
-          @current_offset += 1
-        end
+        @current_offset = offset - 1 unless offset.nil?
 
-        @max_offset = offset if offset > @max_offset
+        @max_offset = @current_offset if @current_offset > @max_offset
 
         if @current_group
-          @current_group[parameter.to_s] = Parameter.new(parameter.to_s, default, offset, min, max)
+          @current_group[parameter.to_s] = Parameter.new(parameter.to_s, default, @current_offset, min, max, fine)
         else
-          @params[parameter.to_s] = Parameter.new(parameter.to_s, default, offset, min, max)
+          @params[parameter.to_s] = Parameter.new(parameter.to_s, default, @current_offset, min, max, fine)
+        end
+
+        if fine
+          @current_offset += 2
+        else
+          @current_offset += 1
         end
       end
 
@@ -62,12 +65,11 @@ module Core
 
       def color(color_space, **opts)
         @color_space = color_space
+        @current_offset = opts[:offset] - 1 if opts[:offset]
+        
         group :color do
           ColorSpace.value(color_space).each_with_index do |color, index|
-            if opts[:offset]
-              opts[:offset] = opts[:offset] + index
-            end
-            param(color, **opts)
+            param(color)
           end
         end
       end
