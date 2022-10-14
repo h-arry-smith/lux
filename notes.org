@@ -309,8 +309,8 @@ It starts a watcher that will watch files for changes, and respond to them as ne
 
 - [ ] Create a CLI command that creates a new show file and instantiates a basic structure
 - [X] Create a file watcher that watches for changes in all those files
-  - [ ] Handle Added Files
-  - [ ] Handle Removed Files
+  - [X] Handle Added Files
+  - [X] Handle Removed Files
   - [ ] Handle 'always eval' files - definitions folder?
 - [ ] Load the test show file and execute main.lux
 

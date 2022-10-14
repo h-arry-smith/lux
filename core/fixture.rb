@@ -196,20 +196,4 @@ module Core
       raise RuntimeError.new("Parameter #{parameter} not valid for fixture #{id}")
     end
   end
-
-  class Dimmer < Fixture
-    name "Dimmer"
-    param :intensity
-  end
-
-  class MovingLight < Fixture
-    name "Moving Light"
-    param :intensity
-    group :position do
-      param :pan, min: -270, max: 270
-      param :tilt, min: -123, max: 123
-    end
-
-    color :rgb
-  end
 end

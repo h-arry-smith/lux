@@ -11,6 +11,7 @@ require_relative "output"
 require_relative "time_context"
 require_relative "timer"
 require_relative "world"
+require_relative "fixture_library"
 
 module Core
   class Lux
@@ -19,6 +20,8 @@ module Core
     def initialize(root_directory, debug_flags)
       @root_directory = root_directory
       @debug_flags = debug_flags
+
+      @fixture_library = FixtureLibrary.new('fixture_library')
 
       @time = Timer.new()
       @world = make_world
@@ -38,8 +41,11 @@ module Core
     def make_world
       world = World.new()
       # Temporary World
-      18.times { |x| world.add(Dimmer.new(x + 1, 1, 1 + x)) }
-      6.times { |x| world.add(MovingLight.new(x + 101, 1, 101+(6*x))) }
+      dimmer = @fixture_library["generic/dimmer"]
+      moving_light = @fixture_library["generic/moving-light"]
+      
+      18.times { |x| world.add(dimmer.new(x + 1, 1, 1 + x)) }
+      6.times { |x| world.add(moving_light.new(x + 101, 1, 101+(6*x))) }
 
       world
     end
