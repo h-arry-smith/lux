@@ -1,11 +1,5 @@
 // title: Intro
-@fade 6s;
-@delay 3s;
 
-[1->2] {
-  intensity: 10;
-}
-
-[101->102] {
-  position: (30, 0);
+[201] {
+  position: (0, 0);
 }

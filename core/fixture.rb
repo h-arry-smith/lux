@@ -34,7 +34,7 @@ module Core
         if dmx_value.is_a?(Numeric)
           data[parameter.offset] = dmx_value
         elsif dmx_value.is_a?(Array)
-          data[parameter.offset..(dmx_value.length-1)] = dmx_value
+          data[parameter.offset..(dmx_value.length-1)] = dmx_value.flatten
         end
       end
 

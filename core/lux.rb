@@ -43,9 +43,11 @@ module Core
       # Temporary World
       dimmer = @fixture_library["generic/dimmer"]
       moving_light = @fixture_library["generic/moving-light"]
+      robe_1200 = @fixture_library["robe/colorwash_1200E_AT-m1"]
       
       18.times { |x| world.add(dimmer.new(x + 1, 1, 1 + x)) }
       6.times { |x| world.add(moving_light.new(x + 101, 1, 101+(6*x))) }
+      world.add(robe_1200.new(201, 1, 301))
 
       world
     end
