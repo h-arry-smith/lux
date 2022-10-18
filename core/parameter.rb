@@ -174,7 +174,7 @@ module Core
       
       percent_factor = factor(current_value) * 100
       
-      main_factor = factor(current_value).floor / 100.0
+      main_factor = percent_factor.floor / 100.0
       fractional_factor = factor(current_value) % 1
 
       main_part = (main_factor * 255).round
@@ -186,7 +186,7 @@ module Core
     def factor(current_value)
       difference = @max - @min
       relative_value = current_value - @min
-      relative_value / difference
+      relative_value.to_f / difference.to_f
     end
 
     def to_s
