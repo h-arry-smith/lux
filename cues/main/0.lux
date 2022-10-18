@@ -1,2 +1,23 @@
 // title: Intro
 
+#cyan {
+  color: cmy(100, 0, 0);
+}
+
+#magenta {
+  color: cmy(0, 100, 0);
+}
+
+#yellow {
+  color: cmy(0, 0, 100);
+}
+
+[201] {
+  intensity: 100;
+  zoom: 60;
+  shutter: 100;
+}
+
+[1->18] {
+  intensity: 100;
+}

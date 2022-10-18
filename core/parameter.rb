@@ -89,7 +89,7 @@ module Core
 
     def default_tuple_from_children
       defaults = {}
-      @children.each { |id, child| defaults[id.to_sym] = child.value }
+      @children.each { |id, child| defaults[id.to_sym] = child.parameter.default }
       ValueTuple.new(defaults)
     end
   end

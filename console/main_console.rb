@@ -29,6 +29,7 @@ module Console
         draw_fixture_group_header(name, fixtures, window)
 
         size = slice_size(fixtures.first, window)
+        size = 1 if size == 0
         fixtures.each_slice(size) do |row|
           row.each { |f| Fixture.new(f).draw(@lux, window) }
           window.clrtoeol
