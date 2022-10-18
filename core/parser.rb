@@ -242,11 +242,12 @@ module Core
       index = 0
 
       until check(Token::RIGHT_PAREN)
-        if match(Token::IDENTIFIER)
+        if check(Token::IDENTIFIER) && peek_next == Token::COLON
+          consume(Token::IDENTIFIER, "Name tuple argument must be an identifier.")
           id = previous.lexeme.to_sym
           consume(Token::COLON, "Expected colon after identifier")
           literal[id] = argument
-        elsif check(Token::NUMBER) || check(Token::UNDERSCORE)
+        else
           literal[:"_#{index}"] = argument
           index += 1
         end
@@ -339,6 +340,10 @@ module Core
 
     def peek
       @tokens[@current]
+    end
+    
+    def peek_next
+      @tokens[@current + 1]
     end
 
     def previous
