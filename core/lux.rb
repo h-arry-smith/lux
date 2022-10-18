@@ -232,7 +232,7 @@ module Core
 
     def rebuild_world_from_files(files_to_rerun)
       unless files_to_rerun.empty?
-        @world.reset unless files_to_rerun.empty?
+        @world.reset
         run_files(files_to_rerun)
       end
     end

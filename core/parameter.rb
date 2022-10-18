@@ -11,6 +11,10 @@ module Core
       @value = default_tuple_from_children
       @time_context = nil
     end
+    
+    def id
+      @parameter.id
+    end
 
     def reset
       @value = default_tuple_from_children
@@ -96,6 +100,10 @@ module Core
     def initialize(parameter)
       @parameter = parameter
       @value = parameter.default
+    end
+    
+    def id
+      @parameter.id
     end
 
     def reset

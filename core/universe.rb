@@ -29,7 +29,7 @@ module Core
     private
 
     def address_range(start, size)
-      (start-1)..(start+size-1)
+      (start-1)..(start+size-2)
     end
   end
 end

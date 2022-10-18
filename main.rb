@@ -8,7 +8,7 @@ DEBUG_FLAGS = {
   lx_state: true,
   dump_universe: false,
   dev_console: true,
-  broadcast: false,
+  broadcast: true,
 }
 
 if ARGV.length == 1

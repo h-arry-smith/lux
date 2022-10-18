@@ -34,7 +34,10 @@ module Core
         if dmx_value.is_a?(Numeric)
           data[parameter.offset] = dmx_value
         elsif dmx_value.is_a?(Array)
-          data[parameter.offset..(dmx_value.length-1)] = dmx_value.flatten
+          dmx_value.flatten!
+          start = parameter.offset
+          finish = start + dmx_value.length
+          data[start...finish] = dmx_value
         end
       end
 
@@ -43,6 +46,7 @@ module Core
 
     def reset
       @params.values.each { |parameter| parameter.reset }
+      p @params
     end
 
     def resolve(elapsed_time)
@@ -94,8 +98,6 @@ module Core
 
       if @params.key?(parameter)
         return @params[parameter]
-      elsif fixture_groups.key?(parameter)
-        return fixture_groups[parameter]
       end
 
       raise RuntimeError.new("Parameter #{parameter} not valid for fixture #{id}")

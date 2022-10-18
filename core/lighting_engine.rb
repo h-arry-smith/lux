@@ -17,7 +17,6 @@ module Core
         universe = get_or_create_universe(fixture.universe)
 
         data = fixture.run(@timer.elapsed)
-
         universe.apply(fixture.address, data)
       end
     end

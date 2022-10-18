@@ -18,7 +18,7 @@ module Core
       end
 
       def fixture_footprint
-        self.class.instance_variable_get(:@max_offset)
+        self.class.instance_variable_get(:@max_offset) + 1
       end
 
       def fixture_name
