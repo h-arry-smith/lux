@@ -21,8 +21,6 @@ module Core
     
     def apply(identifier, value, time_context)
       instance = get_parameter_instance(identifier)
-      
-      value.parameter = instance.parameter
 
       instance.apply(value, time_context)
     end
@@ -48,7 +46,6 @@ module Core
 
     def reset
       @params.values.each { |parameter| parameter.reset }
-      p @params
     end
 
     def resolve(elapsed_time)

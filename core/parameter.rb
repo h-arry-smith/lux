@@ -95,11 +95,20 @@ module Core
   end
 
   class ParameterInstance
-    attr_accessor :parameter, :value
+    attr_accessor :parameter
 
     def initialize(parameter)
       @parameter = parameter
       @value = parameter.default
+    end
+    
+    def value
+      @value
+    end
+    
+    def value=(value)
+      @value = value
+      value.parameter = @parameter
     end
     
     def id
@@ -107,7 +116,7 @@ module Core
     end
 
     def reset
-      @value = parameter.default
+      @value = @parameter.default
     end
 
     def resolve(time)
@@ -134,7 +143,7 @@ module Core
     end
 
     def run(time)
-      current_value = value.run(time)
+      current_value = @value.run(time)
       @parameter.to_dmx(current_value)
     end
 
@@ -145,7 +154,6 @@ module Core
 
   class Parameter
     attr_reader :id, :default, :offset, :min, :max
-    attr_accessor :value
 
     def initialize(id, default, offset, min, max, fine)
       @id = id
