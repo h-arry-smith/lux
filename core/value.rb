@@ -4,7 +4,7 @@ module Core
       raise NotImplementedError
     end
 
-    def run(_time)
+    def run(_time, _parameter)
       raise NotImplementedError
     end
 
@@ -24,7 +24,7 @@ module Core
       self
     end
 
-    def run(_time)
+    def run(_time, _parameter = nil)
       @value
     end
 
@@ -45,6 +45,13 @@ module Core
     def to_s
       "Percent(#{@value}%)"
     end
+    
+    def run(_time, parameter)
+      factor = @value / 100.0
+      difference = parameter.max - parameter.min
+      
+      parameter.min + (difference * factor)
+    end
   end
 
   class ValueTuple < Value
@@ -60,7 +67,7 @@ module Core
       ValueTuple.new(@values.transform_values { |v| v&.get })
     end
 
-    def run(time)
+    def run(time, _parameter = nil)
       @values 
     end
 

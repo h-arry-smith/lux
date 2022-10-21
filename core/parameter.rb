@@ -134,7 +134,7 @@ module Core
     end
 
     def run(time)
-      current_value = value.run(time)
+      current_value = value.run(time, parameter)
       @parameter.to_dmx(current_value)
     end
 
@@ -144,7 +144,7 @@ module Core
   end
 
   class Parameter
-    attr_reader :id, :default, :offset
+    attr_reader :id, :default, :offset, :min, :max
     attr_accessor :value
 
     def initialize(id, default, offset, min, max, fine)

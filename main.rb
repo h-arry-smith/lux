@@ -7,7 +7,7 @@ DEBUG_FLAGS = {
   ast: true,
   lx_state: true,
   dump_universe: false,
-  dev_console: false,
+  dev_console: true,
   broadcast: false,
 }
 
