@@ -20,9 +20,11 @@ module Core
     end
     
     def apply(identifier, value, time_context)
-      parameter = get_parameter(identifier)
+      instance = get_parameter_instance(identifier)
+      
+      value.parameter = instance.parameter
 
-      parameter.apply(value, time_context)
+      instance.apply(value, time_context)
     end
 
     def run(time)
@@ -94,7 +96,7 @@ module Core
       @params[parameter].value = value
     end
 
-    def get_parameter(parameter)
+    def get_parameter_instance(parameter)
 
       if @params.key?(parameter)
         return @params[parameter]

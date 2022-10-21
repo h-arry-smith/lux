@@ -1,10 +1,16 @@
 module Core
   class Value
+    attr_writer :parameter
+
+    def initalize
+      @parameter = nil
+    end
+
     def get
       raise NotImplementedError
     end
 
-    def run(_time, _parameter)
+    def run(_time)
       raise NotImplementedError
     end
 
@@ -17,6 +23,7 @@ module Core
     attr_reader :value
 
     def initialize(value)
+      super
       @value = value
     end
 
@@ -24,7 +31,7 @@ module Core
       self
     end
 
-    def run(_time, _parameter = nil)
+    def run(_time)
       @value
     end
 
@@ -46,16 +53,19 @@ module Core
       "Percent(#{@value}%)"
     end
     
-    def run(_time, parameter)
-      factor = @value / 100.0
-      difference = parameter.max - parameter.min
+    def run(_time)
+      return @value if @parameter.nil?
       
-      parameter.min + (difference * factor)
+      factor = @value / 100.0
+      difference = @parameter.max - @parameter.min
+      
+      @parameter.min + (difference * factor)
     end
   end
 
   class ValueTuple < Value
     def initialize(values)
+      super
       @values = values
     end
 

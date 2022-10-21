@@ -3,6 +3,7 @@ require_relative "value"
 module Core
   class DynamicValue < Value
     def initialize(function, fixture_count, arguments)
+      super
       @function = function
       @fixture_count = fixture_count
       @arguments = arguments

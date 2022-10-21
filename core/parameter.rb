@@ -134,7 +134,7 @@ module Core
     end
 
     def run(time)
-      current_value = value.run(time, parameter)
+      current_value = value.run(time)
       @parameter.to_dmx(current_value)
     end
 
