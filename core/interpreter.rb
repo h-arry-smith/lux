@@ -63,7 +63,6 @@ module Core
 
     def visit_call(expr)
       args = expr.arguments.map { |argument| evaluate(argument) }
-      args = args.map { |argument| generate_value(argument) }
 
       @functions.get(expr.identifier).call(@world.fixtures.length, *args)
     end
@@ -79,7 +78,6 @@ module Core
     def visit_apply(expr)
       @current_param = expr.parameter
       value = expr.value.map { |val| evaluate(val) }
-      value = value.flat_map { |val| generate_value(val, expr.parameter) }
 
       if value.length == 1
         value = value.first
@@ -91,7 +89,7 @@ module Core
       @current_param = nil
     end
 
-    def generate_value(value, parameter = nil)
+    def generate_value(value)
       case value
       when Numeric
         StaticValue.new(value)
@@ -109,7 +107,7 @@ module Core
     def visit_tuple(expr)
       tuple = {}
 
-      expr.values.each { |k, v| tuple[k] = generate_value(evaluate(v)) }
+      expr.values.each { |k, v| tuple[k] = evaluate(v) }
 
       tuple
     end
@@ -181,7 +179,7 @@ module Core
         statement.is_a?(Ast::Apply) && statement.parameter == parameter
       end
 
-      statement.value.map { |val| generate_value(evaluate(val)) } unless statement.nil?
+      statement.value.map { |val| evaluate(val) } unless statement.nil?
     end
 
     def cleanup_globals
