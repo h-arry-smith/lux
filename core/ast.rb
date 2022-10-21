@@ -6,6 +6,7 @@ AST = {
   Goto: [:cue],
   GlobalTimes: [:times],
   Load: [:identifier],
+  PercentValue: [:value],
   Range: [:start, :end],
   Selector: [:selector],
   Selection: [:selector, :block],

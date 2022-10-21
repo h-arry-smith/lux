@@ -265,7 +265,12 @@ module Core
 
     def value
       if match(Token::NUMBER)
-        return Ast::Value.new(previous.literal)
+        number = previous.literal
+        if match(Token::PERCENT)
+          return Ast::PercentValue.new(number)
+        else
+          return Ast::Value.new(number)
+        end
       elsif match(Token::HASH)
         return variable
       end

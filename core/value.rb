@@ -40,6 +40,12 @@ module Core
       "Static(#{@value})"
     end
   end
+  
+  class PercentValue < StaticValue
+    def to_s
+      "Percent(#{@value}%)"
+    end
+  end
 
   class ValueTuple < Value
     def initialize(values)

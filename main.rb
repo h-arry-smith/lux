@@ -4,10 +4,10 @@ require_relative "console/console"
 
 DEBUG_FLAGS = {
   token: false,
-  ast: false,
+  ast: true,
   lx_state: true,
   dump_universe: false,
-  dev_console: true,
+  dev_console: false,
   broadcast: false,
 }
 

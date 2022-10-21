@@ -23,6 +23,7 @@ module Core
     define :SECONDS, 'SECONDS'
     define :UNDERSCORE, 'UNDERSCORE'
     define :HASH, 'HASH'
+    define :PERCENT, 'PERCENT'
 
     # One or two character tokens
     # define :BANG, 'BANG'

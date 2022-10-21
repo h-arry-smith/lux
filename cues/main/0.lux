@@ -1,7 +1,11 @@
-[201] {
-  position: (sin(), sin());
+[1] {
+  intensity: 50%;
 }
 
-[101->106] {
-  position: (0, 50);
+[1->18] {
+  intensity: 0->100;
+}
+
+[1->18] {
+  intensity: 0%->100%;
 }

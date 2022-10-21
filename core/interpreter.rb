@@ -115,7 +115,11 @@ module Core
     end
 
     def visit_value(expr)
-      expr.value
+      generate_value(expr.value)
+    end
+    
+    def visit_percentvalue(expr)
+      PercentValue.new(expr.value)
     end
 
     def visit_range(expr)
@@ -128,7 +132,7 @@ module Core
       start = start.first if start.is_a? Array
       finish = finish.first if finish.is_a? Array
       
-      (start..finish)
+      ValueRange.new(start, finish, @world.fixtures.length)
     end
 
     def visit_vardefine(expr)

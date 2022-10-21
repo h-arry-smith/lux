@@ -58,6 +58,8 @@ module Core
         add_token(Token::COMMA)
       when '#'
         add_token(Token::HASH)
+      when '%'
+        add_token(Token::PERCENT)
       when '_'
         if !alphanumeric?(peek) 
           add_token(Token::UNDERSCORE)
