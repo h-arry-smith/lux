@@ -109,7 +109,7 @@ module Core
 
       expr.values.each { |k, v| tuple[k] = evaluate(v) }
 
-      tuple
+      ValueTuple.new(tuple)
     end
 
     def visit_value(expr)

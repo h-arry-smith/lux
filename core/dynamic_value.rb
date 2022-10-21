@@ -3,7 +3,6 @@ require_relative "value"
 module Core
   class DynamicValue < Value
     def initialize(function, fixture_count, arguments)
-      super
       @function = function
       @fixture_count = fixture_count
       @arguments = arguments
@@ -34,7 +33,7 @@ module Core
     def run(time)
       result = @function.call(context(time), *run_arguments(time))
 
-      if result.is_a?(DynamicValue)
+      if result.is_a?(Value)
         result.run(time)
       else
         result

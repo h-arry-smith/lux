@@ -1,11 +1,8 @@
-[1] {
-  intensity: 50%;
+[1->18] {
+  intensity: chase(1, 30%, 100%);
 }
 
-[1->18] {
-  intensity: 0->100;
+[101->106] {
+  position: (chase(1, 30%, 100%), chase(0.5, -40, 40));
 }
 
-[1->18] {
-  intensity: 0%->100%;
-}

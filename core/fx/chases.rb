@@ -18,8 +18,8 @@ module FX
       total_period = Core::StaticValue.new(count * period.value)
 
       phase_range = Core::ValueRange.new(
-        0,
-        total_period.value - period.value,
+        Core::StaticValue.new(0),
+        Core::StaticValue.new(total_period.value - period.value),
         count
       )
 

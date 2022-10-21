@@ -2,10 +2,6 @@ module Core
   class Value
     attr_writer :parameter
 
-    def initalize
-      @parameter = nil
-    end
-
     def get
       raise NotImplementedError
     end
@@ -23,7 +19,6 @@ module Core
     attr_reader :value
 
     def initialize(value)
-      super
       @value = value
     end
 
@@ -65,7 +60,6 @@ module Core
 
   class ValueTuple < Value
     def initialize(values)
-      super
       @values = values
     end
 
