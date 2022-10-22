@@ -97,5 +97,12 @@ module Core
     def anonymous_tuple?
       @values.all? { |k, _| k.to_s.start_with?("_") }
     end
+    
+    def self.from_array(array)
+      h = {}
+      array.each_with_index { |v, i| h[:"_#{i}"] = v }
+      
+      ValueTuple.new(h)
+    end
   end
 end

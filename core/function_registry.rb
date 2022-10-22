@@ -27,6 +27,9 @@ module Core
   FunctionRegister.add("cos", ->(fc, *args) { return DynamicValue.new(FX.method(:cos), fc, args) })
   FunctionRegister.add("square", ->(fc, *args) { return DynamicValue.new(FX.method(:square), fc, args) })
   FunctionRegister.add("pulse", ->(fc, *args) { return DynamicValue.new(FX.method(:pulse), fc, args) })
+
   FunctionRegister.add("cycle", ->(fc, *args) { return DynamicValue.new(FX.method(:cycle), fc, args) })
   FunctionRegister.add("chase", ->(fc, *args) { FX.chase(fc, *args) })
+  
+  FunctionRegister.add("circle", ->(fc, *args) { return DynamicValue.new(FX.method(:circle), fc, args) })
 end

@@ -1,5 +1,5 @@
 [201] {
   intensity: 100;
   shutter: 100;
-  position: (0, sin(20, 80, 3s));
+  position: circle();
 }
