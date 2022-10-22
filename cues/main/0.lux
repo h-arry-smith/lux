@@ -1,3 +1,5 @@
-[101->106] {
-  position: (0%, 0%);
+[201] {
+  intensity: 100;
+  shutter: 100;
+  position: (cos(40, 60, 6s), sin(40, 60, 6s));
 }

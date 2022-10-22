@@ -24,6 +24,7 @@ module Core
   FunctionRegister.add("cmy", ->(_, c, m, y) { return ValueTuple.new({ cyan: c, magenta: m, yellow: y }) })
 
   FunctionRegister.add("sin", ->(fc, *args) { return DynamicValue.new(FX.method(:sin), fc, args) })
+  FunctionRegister.add("cos", ->(fc, *args) { return DynamicValue.new(FX.method(:cos), fc, args) })
   FunctionRegister.add("square", ->(fc, *args) { return DynamicValue.new(FX.method(:square), fc, args) })
   FunctionRegister.add("pulse", ->(fc, *args) { return DynamicValue.new(FX.method(:pulse), fc, args) })
   FunctionRegister.add("cycle", ->(fc, *args) { return DynamicValue.new(FX.method(:cycle), fc, args) })

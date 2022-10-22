@@ -75,7 +75,7 @@ module Core
           @output.broadcast(@lighting_engine.universes)
         end
 
-        delay = @time.target_hz(20)
+        delay = @time.target_hz(40)
         sleep(delay) if delay.positive?
       end
     end

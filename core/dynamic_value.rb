@@ -34,6 +34,7 @@ module Core
       result = @function.call(context(time), *run_arguments(time))
 
       if result.is_a?(Value)
+        result.parameter = @parameter
         result.run(time)
       else
         result

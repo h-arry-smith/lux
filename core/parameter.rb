@@ -42,7 +42,6 @@ module Core
       new_value = Fade.from(@value, new_value, time_context)
       new_value = Delay.from(@value, new_value, time_context)
 
-
       @value = new_value
     end
 

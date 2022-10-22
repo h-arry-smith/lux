@@ -1,3 +1,5 @@
+require_relative "../value"
+
 module FX
   class << self
     def sin(context, min = 0, max = 100, period = 1, phase = 0)
@@ -6,7 +8,16 @@ module FX
       phase = phase * Math::PI
       factor = (Math.sin((context[:time] * period) - phase) + 1) / 2.0
 
-      min + (difference * factor)
+      Core::PercentValue.new(min + (difference * factor))
+    end
+
+  def cos(context, min = 0, max = 100, period = 1, phase = 0)
+      difference = max - min
+      period =  (Math::PI * 2) / period
+      phase = phase * Math::PI
+      factor = (Math.cos((context[:time] * period) - phase) + 1) / 2.0
+
+      Core::PercentValue.new(min + (difference * factor))
     end
 
     def square(context, min = 0, max = 100, period = 1, phase = 0)
