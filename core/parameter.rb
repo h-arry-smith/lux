@@ -176,24 +176,23 @@ module Core
     end
     
     def to_dmx_fine(current_value)
-      return [255, 255] if current_value >= @max
-      return [0, 0] if current_value <= @min
+      absolute_value = difference * factor(current_value)
+      step = difference / (256.0 * 256.0)
+      steps = absolute_value / step
       
-      percent_factor = factor(current_value) * 100
-      
-      main_factor = percent_factor.floor / 100.0
-      fractional_factor = factor(current_value) % 1
-
-      main_part = (main_factor * 255).round
-      fractional_part = (fractional_factor * 255).round
+      main_part = (steps / 256).round
+      fractional_part = (steps % 256).round
       
       [main_part, fractional_part]
     end
     
     def factor(current_value)
-      difference = @max - @min
       relative_value = current_value - @min
       relative_value.to_f / difference.to_f
+    end
+    
+    def difference
+      @max - @min
     end
 
     def to_s
