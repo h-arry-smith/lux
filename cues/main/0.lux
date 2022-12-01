@@ -1,5 +1,0 @@
-[201] {
-  intensity: 100;
-  shutter: 100;
-  position: circle();
-}

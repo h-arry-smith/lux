@@ -1,6 +1,0 @@
-// title: Bridge to Lead
-@fade 15s;
-
-[5->6] {
-  intensity: 40;
-}

@@ -1,7 +1,0 @@
-name: "Moving Light"
-params:
-  intensity:
-  group position:
-    pan: { min: -270, max: 270 }
-    tilt: { min: -123, max: 123 }
-color: "rgb"
