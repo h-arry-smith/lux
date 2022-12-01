@@ -1,11 +1,10 @@
 use std::{collections::HashMap, time::Duration};
 
-use crate::{parameter::Param, value::Literal, value_generator::StaticGenerator};
+use crate::{parameter::Param, value::Literal, value_generator::Generator};
 
-type ParameterMap = HashMap<Param, StaticGenerator>;
+type ParameterMap = HashMap<Param, Box<dyn Generator>>;
 type ResolvedParameterMap = HashMap<Param, Literal>;
 
-#[derive(Debug)]
 pub struct Fixture {
     id: usize,
     parameters: ParameterMap,
@@ -19,7 +18,7 @@ impl Fixture {
         }
     }
 
-    pub fn set(&mut self, parameter: Param, generator: StaticGenerator) {
+    pub fn set<G: Generator + 'static>(&mut self, parameter: Param, generator: Box<G>) {
         self.parameters.insert(parameter, generator);
     }
 

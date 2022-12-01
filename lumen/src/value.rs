@@ -1,10 +1,10 @@
 #[derive(Clone, Copy, Debug)]
 pub struct Literal {
-    pub value: i32,
+    pub value: f32,
 }
 
 impl Literal {
-    pub fn new(value: i32) -> Self {
+    pub fn new(value: f32) -> Self {
         Self { value }
     }
 }
