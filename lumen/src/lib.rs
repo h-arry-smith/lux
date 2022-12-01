@@ -1,14 +1,12 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+mod environment;
+pub use environment::Environment;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+pub mod fixture;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+pub mod fixture_set;
+
+pub mod parameter;
+
+pub mod value;
+
+pub mod value_generator;
