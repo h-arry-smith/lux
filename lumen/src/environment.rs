@@ -1,4 +1,4 @@
-use crate::fixture_set::FixtureSet;
+use crate::{fixture::ResolvedFixture, fixture_set::FixtureSet};
 
 pub struct Environment {
     pub fixtures: FixtureSet,

@@ -17,9 +17,8 @@ fn main() {
 
     let now = Instant::now();
     for n in 0..10 {
-        for (_, fixture) in environment.fixtures.all() {
-            let resolved_fixture = fixture.resolve(now.elapsed());
-            println!("@{n}s {:?}", resolved_fixture);
+        for (_, fixture) in environment.fixtures.resolve(now.elapsed()) {
+            println!("@{n}s {:?}", fixture);
         }
 
         thread::sleep(Duration::new(1, 0));

@@ -1,6 +1,13 @@
-use std::collections::{hash_map::IterMut, HashMap};
+use std::{
+    collections::{
+        hash_map::{Iter, IterMut},
+        HashMap,
+    },
+    iter::Map,
+    time::Duration,
+};
 
-use crate::fixture::Fixture;
+use crate::fixture::{Fixture, ResolvedFixture};
 
 pub struct FixtureSet {
     fixtures: HashMap<usize, Fixture>,
@@ -21,5 +28,12 @@ impl FixtureSet {
 
     pub fn all(&mut self) -> IterMut<usize, Fixture> {
         self.fixtures.iter_mut()
+    }
+
+    pub fn resolve(&self, elapsed: Duration) -> HashMap<usize, ResolvedFixture> {
+        self.fixtures
+            .iter()
+            .map(|(i, f)| (*i, f.resolve(elapsed)))
+            .collect()
     }
 }
