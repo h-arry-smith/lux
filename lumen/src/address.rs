@@ -30,42 +30,49 @@ impl Add<Address> for Address {
     }
 }
 
+#[macro_export]
+macro_rules! dmx {
+    ($uni:literal / $addr:literal) => {
+        $crate::address::Address::new($uni, $addr)
+    };
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn add_below_limit() {
-        let a = Address::new(1, 1);
-        let b = Address::new(0, 40);
-        let c = Address::new(1, 41);
+        let a = dmx!(1 / 1);
+        let b = dmx!(0 / 40);
+        let c = dmx!(1 / 41);
 
         assert_eq!(a + b, c);
     }
 
     #[test]
     fn add_above_limit() {
-        let a = Address::new(1, 501);
-        let b = Address::new(0, 40);
-        let c = Address::new(2, 1);
+        let a = dmx!(1 / 501);
+        let b = dmx!(0 / 40);
+        let c = dmx!(2 / 1);
 
         assert_eq!(a + b, c);
     }
 
     #[test]
     fn edge_case() {
-        let a = Address::new(1, 510);
-        let b = Address::new(0, 2);
-        let c = Address::new(1, 512);
+        let a = dmx!(1 / 510);
+        let b = dmx!(0 / 2);
+        let c = dmx!(1 / 512);
 
         assert_eq!(a + b, c);
     }
 
     #[test]
     fn adding_universes() {
-        let a = Address::new(1, 234);
-        let b = Address::new(2, 111);
-        let c = Address::new(3, 345);
+        let a = dmx!(1 / 234);
+        let b = dmx!(2 / 111);
+        let c = dmx!(3 / 345);
 
         assert_eq!(a + b, c);
     }
