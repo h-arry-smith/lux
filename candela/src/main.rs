@@ -3,7 +3,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use lumen::{parameter::Param, value::Literal, value_generator::Fade, Environment};
+use lumen::{parameter::Param, value::Percentage, value_generator::Fade, Environment};
 
 fn main() {
     let mut environment = Environment::new();
@@ -14,17 +14,19 @@ fn main() {
         fixture.set(
             Param::Intensity,
             Box::new(Fade::new(
-                Literal::new(0.0),
-                Literal::new(100.0),
+                Percentage::new(0.0),
+                Percentage::new(100.0),
                 Duration::new(10, 0),
             )),
         );
     }
 
     let now = Instant::now();
-    for n in 0..=10 {
-        for (_, fixture) in environment.fixtures.resolve(now.elapsed()) {
-            println!("@{n}s {:?}", fixture);
+    for _ in 0..=10 {
+        let elapsed = now.elapsed();
+
+        for (_, fixture) in environment.fixtures.resolve(elapsed) {
+            println!("@{:?} {:?}", elapsed, fixture);
         }
 
         thread::sleep(Duration::new(1, 0));
