@@ -3,7 +3,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use lumen::{parameter::Param, value::Percentage, value_generator::Fade, Environment};
+use lumen::{parameter::Param, value::generator::Fade, value::Values, Environment};
 
 fn main() {
     let mut environment = Environment::new();
@@ -14,8 +14,8 @@ fn main() {
         fixture.set(
             Param::Intensity,
             Box::new(Fade::new(
-                Percentage::new(0.0),
-                Percentage::new(100.0),
+                Values::make_literal(10.0),
+                Values::make_literal(100.0),
                 Duration::new(10, 0),
             )),
         );

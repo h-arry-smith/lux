@@ -10,5 +10,3 @@ pub mod fixture_set;
 pub mod parameter;
 
 pub mod value;
-
-pub mod value_generator;

@@ -1,57 +1,40 @@
+mod convertable;
+pub mod generator;
+pub use generator::Generator;
 use std::fmt::Debug;
+mod literal;
+pub use literal::Literal;
+mod percentage;
+pub use percentage::Percentage;
+
+use self::convertable::{Convertable, Converter};
 
 pub trait Value: Debug {
     fn value(&self) -> f32;
     fn set(&mut self, value: f32);
 }
 
-pub struct Literal {
-    pub value: f32,
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Values {
+    Literal(Literal),
+    Percentage(Percentage),
 }
 
-impl Literal {
-    pub fn new(value: f32) -> Self {
-        Self { value }
+impl Values {
+    pub fn make_literal(value: f32) -> Values {
+        Values::Literal(Literal::new(value))
+    }
+
+    pub fn make_percentage(percentage: f32) -> Values {
+        Values::Percentage(Percentage::new(percentage))
     }
 }
 
-impl Value for Literal {
-    fn value(&self) -> f32 {
-        self.value
-    }
-
-    fn set(&mut self, value: f32) {
-        self.value = value
-    }
-}
-
-impl Debug for Literal {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:.02}", self.value)
-    }
-}
-
-#[derive(Clone, Copy)]
-pub struct Percentage {
-    pub percentage: f32,
-}
-
-impl Percentage {
-    pub fn new(percentage: f32) -> Self {
-        Self { percentage }
-    }
-}
-
-impl Value for Percentage {
-    fn value(&self) -> f32 {
-        self.percentage
-    }
-
-    fn set(&mut self, value: f32) {}
-}
-
-impl Debug for Percentage {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:.02}%", self.percentage)
+impl<T> Convertable<T> for Values {
+    fn convert(&self, converter: &dyn Converter<Result = T>) -> T {
+        match self {
+            Values::Literal(literal) => converter.convert_literal(literal),
+            Values::Percentage(percentage) => converter.convert_percentage(percentage),
+        }
     }
 }

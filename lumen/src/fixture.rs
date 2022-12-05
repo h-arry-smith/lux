@@ -1,11 +1,12 @@
 use std::fmt::Debug;
 use std::{collections::HashMap, time::Duration};
 
-use crate::{parameter::Param, value::Value, value_generator::Generator};
+use crate::parameter::Param;
+use crate::value::{Generator, Values};
 
 type ParameterMap = HashMap<Param, Box<dyn Generator>>;
 
-type ResolvedParameterMap = HashMap<Param, Box<dyn Value>>;
+type ResolvedParameterMap = HashMap<Param, Values>;
 
 pub struct Fixture {
     id: usize,
@@ -27,7 +28,7 @@ impl Fixture {
     pub fn resolve(&self, elapsed: Duration) -> ResolvedFixture {
         let mut resolved_fixture = ResolvedFixture::new(self.id);
         for (param, generator) in self.parameters.iter() {
-            resolved_fixture.set(*param, Box::new(generator.generate(elapsed)));
+            resolved_fixture.set(*param, generator.generate(elapsed));
         }
 
         resolved_fixture
@@ -59,7 +60,7 @@ impl ResolvedFixture {
         }
     }
 
-    pub fn set(&mut self, parameter: Param, value: Box<dyn Value>) {
+    pub fn set(&mut self, parameter: Param, value: Values) {
         self.parameters.insert(parameter, value);
     }
 }
