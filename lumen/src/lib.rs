@@ -3,6 +3,8 @@ pub use environment::Environment;
 
 pub mod address;
 
+pub mod dmx;
+
 pub mod fixture;
 
 pub mod fixture_set;

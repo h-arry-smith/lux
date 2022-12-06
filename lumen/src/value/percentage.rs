@@ -1,4 +1,4 @@
-use crate::parameter::Parameter;
+use crate::{dmx::Dmx, parameter::Parameter};
 
 use super::{Literal, Value};
 use std::fmt::Debug;
@@ -15,10 +15,13 @@ impl Percentage {
 
     pub fn to_literal(&self, parameter: &Parameter) -> Literal {
         let difference = parameter.max() - parameter.min();
-        let factor = self.percentage / 100.0;
-        let result = parameter.min() + (difference * factor);
+        let result = parameter.min() + (difference * self.factor());
 
         Literal::new(result)
+    }
+
+    fn factor(&self) -> f32 {
+        self.percentage / 100.0
     }
 }
 
@@ -29,6 +32,10 @@ impl Value for Percentage {
 
     fn set(&mut self, value: f32) {
         self.percentage = value
+    }
+
+    fn to_dmx(&self, _parameter: &Parameter) -> crate::dmx::Dmx {
+        Dmx::from_factor(self.factor())
     }
 }
 
@@ -41,11 +48,11 @@ impl Debug for Percentage {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{parameter::Parameter, value::Literal};
+    use crate::{dmx::Dmx, parameter::Parameter, value::Literal};
 
     #[test]
     fn to_literal() {
-        let parameter = Parameter::new(25.0, 75.0);
+        let parameter = Parameter::new(0, 25.0, 75.0);
 
         assert_eq!(
             Percentage::new(0.0).to_literal(&parameter),
@@ -61,5 +68,23 @@ mod tests {
             Percentage::new(100.0).to_literal(&parameter),
             Literal::new(75.0)
         );
+    }
+
+    #[test]
+    fn to_dmx_simple() {
+        let parameter = Parameter::new(0, 0.0, 100.0);
+
+        assert_eq!(Percentage::new(0.0).to_dmx(&parameter), Dmx::new(0));
+        assert_eq!(Percentage::new(50.0).to_dmx(&parameter), Dmx::new(128));
+        assert_eq!(Percentage::new(100.0).to_dmx(&parameter), Dmx::new(255));
+    }
+
+    #[test]
+    fn to_dmx_complex() {
+        let parameter = Parameter::new(0, -100.0, 100.0);
+
+        assert_eq!(Percentage::new(0.0).to_dmx(&parameter), Dmx::new(0));
+        assert_eq!(Percentage::new(50.0).to_dmx(&parameter), Dmx::new(128));
+        assert_eq!(Percentage::new(100.0).to_dmx(&parameter), Dmx::new(255));
     }
 }

@@ -1,7 +1,4 @@
-use std::{
-    thread,
-    time::{Duration, Instant},
-};
+use std::{thread, time::Duration};
 
 use lumen::{
     address::Address,
@@ -21,7 +18,7 @@ fn main() {
         fixture.set(
             Param::Intensity,
             Box::new(Fade::new(
-                Values::make_literal(10.0),
+                Values::make_percentage(10.0),
                 Values::make_percentage(100.0),
                 Duration::new(10, 0),
             )),
@@ -29,19 +26,23 @@ fn main() {
     }
 
     let mut dimmer = FixtureProfile::new();
-    dimmer.set_parameter(Param::Intensity, Parameter::new(0.0, 75.0));
+    dimmer.set_parameter(Param::Intensity, Parameter::new(0, 0.0, 75.0));
 
     let mut patch = Patch::new();
     patch.patch(1, Address::new(0, 1), &dimmer);
 
-    let now = Instant::now();
-    for _ in 0..=10 {
-        let elapsed = now.elapsed();
-
-        for (_, fixture) in environment.fixtures.resolve(elapsed, &patch) {
-            println!("@{:?} {:?}", elapsed, fixture);
+    for i in 0..=10 {
+        let elapsed = Duration::new(i, 0);
+        for (_, resolved_fixture) in environment.fixtures.resolve(elapsed, &patch) {
+            println!("@{:?} {:?}", elapsed, resolved_fixture);
         }
 
-        thread::sleep(Duration::new(1, 0));
+        thread::sleep(Duration::new(0, 1_000_000_000 / 10));
+    }
+
+    println!("=== DMX ===");
+    for (id, resolved_fixture) in environment.fixtures.resolve(Duration::new(10, 0), &patch) {
+        let dmx_string = patch.get_profile(&id).to_dmx(&resolved_fixture);
+        println!("{}: {:?}", id, dmx_string);
     }
 }

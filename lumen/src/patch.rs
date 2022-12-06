@@ -2,8 +2,10 @@ use std::collections::HashMap;
 
 use crate::{
     address::Address,
-    fixture::FixtureID,
+    dmx::DmxString,
+    fixture::{FixtureID, ResolvedFixture},
     parameter::{Param, Parameter},
+    value::Values,
 };
 
 pub struct Patch<'a> {
@@ -37,22 +39,50 @@ impl<'a> Patch<'a> {
 
 pub struct FixtureProfile {
     parameters: HashMap<Param, Parameter>,
+    footprint: usize,
 }
 
 impl FixtureProfile {
     pub fn new() -> Self {
         Self {
             parameters: HashMap::new(),
+            footprint: 0,
         }
     }
 
     pub fn set_parameter(&mut self, param: Param, parameter: Parameter) {
+        // TODO: A paramter can be fine, in which case footprint would be
+        //       offset+1 if this is the largest offset we ever found
+        if parameter.offset() > self.footprint {
+            self.footprint = parameter.offset();
+        }
+
         self.parameters.insert(param, parameter);
     }
 
-    // TODO: Should probably return the option here
-    pub fn get_parameter(&self, param: &Param) -> &Parameter {
-        self.parameters.get(param).unwrap()
+    pub fn get_parameter(&self, param: &Param) -> Option<&Parameter> {
+        self.parameters.get(param)
+    }
+
+    pub fn to_dmx(&self, resolved_fixture: &ResolvedFixture) -> DmxString {
+        let mut dmx_string = DmxString::new(self.footprint());
+
+        for (param, parameter) in self.parameters.iter() {
+            if let Some(value) = resolved_fixture.get_value(param) {
+                dmx_string.set(parameter.offset(), value.to_dmx(parameter));
+            } else {
+                let default = Values::make_literal(parameter.default());
+                dmx_string.set(parameter.offset(), default.to_dmx(parameter));
+            }
+        }
+
+        dmx_string
+    }
+
+    fn footprint(&self) -> usize {
+        // The footprint is 0 indexed to match the 0 indexing of offsets in
+        // parameters, so we return +1 for the correct size.
+        self.footprint + 1
     }
 }
 

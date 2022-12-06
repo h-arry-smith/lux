@@ -1,5 +1,9 @@
 use std::fmt::Display;
 
+// TODO: A parameter has many options, that need to be built up from time
+//       from a file. We need a ParameterBuilder and also a struct or
+//       something for reading them from files.
+
 #[derive(Eq, Hash, PartialEq, Debug, Copy, Clone)]
 pub enum Param {
     Intensity,
@@ -14,11 +18,12 @@ impl Display for Param {
 pub struct Parameter {
     min: f32,
     max: f32,
+    offset: usize,
 }
 
 impl Parameter {
-    pub fn new(min: f32, max: f32) -> Self {
-        Self { min, max }
+    pub fn new(offset: usize, min: f32, max: f32) -> Self {
+        Self { min, max, offset }
     }
 
     pub fn min(&self) -> f32 {
@@ -27,5 +32,14 @@ impl Parameter {
 
     pub fn max(&self) -> f32 {
         self.max
+    }
+
+    pub fn offset(&self) -> usize {
+        self.offset
+    }
+
+    // TODO: Parameter should have a custom default
+    pub fn default(&self) -> f32 {
+        0.0
     }
 }

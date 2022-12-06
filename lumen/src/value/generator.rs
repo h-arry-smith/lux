@@ -83,7 +83,7 @@ mod tests {
     fn static_always_returns_same_value() {
         let value = Values::make_literal(50.0);
         let static_generator = Static::new(value);
-        let parameter = Parameter::new(0.0, 100.0);
+        let parameter = Parameter::new(0, 0.0, 100.0);
 
         assert_eq!(
             static_generator.generate(Duration::new(0, 0), &parameter),
@@ -104,7 +104,7 @@ mod tests {
         let start = Values::make_literal(0.0);
         let end = Values::make_literal(100.0);
         let fade = Fade::new(start, end, Duration::new(2, 0));
-        let parameter = Parameter::new(0.0, 100.0);
+        let parameter = Parameter::new(0, 0.0, 100.0);
 
         assert_eq!(
             fade.generate(Duration::new(0, 0), &parameter),
@@ -125,7 +125,7 @@ mod tests {
         let start = Values::make_literal(25.0);
         let end = Values::make_percentage(100.0);
         let fade = Fade::new(start, end, Duration::new(2, 0));
-        let parameter = Parameter::new(25.0, 75.0);
+        let parameter = Parameter::new(0, 25.0, 75.0);
 
         assert_eq!(
             fade.generate(Duration::new(0, 0), &parameter),

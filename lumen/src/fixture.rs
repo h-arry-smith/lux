@@ -1,3 +1,4 @@
+use std::collections::hash_map::Iter;
 use std::fmt::Debug;
 use std::{collections::HashMap, time::Duration};
 
@@ -31,10 +32,12 @@ impl Fixture {
     pub fn resolve(&self, elapsed: Duration, profile: &FixtureProfile) -> ResolvedFixture {
         let mut resolved_fixture = ResolvedFixture::new(self.id);
         for (param, generator) in self.parameters.iter() {
-            resolved_fixture.set(
-                *param,
-                generator.generate(elapsed, profile.get_parameter(param)),
-            );
+            // It only makes sense for a resolved fixture to have params of the
+            // target profile, as abstract params on the fixture will never be
+            // converted to dmx.
+            if let Some(parameter) = profile.get_parameter(param) {
+                resolved_fixture.set(*param, generator.generate(elapsed, parameter));
+            }
         }
 
         resolved_fixture
@@ -68,6 +71,14 @@ impl ResolvedFixture {
 
     pub fn set(&mut self, parameter: Param, value: Values) {
         self.parameters.insert(parameter, value);
+    }
+
+    pub fn get_value(&self, parameter: &Param) -> Option<&Values> {
+        self.parameters.get(parameter)
+    }
+
+    pub fn values(&self) -> Iter<Param, Values> {
+        self.parameters.iter()
     }
 }
 

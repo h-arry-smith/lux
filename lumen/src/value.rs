@@ -7,11 +7,14 @@ pub use literal::Literal;
 mod percentage;
 pub use percentage::Percentage;
 
+use crate::{dmx::Dmx, parameter::Parameter};
+
 use self::convertable::{Convertable, Converter};
 
 pub trait Value: Debug {
     fn value(&self) -> f32;
     fn set(&mut self, value: f32);
+    fn to_dmx(&self, parameter: &Parameter) -> Dmx;
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -27,6 +30,13 @@ impl Values {
 
     pub fn make_percentage(percentage: f32) -> Values {
         Values::Percentage(Percentage::new(percentage))
+    }
+
+    pub fn to_dmx(&self, parameter: &Parameter) -> Dmx {
+        match self {
+            Values::Literal(literal) => literal.to_dmx(parameter),
+            Values::Percentage(percentage) => percentage.to_dmx(parameter),
+        }
     }
 }
 
