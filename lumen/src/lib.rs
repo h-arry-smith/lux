@@ -10,3 +10,6 @@ pub mod fixture_set;
 pub mod parameter;
 
 pub mod value;
+
+pub mod patch;
+pub use patch::Patch;

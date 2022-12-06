@@ -1,3 +1,5 @@
+use crate::patch::Parameter;
+
 use super::*;
 
 pub trait Converter {
@@ -10,8 +12,17 @@ pub trait Convertable<T> {
     fn convert(&self, converter: &dyn Converter<Result = T>) -> T;
 }
 
-pub struct LiteralConverter {}
-impl Converter for LiteralConverter {
+pub struct LiteralConverter<'a> {
+    parameter: &'a Parameter,
+}
+
+impl<'a> LiteralConverter<'a> {
+    pub fn new(parameter: &'a Parameter) -> Self {
+        Self { parameter }
+    }
+}
+
+impl<'a> Converter for LiteralConverter<'a> {
     type Result = Literal;
 
     fn convert_literal(&self, literal: &Literal) -> Self::Result {
@@ -19,17 +30,21 @@ impl Converter for LiteralConverter {
     }
 
     fn convert_percentage(&self, percentage: &Percentage) -> Self::Result {
-        // TODO: Converting from a percentage to a literal requires context of
-        //       the fixture profile, which requires all the patching and profile
-        //       machinery to be in place.
-        //
-        //       For now, we just return a straight conversion
-        Literal::new(percentage.value())
+        percentage.to_literal(self.parameter)
     }
 }
 
-pub struct PercentageConverter {}
-impl Converter for PercentageConverter {
+pub struct PercentageConverter<'a> {
+    parameter: &'a Parameter,
+}
+
+impl<'a> PercentageConverter<'a> {
+    pub fn new(parameter: &'a Parameter) -> Self {
+        Self { parameter }
+    }
+}
+
+impl<'a> Converter for PercentageConverter<'a> {
     type Result = Percentage;
 
     fn convert_literal(&self, literal: &Literal) -> Self::Result {

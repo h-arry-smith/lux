@@ -3,7 +3,10 @@ use std::{
     time::Duration,
 };
 
-use crate::fixture::{Fixture, ResolvedFixture};
+use crate::{
+    fixture::{Fixture, ResolvedFixture},
+    Patch,
+};
 
 pub struct FixtureSet {
     fixtures: HashMap<usize, Fixture>,
@@ -26,10 +29,10 @@ impl FixtureSet {
         self.fixtures.iter_mut()
     }
 
-    pub fn resolve(&self, elapsed: Duration) -> HashMap<usize, ResolvedFixture> {
+    pub fn resolve(&self, elapsed: Duration, patch: &Patch) -> HashMap<usize, ResolvedFixture> {
         self.fixtures
             .iter()
-            .map(|(i, f)| (*i, f.resolve(elapsed)))
+            .map(|(i, f)| (*i, f.resolve(elapsed, patch.get_profile(&i))))
             .collect()
     }
 }
