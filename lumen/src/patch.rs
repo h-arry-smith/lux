@@ -7,7 +7,7 @@ use crate::{
 };
 
 pub struct Patch<'a> {
-    patch: HashMap<FixtureID, &'a FixtureProfile>,
+    patch: HashMap<FixtureID, ProfileMapping<'a>>,
 }
 
 impl<'a> Patch<'a> {
@@ -19,8 +19,9 @@ impl<'a> Patch<'a> {
 
     // TODO: Proper error handling for any failure case where a patch does
     //       not succeed
-    pub fn patch(&mut self, id: FixtureID, profile: &'a FixtureProfile) {
-        self.patch.insert(id, profile);
+    pub fn patch(&mut self, id: FixtureID, address: Address, profile: &'a FixtureProfile) {
+        let mapping = ProfileMapping::new(address, profile);
+        self.patch.insert(id, mapping);
     }
 
     pub fn unpatch(&mut self, id: &FixtureID) {
@@ -30,7 +31,7 @@ impl<'a> Patch<'a> {
     // TODO: Proper error handling for resolving a fixture that hasn't
     //       been patched
     pub fn get_profile(&self, id: &FixtureID) -> &FixtureProfile {
-        self.patch.get(id).unwrap()
+        self.patch.get(id).unwrap().profile()
     }
 }
 
@@ -52,5 +53,20 @@ impl FixtureProfile {
     // TODO: Should probably return the option here
     pub fn get_parameter(&self, param: &Param) -> &Parameter {
         self.parameters.get(param).unwrap()
+    }
+}
+
+pub struct ProfileMapping<'a> {
+    address: Address,
+    profile: &'a FixtureProfile,
+}
+
+impl<'a> ProfileMapping<'a> {
+    fn new(address: Address, profile: &'a FixtureProfile) -> Self {
+        Self { address, profile }
+    }
+
+    fn profile(&self) -> &FixtureProfile {
+        self.profile
     }
 }

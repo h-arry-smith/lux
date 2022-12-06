@@ -4,6 +4,7 @@ use std::{
 };
 
 use lumen::{
+    address::Address,
     parameter::{Param, Parameter},
     patch::FixtureProfile,
     value::generator::Fade,
@@ -31,7 +32,7 @@ fn main() {
     dimmer.set_parameter(Param::Intensity, Parameter::new(0.0, 75.0));
 
     let mut patch = Patch::new();
-    patch.patch(1, &dimmer);
+    patch.patch(1, Address::new(0, 1), &dimmer);
 
     let now = Instant::now();
     for _ in 0..=10 {

@@ -9,7 +9,7 @@ pub struct Address {
 }
 
 impl Address {
-    fn new(universe: u16, address: u16) -> Self {
+    pub fn new(universe: u16, address: u16) -> Self {
         Self { universe, address }
     }
 }
