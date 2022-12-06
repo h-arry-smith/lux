@@ -10,3 +10,22 @@ impl Display for Param {
         write!(f, "{:?}", self)
     }
 }
+
+pub struct Parameter {
+    min: f32,
+    max: f32,
+}
+
+impl Parameter {
+    pub fn new(min: f32, max: f32) -> Self {
+        Self { min, max }
+    }
+
+    pub fn min(&self) -> f32 {
+        self.min
+    }
+
+    pub fn max(&self) -> f32 {
+        self.max
+    }
+}

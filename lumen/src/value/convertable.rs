@@ -1,4 +1,4 @@
-use crate::patch::Parameter;
+use crate::parameter::Parameter;
 
 use super::*;
 

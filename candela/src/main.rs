@@ -4,8 +4,8 @@ use std::{
 };
 
 use lumen::{
-    parameter::Param,
-    patch::{FixtureProfile, Parameter},
+    parameter::{Param, Parameter},
+    patch::FixtureProfile,
     value::generator::Fade,
     value::Values,
     Environment, Patch,

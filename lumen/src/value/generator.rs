@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 use std::time::Duration;
 
-use crate::patch::Parameter;
+use crate::parameter::Parameter;
 use crate::value::Value;
 
 use super::convertable::{Convertable, LiteralConverter, PercentageConverter};

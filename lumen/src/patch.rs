@@ -1,6 +1,10 @@
 use std::collections::HashMap;
 
-use crate::{fixture::FixtureID, parameter::Param};
+use crate::{
+    address::Address,
+    fixture::FixtureID,
+    parameter::{Param, Parameter},
+};
 
 pub struct Patch<'a> {
     patch: HashMap<FixtureID, &'a FixtureProfile>,
@@ -48,24 +52,5 @@ impl FixtureProfile {
     // TODO: Should probably return the option here
     pub fn get_parameter(&self, param: &Param) -> &Parameter {
         self.parameters.get(param).unwrap()
-    }
-}
-
-pub struct Parameter {
-    min: f32,
-    max: f32,
-}
-
-impl Parameter {
-    pub fn new(min: f32, max: f32) -> Self {
-        Self { min, max }
-    }
-
-    pub fn min(&self) -> f32 {
-        self.min
-    }
-
-    pub fn max(&self) -> f32 {
-        self.max
     }
 }

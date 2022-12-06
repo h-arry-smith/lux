@@ -1,4 +1,4 @@
-use crate::patch::Parameter;
+use crate::parameter::Parameter;
 
 use super::{Literal, Value};
 use std::fmt::Debug;
@@ -41,7 +41,7 @@ impl Debug for Percentage {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{patch::Parameter, value::Literal};
+    use crate::{parameter::Parameter, value::Literal};
 
     #[test]
     fn to_literal() {
