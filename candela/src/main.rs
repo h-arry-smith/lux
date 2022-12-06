@@ -4,10 +4,21 @@ use lumen::{
     address::Address,
     parameter::{Param, Parameter},
     patch::FixtureProfile,
+    universe::Multiverse,
     value::generator::Fade,
     value::Values,
     Environment, Patch,
 };
+
+// TODO: This is fine for testing purposes but we need to think about the right
+//       architecture for this.
+//
+//       After constructing an environment of fixtures, and a patch for that
+//       environemnt, we need to resolve it for a given, time and then apply
+//       it to the multiverse.
+//
+//       It is very important that this interface is right, as it is the most
+//       outward facing part of the whole thing.
 
 fn main() {
     let mut environment = Environment::new();
@@ -29,7 +40,7 @@ fn main() {
     dimmer.set_parameter(Param::Intensity, Parameter::new(0, 0.0, 75.0));
 
     let mut patch = Patch::new();
-    patch.patch(1, Address::new(0, 1), &dimmer);
+    patch.patch(1, Address::new(1, 1), &dimmer);
 
     for i in 0..=10 {
         let elapsed = Duration::new(i, 0);
@@ -40,9 +51,16 @@ fn main() {
         thread::sleep(Duration::new(0, 1_000_000_000 / 10));
     }
 
-    println!("=== DMX ===");
+    println!("=== FIXTURE DMX ===");
+    let mut multiverse = Multiverse::new();
+
     for (id, resolved_fixture) in environment.fixtures.resolve(Duration::new(10, 0), &patch) {
         let dmx_string = patch.get_profile(&id).to_dmx(&resolved_fixture);
         println!("{}: {:?}", id, dmx_string);
+
+        multiverse.map_string(patch.get_address(&id), &dmx_string);
     }
+
+    println!("=== FIXTURE DMX ===");
+    println!("{:?}", multiverse)
 }

@@ -10,7 +10,22 @@ pub struct Address {
 
 impl Address {
     pub fn new(universe: u16, address: u16) -> Self {
+        assert!(universe > 0);
+        assert!(address > 0);
+
         Self { universe, address }
+    }
+
+    pub fn index(&self) -> usize {
+        // Humans use 1.001 as the first universe, but its index would be -1 of
+        // the human readable format.
+        (self.universe - 1) as usize
+    }
+
+    pub fn address(&self) -> usize {
+        // Humans use 1.001 as the first address, but its index would be -1 of
+        // the human readable format.
+        (self.address - 1) as usize
     }
 }
 

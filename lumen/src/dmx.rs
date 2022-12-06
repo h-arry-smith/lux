@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, slice::Iter};
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Dmx(u8);
@@ -28,6 +28,14 @@ impl DmxString {
 
     pub fn set(&mut self, offset: usize, dmx: Dmx) {
         self.string[offset] = dmx
+    }
+
+    pub fn len(&self) -> usize {
+        self.string.len()
+    }
+
+    pub fn iter(&self) -> Iter<Dmx> {
+        self.string.iter()
     }
 }
 

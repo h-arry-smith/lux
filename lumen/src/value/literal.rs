@@ -43,7 +43,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn simple() {
+    fn to_dmx_simple() {
         let parameter = Parameter::new(0, 0.0, 100.0);
 
         assert_eq!(Literal::new(0.0).to_dmx(&parameter), Dmx::new(0));
@@ -52,7 +52,7 @@ mod tests {
     }
 
     #[test]
-    fn complex() {
+    fn to_dmx_complex() {
         let parameter = Parameter::new(0, -100.0, 100.0);
 
         assert_eq!(Literal::new(-100.0).to_dmx(&parameter), Dmx::new(0));

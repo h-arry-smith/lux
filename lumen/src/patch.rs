@@ -35,6 +35,10 @@ impl<'a> Patch<'a> {
     pub fn get_profile(&self, id: &FixtureID) -> &FixtureProfile {
         self.patch.get(id).unwrap().profile()
     }
+
+    pub fn get_address(&self, id: &FixtureID) -> &Address {
+        self.patch.get(id).unwrap().address()
+    }
 }
 
 pub struct FixtureProfile {
@@ -98,5 +102,9 @@ impl<'a> ProfileMapping<'a> {
 
     fn profile(&self) -> &FixtureProfile {
         self.profile
+    }
+
+    fn address(&self) -> &Address {
+        &self.address
     }
 }
