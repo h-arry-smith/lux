@@ -63,6 +63,9 @@ impl Generator for Fade {
             (Values::Literal(s), Values::Literal(e)) => {
                 Values::make_literal(self.fade_between(s, e, elapsed))
             }
+            (Values::Percentage(s), Values::Percentage(e)) => {
+                Values::make_percentage(self.fade_between(s, e, elapsed))
+            }
             _ => todo!(),
         }
     }
