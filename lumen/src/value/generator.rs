@@ -3,6 +3,7 @@ use std::time::Duration;
 
 use crate::value::Value;
 
+use super::convertable::{Convertable, LiteralConverter, PercentageConverter};
 use super::Values;
 
 pub trait Generator: Debug {
@@ -60,11 +61,13 @@ impl Fade {
 impl Generator for Fade {
     fn generate(&self, elapsed: Duration) -> Values {
         match (self.start, self.end) {
-            (Values::Literal(s), Values::Literal(e)) => {
-                Values::make_literal(self.fade_between(s, e, elapsed))
+            (Values::Literal(start), non_literal_end) => {
+                let end = non_literal_end.convert(&LiteralConverter {});
+                Values::make_literal(self.fade_between(start, end, elapsed))
             }
-            (Values::Percentage(s), Values::Percentage(e)) => {
-                Values::make_percentage(self.fade_between(s, e, elapsed))
+            (Values::Percentage(start), non_percentage_end) => {
+                let end = non_percentage_end.convert(&PercentageConverter {});
+                Values::make_percentage(self.fade_between(start, end, elapsed))
             }
             _ => todo!(),
         }

@@ -15,7 +15,7 @@ fn main() {
             Param::Intensity,
             Box::new(Fade::new(
                 Values::make_percentage(10.0),
-                Values::make_percentage(100.0),
+                Values::make_literal(100.0),
                 Duration::new(10, 0),
             )),
         );

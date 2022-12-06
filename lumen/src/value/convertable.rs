@@ -15,11 +15,16 @@ impl Converter for LiteralConverter {
     type Result = Literal;
 
     fn convert_literal(&self, literal: &Literal) -> Self::Result {
-        todo!()
+        *literal
     }
 
     fn convert_percentage(&self, percentage: &Percentage) -> Self::Result {
-        todo!()
+        // TODO: Converting from a percentage to a literal requires context of
+        //       the fixture profile, which requires all the patching and profile
+        //       machinery to be in place.
+        //
+        //       For now, we just return a straight conversion
+        Literal::new(percentage.value())
     }
 }
 
@@ -28,10 +33,15 @@ impl Converter for PercentageConverter {
     type Result = Percentage;
 
     fn convert_literal(&self, literal: &Literal) -> Self::Result {
-        todo!()
+        // TODO: Converting from a literal to a percentage requires context of
+        //       the fixture profile, which requires all the patching and profile
+        //       machinery to be in place.
+        //
+        //       For now, we just return a straight conversion
+        Percentage::new(literal.value())
     }
 
     fn convert_percentage(&self, percentage: &Percentage) -> Self::Result {
-        todo!()
+        *percentage
     }
 }
