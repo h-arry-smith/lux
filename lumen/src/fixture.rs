@@ -29,9 +29,9 @@ impl Fixture {
         self.parameters.insert(parameter, generator);
     }
 
-    pub fn resolve(&self, elapsed: Duration, profile: &FixtureProfile) -> ResolvedFixture {
+    pub fn resolve(&mut self, elapsed: Duration, profile: &FixtureProfile) -> ResolvedFixture {
         let mut resolved_fixture = ResolvedFixture::new(self.id);
-        for (param, generator) in self.parameters.iter() {
+        for (param, generator) in self.parameters.iter_mut() {
             // It only makes sense for a resolved fixture to have params of the
             // target profile, as abstract params on the fixture will never be
             // converted to dmx.

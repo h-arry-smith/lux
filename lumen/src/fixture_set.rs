@@ -29,9 +29,9 @@ impl FixtureSet {
         self.fixtures.iter_mut()
     }
 
-    pub fn resolve(&self, elapsed: Duration, patch: &Patch) -> HashMap<usize, ResolvedFixture> {
+    pub fn resolve(&mut self, elapsed: Duration, patch: &Patch) -> HashMap<usize, ResolvedFixture> {
         self.fixtures
-            .iter()
+            .iter_mut()
             .map(|(i, f)| (*i, f.resolve(elapsed, patch.get_profile(&i))))
             .collect()
     }

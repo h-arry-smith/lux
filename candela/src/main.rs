@@ -1,4 +1,7 @@
-use std::{thread, time::Duration};
+use std::{
+    thread,
+    time::{Duration, Instant},
+};
 
 use lumen::{
     address::Address,
@@ -31,7 +34,7 @@ fn main() {
             Box::new(Fade::new(
                 Static::new(Values::make_percentage(10.0)),
                 Static::new(Values::make_percentage(100.0)),
-                Duration::new(10, 0),
+                Duration::new(2, 0),
             )),
         );
     }
@@ -42,13 +45,14 @@ fn main() {
     let mut patch = Patch::new();
     patch.patch(1, Address::new(1, 1), &dimmer);
 
-    for i in 0..=10 {
-        let elapsed = Duration::new(i, 0);
-        for (_, resolved_fixture) in environment.fixtures.resolve(elapsed, &patch) {
-            println!("@{:?} {:?}", elapsed, resolved_fixture);
+    let start_time = Instant::now();
+
+    for _ in 0..=10 {
+        for (_, resolved_fixture) in environment.fixtures.resolve(start_time.elapsed(), &patch) {
+            println!("@{:?} {:?}", start_time.elapsed(), resolved_fixture);
         }
 
-        thread::sleep(Duration::new(0, 1_000_000_000 / 10));
+        thread::sleep(Duration::new(0, 2_000_000_000 / 10));
     }
 
     println!("=== FIXTURE DMX ===");
