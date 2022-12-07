@@ -10,9 +10,6 @@ pub struct Address {
 
 impl Address {
     pub fn new(universe: u16, address: u16) -> Self {
-        assert!(universe > 0);
-        assert!(address > 0);
-
         Self { universe, address }
     }
 

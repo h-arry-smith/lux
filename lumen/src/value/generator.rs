@@ -1,10 +1,11 @@
+use crate::value::convertable::Convertable;
 use std::fmt::Debug;
 use std::time::Duration;
 
 use crate::parameter::Parameter;
 use crate::value::Value;
 
-use super::convertable::{Convertable, LiteralConverter, PercentageConverter};
+use super::convertable::{LiteralConverter, PercentageConverter};
 use super::Values;
 
 pub trait Generator: Debug {
@@ -29,14 +30,17 @@ impl Generator for Static {
 }
 
 #[derive(Debug)]
-pub struct Fade {
-    start: Values,
-    end: Values,
+pub struct Fade<G> {
+    start: G,
+    end: G,
     duration: Duration,
 }
 
-impl Fade {
-    pub fn new(start: Values, end: Values, duration: Duration) -> Self {
+impl<G> Fade<G>
+where
+    G: Generator,
+{
+    pub fn new(start: G, end: G, duration: Duration) -> Self {
         Self {
             start,
             end,
@@ -45,7 +49,10 @@ impl Fade {
     }
 }
 
-impl Fade {
+impl<G> Fade<G>
+where
+    G: Generator,
+{
     fn fade_between<V: Value>(&self, start: V, end: V, elapsed: Duration) -> f32 {
         if elapsed > self.duration {
             return end.value();
@@ -59,9 +66,15 @@ impl Fade {
     }
 }
 
-impl Generator for Fade {
+impl<G> Generator for Fade<G>
+where
+    G: Generator,
+{
     fn generate(&self, elapsed: Duration, parameter: &Parameter) -> Values {
-        match (self.start, self.end) {
+        let start = self.start.generate(elapsed, parameter);
+        let end = self.end.generate(elapsed, parameter);
+
+        match (start, end) {
             (Values::Literal(start), non_literal_end) => {
                 let end = non_literal_end.convert(&LiteralConverter::new(parameter));
                 Values::make_literal(self.fade_between(start, end, elapsed))
@@ -70,7 +83,6 @@ impl Generator for Fade {
                 let end = non_percentage_end.convert(&PercentageConverter::new(parameter));
                 Values::make_percentage(self.fade_between(start, end, elapsed))
             }
-            _ => todo!(),
         }
     }
 }
@@ -101,8 +113,8 @@ mod tests {
 
     #[test]
     fn fade_between_like_values() {
-        let start = Values::make_literal(0.0);
-        let end = Values::make_literal(100.0);
+        let start = Static::new(Values::make_literal(0.0));
+        let end = Static::new(Values::make_literal(100.0));
         let fade = Fade::new(start, end, Duration::new(2, 0));
         let parameter = Parameter::new(0, 0.0, 100.0);
 
@@ -122,8 +134,8 @@ mod tests {
 
     #[test]
     fn fade_between_differing_values() {
-        let start = Values::make_literal(25.0);
-        let end = Values::make_percentage(100.0);
+        let start = Static::new(Values::make_literal(25.0));
+        let end = Static::new(Values::make_percentage(100.0));
         let fade = Fade::new(start, end, Duration::new(2, 0));
         let parameter = Parameter::new(0, 25.0, 75.0);
 
