@@ -1,15 +1,18 @@
 use std::{
-    collections::{hash_map::IterMut, HashMap},
+    collections::{
+        hash_map::{Iter, IterMut},
+        HashMap,
+    },
     time::Duration,
 };
 
 use crate::{
-    fixture::{Fixture, ResolvedFixture},
+    fixture::{Fixture, FixtureID, ResolvedFixture},
     Patch,
 };
 
 pub struct FixtureSet {
-    fixtures: HashMap<usize, Fixture>,
+    fixtures: HashMap<FixtureID, Fixture>,
 }
 
 impl FixtureSet {
@@ -25,8 +28,19 @@ impl FixtureSet {
         self.fixtures.insert(id, fixture);
     }
 
-    pub fn all(&mut self) -> IterMut<usize, Fixture> {
+    pub fn all(&mut self) -> IterMut<FixtureID, Fixture> {
         self.fixtures.iter_mut()
+    }
+
+    pub fn all_ref(&self) -> Iter<FixtureID, Fixture> {
+        self.fixtures.iter()
+    }
+
+    pub fn get(&self, id: &FixtureID) -> Option<&Fixture> {
+        match self.fixtures.iter().find(|(_, f)| f.id() == *id) {
+            Some((_, fixture)) => Some(fixture),
+            None => None,
+        }
     }
 
     pub fn resolve(&mut self, elapsed: Duration, patch: &Patch) -> HashMap<usize, ResolvedFixture> {
@@ -34,5 +48,9 @@ impl FixtureSet {
             .iter_mut()
             .map(|(i, f)| (*i, f.resolve(elapsed, patch.get_profile(&i))))
             .collect()
+    }
+
+    pub fn iter_mut(&mut self) -> IterMut<'_, FixtureID, Fixture> {
+        self.fixtures.iter_mut()
     }
 }

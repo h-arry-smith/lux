@@ -10,7 +10,7 @@ use lumen::{
     universe::Multiverse,
     value::generator::Fade,
     value::{generator::Static, Values},
-    Environment, Patch,
+    Environment, Patch, QueryBuilder,
 };
 
 // TODO: This is fine for testing purposes but we need to think about the right
@@ -25,31 +25,38 @@ use lumen::{
 
 fn main() {
     let mut environment = Environment::new();
+    let mut dimmer = FixtureProfile::new();
+    dimmer.set_parameter(Param::Intensity, Parameter::new(0, 0.0, 100.0));
+    let mut patch = Patch::new();
 
-    environment.fixtures.create_with_id(1);
+    for n in 1..=10 {
+        environment.fixtures.create_with_id(n);
+        patch.patch(n, Address::new(1, n as u16), &dimmer);
+    }
 
     for (_, fixture) in environment.fixtures.all() {
         fixture.set(
             Param::Intensity,
-            Box::new(Fade::new(
-                Static::new(Values::make_percentage(10.0)),
-                Static::new(Values::make_percentage(100.0)),
-                Duration::new(2, 0),
-            )),
+            Box::new(Static::new(Values::make_literal(50.0))),
         );
     }
 
-    let mut dimmer = FixtureProfile::new();
-    dimmer.set_parameter(Param::Intensity, Parameter::new(0, 0.0, 75.0));
+    let query = QueryBuilder::new().all().even().id(7).build();
+    let result = query.evaluate(&environment.fixtures);
 
-    let mut patch = Patch::new();
-    patch.patch(1, Address::new(1, 1), &dimmer);
+    for (_, fixture) in environment.query_fixtures(&result) {
+        fixture.set(
+            Param::Intensity,
+            Box::new(Static::new(Values::make_literal(100.0))),
+        )
+    }
 
     let start_time = Instant::now();
 
     for _ in 0..=10 {
+        println!("@{:?}", start_time.elapsed());
         for (_, resolved_fixture) in environment.fixtures.resolve(start_time.elapsed(), &patch) {
-            println!("@{:?} {:?}", start_time.elapsed(), resolved_fixture);
+            println!("    {:?}", resolved_fixture);
         }
 
         thread::sleep(Duration::new(0, 2_000_000_000 / 10));

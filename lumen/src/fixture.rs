@@ -25,6 +25,10 @@ impl Fixture {
         }
     }
 
+    pub fn id(&self) -> FixtureID {
+        self.id
+    }
+
     pub fn set(&mut self, parameter: Param, generator: Box<dyn Generator>) {
         self.parameters.insert(parameter, generator);
     }
@@ -47,6 +51,7 @@ impl Fixture {
 impl Debug for Fixture {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut debug_struct = f.debug_struct("Fixture");
+        debug_struct.field("id", &self.id);
 
         for (parameter, generator) in self.parameters.iter() {
             debug_struct.field(&parameter.to_string(), generator);
@@ -85,6 +90,7 @@ impl ResolvedFixture {
 impl Debug for ResolvedFixture {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let mut debug_struct = f.debug_struct("Fixture");
+        debug_struct.field("id", &self.id);
 
         for (parameter, value) in self.parameters.iter() {
             debug_struct.field(&parameter.to_string(), value);

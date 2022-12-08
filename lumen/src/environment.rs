@@ -1,5 +1,6 @@
-use crate::fixture_set::FixtureSet;
+use crate::{fixture::Fixture, fixture_set::FixtureSet, query::QueryResult};
 
+// FIXME: Remove public access to fixtures
 pub struct Environment {
     pub fixtures: FixtureSet,
 }
@@ -9,5 +10,14 @@ impl Environment {
         Self {
             fixtures: FixtureSet::new(),
         }
+    }
+
+    pub fn query_fixtures<'a>(
+        &'a mut self,
+        result: &'a QueryResult,
+    ) -> impl Iterator<Item = (&usize, &mut Fixture)> {
+        self.fixtures
+            .iter_mut()
+            .filter(|(_, f)| result.contains(&f.id()))
     }
 }

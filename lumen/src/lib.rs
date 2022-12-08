@@ -1,3 +1,5 @@
+// TODO: Well structured public API
+
 mod environment;
 pub use environment::Environment;
 
@@ -17,3 +19,6 @@ pub mod patch;
 pub use patch::Patch;
 
 pub mod universe;
+
+mod query;
+pub use query::query_builder::QueryBuilder;
