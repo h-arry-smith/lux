@@ -41,6 +41,12 @@ impl<'a> Patch<'a> {
     }
 }
 
+impl<'a> Default for Patch<'a> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub struct FixtureProfile {
     parameters: HashMap<Param, Parameter>,
     footprint: usize,
@@ -87,6 +93,12 @@ impl FixtureProfile {
         // The footprint is 0 indexed to match the 0 indexing of offsets in
         // parameters, so we return +1 for the correct size.
         self.footprint + 1
+    }
+}
+
+impl Default for FixtureProfile {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

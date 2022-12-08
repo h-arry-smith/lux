@@ -46,11 +46,17 @@ impl FixtureSet {
     pub fn resolve(&mut self, elapsed: Duration, patch: &Patch) -> HashMap<usize, ResolvedFixture> {
         self.fixtures
             .iter_mut()
-            .map(|(i, f)| (*i, f.resolve(elapsed, patch.get_profile(&i))))
+            .map(|(i, f)| (*i, f.resolve(elapsed, patch.get_profile(i))))
             .collect()
     }
 
     pub fn iter_mut(&mut self) -> IterMut<'_, FixtureID, Fixture> {
         self.fixtures.iter_mut()
+    }
+}
+
+impl Default for FixtureSet {
+    fn default() -> Self {
+        Self::new()
     }
 }

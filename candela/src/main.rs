@@ -8,7 +8,6 @@ use lumen::{
     parameter::{Param, Parameter},
     patch::FixtureProfile,
     universe::Multiverse,
-    value::generator::Fade,
     value::{generator::Static, Values},
     Environment, Patch, QueryBuilder,
 };

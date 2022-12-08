@@ -21,3 +21,9 @@ impl Environment {
             .filter(|(_, f)| result.contains(&f.id()))
     }
 }
+
+impl Default for Environment {
+    fn default() -> Self {
+        Self::new()
+    }
+}

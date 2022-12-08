@@ -37,3 +37,9 @@ impl QueryBuilder {
         self
     }
 }
+
+impl Default for QueryBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}

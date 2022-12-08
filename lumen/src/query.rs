@@ -19,9 +19,9 @@ impl Query {
 
         for step in self.steps.iter() {
             match step {
-                Step::All => Self::all(&fixtures, &mut found),
+                Step::All => Self::all(fixtures, &mut found),
                 Step::Even => Self::even(&mut found),
-                Step::Id(id) => Self::id(id, &fixtures, &mut found),
+                Step::Id(id) => Self::id(id, fixtures, &mut found),
             }
         }
 
@@ -43,11 +43,8 @@ impl Query {
     }
 
     fn id(id: &FixtureID, fixtures: &FixtureSet, found: &mut QueryResult) {
-        match fixtures.get(&id) {
-            Some(fixture) => {
-                found.insert(fixture.id());
-            }
-            None => {}
+        if let Some(fixture) = fixtures.get(id) {
+            found.insert(fixture.id());
         }
     }
 }

@@ -2,7 +2,7 @@ use std::ops::Add;
 
 const DMX_MAX_ADDRESS: u16 = 512;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Address {
     universe: u16,
     address: u16,
@@ -51,8 +51,6 @@ macro_rules! dmx {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[test]
     fn add_below_limit() {
         let a = dmx!(1 / 1);

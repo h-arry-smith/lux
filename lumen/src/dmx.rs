@@ -1,17 +1,15 @@
 use std::{fmt::Debug, slice::Iter};
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
 pub struct Dmx(u8);
 
 impl Dmx {
     pub fn new(value: u8) -> Self {
-        Self { 0: value }
+        Self(value)
     }
 
     pub fn from_factor(factor: f32) -> Self {
-        Self {
-            0: (255.0 * factor).round() as u8,
-        }
+        Self((255.0 * factor).round() as u8)
     }
 }
 
@@ -32,6 +30,11 @@ impl DmxString {
 
     pub fn len(&self) -> usize {
         self.string.len()
+    }
+
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
     }
 
     pub fn iter(&self) -> Iter<Dmx> {

@@ -19,14 +19,20 @@ impl Multiverse {
 
     pub fn map_string(&mut self, address: &Address, dmx_string: &DmxString) {
         match self.universes.get_mut(&address.index()) {
-            Some(universe) => universe.map_string(&address, &dmx_string),
+            Some(universe) => universe.map_string(address, dmx_string),
             None => {
                 // If we don't have that universe allocated, let's make it.
                 let mut universe = Universe::new(address.index());
-                universe.map_string(&address, &dmx_string);
+                universe.map_string(address, dmx_string);
                 self.universes.insert(address.index(), universe);
             }
         }
+    }
+}
+
+impl Default for Multiverse {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

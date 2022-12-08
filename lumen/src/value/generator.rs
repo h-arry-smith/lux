@@ -71,9 +71,8 @@ where
 
         let difference = end.value() - start.value();
         let factor = fade_elapsed_time.as_secs_f32() / self.duration.as_secs_f32();
-        let new_value = start.value() + (difference * factor);
 
-        new_value
+        start.value() + (difference * factor)
     }
 
     fn fade_relative_elapsed_time(&self, elapsed: Duration) -> Duration {
