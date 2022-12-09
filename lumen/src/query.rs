@@ -1,12 +1,12 @@
-use std::collections::HashSet;
-
-use crate::{fixture::FixtureID, fixture_set::FixtureSet};
-
-use self::query_builder::Step;
-
 pub mod query_builder;
 
+use self::query_builder::Step;
+use crate::{fixture::FixtureID, fixture_set::FixtureSet};
+use std::collections::HashSet;
+
 pub type QueryResult = HashSet<FixtureID>;
+
+// TODO: The mut ref its a bit nasty. Maybe there is a better way to architect this.
 
 #[derive(Debug)]
 pub struct Query {
@@ -34,6 +34,8 @@ impl Query {
         }
     }
 
+    // TODO: Even applies only to currently 'found' id's, but is it more semantic
+    //       to treat even as a flag, that would apply to future values as well?
     fn even(found: &mut QueryResult) {
         let ids_to_remove: Vec<FixtureID> =
             found.iter().filter(|id| *id % 2 == 1).cloned().collect();
@@ -51,5 +53,3 @@ impl Query {
 
 // TODO: Integration test all of these query steps, and combinations of them
 //       Reason no unit testing, because of the mutable ref to found,
-
-// TODO: The mut ref its a bit nasty. Maybe there is a better way to architect this.
