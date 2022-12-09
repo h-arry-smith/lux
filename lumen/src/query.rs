@@ -50,6 +50,3 @@ impl Query {
         }
     }
 }
-
-// TODO: Integration test all of these query steps, and combinations of them
-//       Reason no unit testing, because of the mutable ref to found,
