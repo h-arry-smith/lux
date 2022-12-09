@@ -1,18 +1,70 @@
+//! A Percentage Value
+//!
+//! A percentage value represents a 0-100% range, which is usually evaluated in
+//! context with a parameter, to provide a literal value. Though it is also
+//! possible to convert it to DMX directly.
+//!
+//! # Examples
+//!
+//! ```
+//! use lumen::value::{Literal, Percentage};
+//! use lumen::parameter::Parameter;
+//! let percentage = Percentage::new(50.0);
+//! let parameter = Parameter::new(0, 0.0, 50.0);
+//!
+//! assert_eq!(
+//!     percentage.to_literal(&parameter),
+//!     Literal::new(25.0)
+//! );
+//! ```
+
 use crate::{dmx::Dmx, parameter::Parameter};
 
 use super::{Literal, Value};
 use std::fmt::Debug;
 
+/// A `Perecentage` type represents a percentage based value.
+///
+/// A `Percentage` is constructed from a `f32` representing it's percentaage
+/// value.
+///
+/// A `Percentage` implements the [`Value`] trait.
 #[derive(Clone, Copy, PartialEq)]
 pub struct Percentage {
     pub percentage: f32,
 }
 
 impl Percentage {
+    /// Creates a new `Percentage` with the supplied percentage value.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lumen::value::Percentage;
+    /// let percentage = Percentage::new(50.0);
+    /// ```
     pub fn new(percentage: f32) -> Self {
         Self { percentage }
     }
 
+    /// Converts a `Percentage` to a `Literal`
+    ///
+    /// Given a `Parameter` that provides the necessary context for the
+    /// conversion, we are able to calculate the `Literal` value and return it.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lumen::value::{Literal, Percentage};
+    /// use lumen::parameter::Parameter;
+    /// let percentage = Percentage::new(50.0);
+    /// let parameter = Parameter::new(0, 0.0, 50.0);
+    ///
+    /// assert_eq!(
+    ///     percentage.to_literal(&parameter),
+    ///     Literal::new(25.0)
+    /// );
+    /// ```
     pub fn to_literal(&self, parameter: &Parameter) -> Literal {
         let difference = parameter.max() - parameter.min();
         let result = parameter.min() + (difference * self.factor());
