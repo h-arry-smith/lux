@@ -1,145 +1,150 @@
+use std::fmt::Debug;
 use std::time::Duration;
 
 const NANOS_PER_SECOND: u128 = 1_000_000_000;
+const NANOS_PER_MINUTE: u128 = NANOS_PER_SECOND * 60;
+const NANOS_PER_HOUR: u128 = NANOS_PER_MINUTE * 60;
 
-pub trait FrameRate {
-    fn frame_number_at_time(time: u128) -> u8 {
-        ((time / Self::nanos_per_frame()) % Self::fps()) as u8
-    }
-
-    fn nanos_per_frame() -> u128 {
-        NANOS_PER_SECOND / Self::fps()
-    }
-
-    fn fps() -> u128;
-
-    fn state() -> Self;
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+pub enum FrameRate {
+    TwentyFour,
+    TwentFive,
+    Thirty,
 }
 
-// NOTE: Though SMPTE allows for 29.97fps (drop frame) for now keeping things
-//       simple by just copying what GrandMA do.
-// TODO: Move to seperate file?
-pub mod fps {
-    use super::FrameRate;
+impl Debug for FrameRate {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}fps", self.fps())
+    }
+}
 
-    #[derive(Debug, PartialEq, Eq)]
-    pub struct TwentyFour {}
-    impl FrameRate for TwentyFour {
-        fn fps() -> u128 {
-            24
-        }
-
-        fn state() -> Self {
-            Self {}
-        }
+impl FrameRate {
+    fn nanos_per_frame(&self) -> u128 {
+        NANOS_PER_SECOND / self.fps()
     }
 
-    #[derive(Debug, PartialEq, Eq)]
-    pub struct TwentyFive {}
-    impl FrameRate for TwentyFive {
-        fn fps() -> u128 {
-            25
-        }
-
-        fn state() -> Self {
-            Self {}
-        }
-    }
-
-    #[derive(Debug, PartialEq, Eq)]
-    pub struct Thirty {}
-    impl FrameRate for Thirty {
-        fn fps() -> u128 {
-            30
-        }
-
-        fn state() -> Self {
-            Self {}
+    fn fps(&self) -> u128 {
+        match self {
+            FrameRate::TwentyFour => 24,
+            FrameRate::TwentFive => 25,
+            FrameRate::Thirty => 30,
         }
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
-pub struct Time<R: FrameRate> {
-    hours: u8,
-    minutes: u8,
-    seconds: u8,
-    frames: u8,
-    frame_rate: R,
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+pub struct Time {
+    nanoseconds: u128,
+    frame_rate: FrameRate,
 }
 
-impl<R: FrameRate> Time<R> {
-    fn new(hours: u8, minutes: u8, seconds: u8, frames: u8) -> Self {
+impl Time {
+    pub fn new(nanoseconds: u128, frame_rate: FrameRate) -> Self {
         Self {
-            hours,
-            minutes,
-            seconds,
-            frames,
-            frame_rate: R::state(),
+            nanoseconds,
+            frame_rate,
         }
+    }
+
+    pub fn from(duration: Duration, frame_rate: FrameRate) -> Self {
+        Self {
+            nanoseconds: duration.as_nanos(),
+            frame_rate,
+        }
+    }
+
+    // NOTE: It should always be safe to unwarp the conversions here, as they
+    //       are all modulus of a value samller than u8, so never can exceed
+    //       the u8 maximum.
+    pub fn frames(&self) -> u8 {
+        (self.nanoseconds / self.frame_rate.nanos_per_frame() % self.frame_rate.fps())
+            .try_into()
+            .unwrap()
+    }
+
+    pub fn seconds(&self) -> u8 {
+        ((self.nanoseconds / NANOS_PER_SECOND) % 60)
+            .try_into()
+            .unwrap()
+    }
+
+    pub fn minutes(&self) -> u8 {
+        ((self.nanoseconds / NANOS_PER_MINUTE) % 60)
+            .try_into()
+            .unwrap()
+    }
+
+    // TODO: Theoretically, a long running timecode could exceed the maximum of
+    //       u64. But either a real TC source can't run this high, or the maximum
+    //       of u64 hour exceeds any realistic time frame. Either way, this unwrap
+    //       may or may not be safe, but we should look into this.
+    pub fn hours(&self) -> u64 {
+        (self.nanoseconds / NANOS_PER_HOUR).try_into().unwrap()
     }
 }
 
-impl<R: FrameRate> From<Duration> for Time<R> {
-    fn from(duration: Duration) -> Self {
-        let nano = duration.as_nanos();
-        Self {
-            hours: 0,
-            minutes: 0,
-            seconds: (nano / NANOS_PER_SECOND).try_into().unwrap(),
-            frames: R::frame_number_at_time(nano),
-            frame_rate: R::state(),
-        }
+impl Debug for Time {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}:{}:{}:{} @{:?}",
+            self.hours(),
+            self.minutes(),
+            self.seconds(),
+            self.frames(),
+            self.frame_rate
+        )
     }
 }
 
 #[cfg(test)]
 mod tests {
-    mod frame_rate {
-        use crate::timecode::{
-            fps::{Thirty, TwentyFour},
-            FrameRate, NANOS_PER_SECOND,
+    use crate::timecode::{FrameRate, Time, NANOS_PER_SECOND};
+    use std::time::Duration;
+
+    macro_rules! assert_correct_time {
+        ($time:ident, $h:literal $m:literal $s:literal $f:literal) => {
+            assert_eq!($time.hours(), $h);
+            assert_eq!($time.minutes(), $m);
+            assert_eq!($time.seconds(), $s);
+            assert_eq!($time.frames(), $f);
         };
-
-        #[test]
-        fn frame_number_24() {
-            let nanos = NANOS_PER_SECOND / 2;
-
-            assert_eq!(TwentyFour::frame_number_at_time(nanos), 12);
-        }
-
-        #[test]
-        fn frame_number_30() {
-            let nanos = NANOS_PER_SECOND / 4;
-
-            assert_eq!(Thirty::frame_number_at_time(nanos), 7);
-        }
     }
 
-    mod from_duration {
-        use std::time::Duration;
+    macro_rules! time {
+        ($h:literal $m:literal $s:literal $f: literal, $rate:ident) => {{
+            let mut seconds = 0;
+            seconds += $h * 60 * 60;
+            seconds += $m * 60;
+            seconds += $s;
 
-        use crate::timecode::{
-            fps::{Thirty, TwentyFour},
-            Time, NANOS_PER_SECOND,
-        };
+            let nanos = FrameRate::$rate.nanos_per_frame() * $f;
 
-        #[test]
-        fn half_a_second() {
-            let time: Time<TwentyFour> =
-                Time::from(Duration::new(0, (NANOS_PER_SECOND / 2).try_into().unwrap()));
+            Time::from(Duration::new(seconds, nanos as u32), FrameRate::$rate)
+        }};
+    }
 
-            assert_eq!(time, Time::<TwentyFour>::new(0, 0, 0, 12))
-        }
+    #[test]
+    fn half_a_second() {
+        let time = time!(0 0 0 15, Thirty);
+        assert_correct_time!(time, 0 0 0 15);
+    }
 
-        #[test]
-        fn ten_and_a_third_seconds() {
-            let time: Time<Thirty> = Time::from(Duration::new(
-                10,
-                (NANOS_PER_SECOND / 3).try_into().unwrap(),
-            ));
+    #[test]
+    fn ten_and_a_third_seconds() {
+        let time = time!(0 0 10 10, Thirty);
+        assert_correct_time!(time, 0 0 10 10);
+    }
 
-            assert_eq!(time, Time::<Thirty>::new(0, 0, 10, 10))
-        }
+    #[test]
+    fn three_minutes_eight_seconds_six_frames() {
+        let time = time!(0 3 8 6, Thirty);
+        assert_correct_time!(time, 0 3 8 6);
+    }
+
+    #[test]
+    fn nine_hours_twenty_minutes_eighteen_seconds_twentythree_frames() {
+        let time = time!(9 20 18 23, TwentyFour);
+        assert_correct_time!(time, 9 20 18 23);
     }
 }
