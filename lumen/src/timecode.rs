@@ -37,11 +37,19 @@ impl FrameRate {
     }
 }
 
+#[derive(Debug, PartialEq, Eq)]
+pub enum State {
+    Stopped,
+    Running,
+    Paused,
+}
+
 #[derive(Debug)]
 pub struct Source {
     start_time: Option<Instant>,
-    pause_time: Option<Instant>,
+    pause_time: Option<Duration>,
     frame_rate: FrameRate,
+    state: State,
 }
 
 impl Source {
@@ -50,38 +58,32 @@ impl Source {
             start_time: None,
             pause_time: None,
             frame_rate,
+            state: State::Stopped,
         }
     }
 
     pub fn time(&self) -> Time {
-        if let Some(pause_time) = self.pause_time {
-            if let Some(start_time) = self.start_time {
-                if pause_time == start_time {
-                    return Time::from(&start_time.elapsed(), self.frame_rate);
-                } else {
-                    let duration_paused_at = start_time.elapsed() - pause_time.elapsed();
-                    return Time::from(&duration_paused_at, self.frame_rate);
-                }
-            }
-        }
-
-        match self.start_time {
-            Some(start_time) => Time::from(&start_time.elapsed(), self.frame_rate),
-            None => Time::new(0, self.frame_rate),
+        match self.state {
+            State::Stopped => Time::new(0, self.frame_rate),
+            State::Running => Time::from(&self.start_time.unwrap().elapsed(), self.frame_rate),
+            State::Paused => Time::from(&self.pause_time.unwrap(), self.frame_rate),
         }
     }
 
     pub fn start(&mut self) {
         self.start_time = Some(Instant::now());
+        self.state = State::Running;
     }
 
     pub fn start_at_time(&mut self, time: Instant) {
         self.start_time = Some(time);
+        self.state = State::Running;
     }
 
     pub fn pause(&mut self) {
-        if self.start_time.is_some() {
-            self.pause_time = Some(Instant::now())
+        if let Some(start_time) = self.start_time {
+            self.pause_time = Some(start_time.elapsed());
+            self.state = State::Paused;
         }
     }
 
@@ -89,28 +91,30 @@ impl Source {
     //       of a timecode. If in the future you need this, then you'd need to
     //       modify the struct to keep an absolute start, and a relative start.
     pub fn resume(&mut self) {
-        if self.start_time.is_none() {
+        if !(self.state == State::Paused) {
             return;
         }
 
         if let Some(pause_time) = self.pause_time {
             // Unwrap is safe because of gaurd condition.
             let mut start_time = self.start_time.take().unwrap();
-            start_time += pause_time.elapsed();
+            start_time += pause_time;
 
             self.start_time = Some(start_time);
             self.pause_time = None;
+            self.state = State::Running;
         }
     }
 
     pub fn stop(&mut self) {
         self.start_time = None;
         self.pause_time = None;
+        self.state = State::Stopped;
     }
 
     pub fn seek(&mut self, time: Time) {
-        match self.pause_time {
-            Some(_) => {
+        match self.state {
+            State::Paused => {
                 // When paused, must update the pause point
                 let duration: Duration = time.into();
                 let new_time = Instant::now() - duration;
@@ -118,9 +122,9 @@ impl Source {
 
                 // NOTE: This small addition of time solves a rounding issue in
                 //       the seeking behaviour, but feels a bit kludgy.
-                self.pause_time = Some(Instant::now() + Duration::new(0, 500));
+                self.pause_time = Some(new_time.elapsed());
             }
-            None => {
+            _ => {
                 // We aren't paused, so we can just seek to the new position
                 let duration: Duration = time.into();
                 self.start_time = Some(Instant::now() - duration);
@@ -249,8 +253,6 @@ mod tests {
         // + 0 frames (paused)
         thread::sleep(Duration::new(0, 100_000_000));
         let time = source.time();
-        dbg!(&time);
-        dbg!(&source);
         assert_correct_time!(time, 1 2 8 4);
     }
 }
