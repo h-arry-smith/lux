@@ -1,3 +1,4 @@
+use crate::timecode::time::Time;
 use crate::value::convertable::Convertable;
 use std::fmt::Debug;
 use std::time::Duration;
@@ -9,7 +10,7 @@ use super::convertable::{LiteralConverter, PercentageConverter};
 use super::Values;
 
 pub trait Generator: Debug {
-    fn generate(&mut self, elapsed: Duration, parameter: &Parameter) -> Values;
+    fn generate(&mut self, time: &Time, parameter: &Parameter) -> Values;
 }
 
 #[derive(Debug)]
@@ -24,7 +25,7 @@ impl Static {
 }
 
 impl Generator for Static {
-    fn generate(&mut self, _elapsed: Duration, _parameter: &Parameter) -> Values {
+    fn generate(&mut self, _time: &Time, _parameter: &Parameter) -> Values {
         self.value
     }
 }
@@ -87,9 +88,11 @@ impl<G> Generator for Fade<G>
 where
     G: Generator,
 {
-    fn generate(&mut self, elapsed: Duration, parameter: &Parameter) -> Values {
-        let start = self.start.generate(elapsed, parameter);
-        let end = self.end.generate(elapsed, parameter);
+    fn generate(&mut self, time: &Time, parameter: &Parameter) -> Values {
+        let start = self.start.generate(time, parameter);
+        let end = self.end.generate(time, parameter);
+
+        let elapsed: Duration = (*time).into();
 
         match (start, end) {
             (Values::Literal(start), non_literal_end) => {
@@ -106,6 +109,9 @@ where
 
 #[cfg(test)]
 mod tests {
+    use crate::time;
+    use crate::timecode::FrameRate;
+
     use super::*;
 
     #[test]
@@ -115,15 +121,15 @@ mod tests {
         let parameter = Parameter::new(0, 0.0, 100.0);
 
         assert_eq!(
-            static_generator.generate(Duration::new(0, 0), &parameter),
+            static_generator.generate(&time!(0 0 0 0, Thirty), &parameter),
             Values::make_literal(50.0),
         );
         assert_eq!(
-            static_generator.generate(Duration::new(2, 0), &parameter),
+            static_generator.generate(&time!(0 0 2 0, Thirty), &parameter),
             Values::make_literal(50.0),
         );
         assert_eq!(
-            static_generator.generate(Duration::new(4, 0), &parameter),
+            static_generator.generate(&time!(0 0 4 0, Thirty), &parameter),
             Values::make_literal(50.0),
         );
     }
@@ -136,15 +142,15 @@ mod tests {
         let parameter = Parameter::new(0, 0.0, 100.0);
 
         assert_eq!(
-            fade.generate(Duration::new(0, 0), &parameter),
+            fade.generate(&time!(0 0 0 0, Thirty), &parameter),
             Values::make_literal(0.0)
         );
         assert_eq!(
-            fade.generate(Duration::new(1, 0), &parameter),
+            fade.generate(&time!(0 0 1 0, Thirty), &parameter),
             Values::make_literal(50.0)
         );
         assert_eq!(
-            fade.generate(Duration::new(2, 0), &parameter),
+            fade.generate(&time!(0 0 2 0, Thirty), &parameter),
             Values::make_literal(100.0)
         );
     }
@@ -157,15 +163,15 @@ mod tests {
         let parameter = Parameter::new(0, 25.0, 75.0);
 
         assert_eq!(
-            fade.generate(Duration::new(0, 0), &parameter),
+            fade.generate(&time!(0 0 0 0, Thirty), &parameter),
             Values::make_literal(25.0)
         );
         assert_eq!(
-            fade.generate(Duration::new(1, 0), &parameter),
+            fade.generate(&time!(0 0 1 0, Thirty), &parameter),
             Values::make_literal(50.0)
         );
         assert_eq!(
-            fade.generate(Duration::new(2, 0), &parameter),
+            fade.generate(&time!(0 0 2 0, Thirty), &parameter),
             Values::make_literal(75.0)
         );
     }

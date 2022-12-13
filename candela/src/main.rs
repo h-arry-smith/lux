@@ -1,15 +1,16 @@
-use std::{
-    thread,
-    time::{Duration, Instant},
-};
+use std::{thread, time::Duration};
 
 use lumen::{
     address::Address,
     parameter::{Param, Parameter},
     patch::FixtureProfile,
+    timecode::{FrameRate, Source},
     universe::Multiverse,
-    value::{generator::Static, Values},
-    Environment, Patch, QueryBuilder,
+    value::{
+        generator::{Fade, Static},
+        Values,
+    },
+    Environment, Patch,
 };
 
 // TODO: This is fine for testing purposes but we need to think about the right
@@ -36,25 +37,20 @@ fn main() {
     for (_, fixture) in environment.fixtures.all() {
         fixture.set(
             Param::Intensity,
-            Box::new(Static::new(Values::make_literal(50.0))),
+            Box::new(Fade::new(
+                Static::new(Values::make_literal(0.0)),
+                Static::new(Values::make_literal(100.0)),
+                Duration::new(2, 0),
+            )),
         );
     }
 
-    let query = QueryBuilder::new().all().even().id(7).build();
-    let result = query.evaluate(&environment.fixtures);
-
-    for (_, fixture) in environment.query_fixtures(&result) {
-        fixture.set(
-            Param::Intensity,
-            Box::new(Static::new(Values::make_literal(100.0))),
-        )
-    }
-
-    let start_time = Instant::now();
+    let mut timer = Source::new(FrameRate::Thirty);
+    timer.start();
 
     for _ in 0..=10 {
-        println!("@{:?}", start_time.elapsed());
-        for (_, resolved_fixture) in environment.fixtures.resolve(start_time.elapsed(), &patch) {
+        println!("@{:?}", timer.time());
+        for (_, resolved_fixture) in environment.fixtures.resolve(timer.time(), &patch) {
             println!("    {:?}", resolved_fixture);
         }
 
@@ -64,7 +60,7 @@ fn main() {
     println!("=== FIXTURE DMX ===");
     let mut multiverse = Multiverse::new();
 
-    for (id, resolved_fixture) in environment.fixtures.resolve(Duration::new(10, 0), &patch) {
+    for (id, resolved_fixture) in environment.fixtures.resolve(timer.time(), &patch) {
         let dmx_string = patch.get_profile(&id).to_dmx(&resolved_fixture);
         println!("{}: {:?}", id, dmx_string);
 

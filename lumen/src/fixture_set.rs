@@ -1,9 +1,7 @@
-use std::{
-    collections::{
-        hash_map::{Iter, IterMut},
-        HashMap,
-    },
-    time::Duration,
+use crate::timecode::time::Time;
+use std::collections::{
+    hash_map::{Iter, IterMut},
+    HashMap,
 };
 
 use crate::{
@@ -43,10 +41,10 @@ impl FixtureSet {
         }
     }
 
-    pub fn resolve(&mut self, elapsed: Duration, patch: &Patch) -> HashMap<usize, ResolvedFixture> {
+    pub fn resolve(&mut self, time: Time, patch: &Patch) -> HashMap<usize, ResolvedFixture> {
         self.fixtures
             .iter_mut()
-            .map(|(i, f)| (*i, f.resolve(elapsed, patch.get_profile(i))))
+            .map(|(i, f)| (*i, f.resolve(&time, patch.get_profile(i))))
             .collect()
     }
 

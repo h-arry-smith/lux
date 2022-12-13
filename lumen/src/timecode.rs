@@ -24,11 +24,11 @@ impl Debug for FrameRate {
 }
 
 impl FrameRate {
-    fn nanos_per_frame(&self) -> u128 {
+    pub fn nanos_per_frame(&self) -> u128 {
         NANOS_PER_SECOND / self.fps()
     }
 
-    fn fps(&self) -> u128 {
+    pub fn fps(&self) -> u128 {
         match self {
             FrameRate::TwentyFour => 24,
             FrameRate::TwentFive => 25,
@@ -133,6 +133,20 @@ impl Source {
     }
 }
 
+#[macro_export]
+macro_rules! time {
+    ($h:literal $m:literal $s:literal $f: literal, $rate:ident) => {{
+        let mut seconds = 0;
+        seconds += $h * 60 * 60;
+        seconds += $m * 60;
+        seconds += $s;
+
+        let nanos = FrameRate::$rate.nanos_per_frame() * $f;
+
+        Time::from(&Duration::new(seconds, nanos as u32), FrameRate::$rate)
+    }};
+}
+
 #[cfg(test)]
 mod tests {
     use crate::timecode::Time;
@@ -151,19 +165,6 @@ mod tests {
             assert_eq!($time.seconds(), $s);
             assert_eq!($time.frames(), $f);
         };
-    }
-
-    macro_rules! time {
-        ($h:literal $m:literal $s:literal $f: literal, $rate:ident) => {{
-            let mut seconds = 0;
-            seconds += $h * 60 * 60;
-            seconds += $m * 60;
-            seconds += $s;
-
-            let nanos = FrameRate::$rate.nanos_per_frame() * $f;
-
-            Time::from(&Duration::new(seconds, nanos as u32), FrameRate::$rate)
-        }};
     }
 
     #[test]

@@ -2,7 +2,7 @@ use super::{FrameRate, NANOS_PER_HOUR, NANOS_PER_MINUTE, NANOS_PER_SECOND};
 use std::fmt::Debug;
 use std::time::Duration;
 
-#[derive(PartialOrd, Ord)]
+#[derive(PartialOrd, Ord, Copy, Clone)]
 pub struct Time {
     nanoseconds: u128,
     frame_rate: FrameRate,

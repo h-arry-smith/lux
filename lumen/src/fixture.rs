@@ -1,6 +1,7 @@
+use crate::timecode::time::Time;
 use std::collections::hash_map::Iter;
+use std::collections::HashMap;
 use std::fmt::Debug;
-use std::{collections::HashMap, time::Duration};
 
 use crate::parameter::Param;
 use crate::patch::FixtureProfile;
@@ -33,14 +34,14 @@ impl Fixture {
         self.parameters.insert(parameter, generator);
     }
 
-    pub fn resolve(&mut self, elapsed: Duration, profile: &FixtureProfile) -> ResolvedFixture {
+    pub fn resolve(&mut self, time: &Time, profile: &FixtureProfile) -> ResolvedFixture {
         let mut resolved_fixture = ResolvedFixture::new(self.id);
         for (param, generator) in self.parameters.iter_mut() {
             // It only makes sense for a resolved fixture to have params of the
             // target profile, as abstract params on the fixture will never be
             // converted to dmx.
             if let Some(parameter) = profile.get_parameter(param) {
-                resolved_fixture.set(*param, generator.generate(elapsed, parameter));
+                resolved_fixture.set(*param, generator.generate(time, parameter));
             }
         }
 
