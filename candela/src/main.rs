@@ -4,13 +4,14 @@ use lumen::{
     address::Address,
     parameter::{Param, Parameter},
     patch::FixtureProfile,
-    timecode::{FrameRate, Source},
+    timecode::{time::Time, FrameRate, Source},
+    track::{Action, Applicator, Selection, Track},
     universe::Multiverse,
     value::{
         generator::{Fade, Static},
         Values,
     },
-    Environment, Patch,
+    Environment, Patch, QueryBuilder,
 };
 
 // TODO: This is fine for testing purposes but we need to think about the right
@@ -34,23 +35,33 @@ fn main() {
         patch.patch(n, Address::new(1, n as u16), &dimmer);
     }
 
-    for (_, fixture) in environment.fixtures.all() {
-        fixture.set(
-            Param::Intensity,
-            Box::new(Fade::new(
-                Static::new(Values::make_literal(0.0)),
-                Static::new(Values::make_literal(100.0)),
-                Duration::new(2, 0),
-            )),
-        );
-    }
+    // In reality you wouldn't manually build it up like this, but this is just
+    // for testing, better interfacts to come!
+    let mut track = Track::new(0);
+    let mut action = Action::new(Time::at(0, 0, 1, 0, environment.timecode(0).fps()));
+    let mut selection = Selection::new(QueryBuilder::new().all().build());
+    selection.add_applicator(Applicator::new(
+        Param::Intensity,
+        Box::new(Fade::new(
+            Static::new(Values::make_literal(0.0)),
+            Static::new(Values::make_literal(100.0)),
+            Duration::new(2, 0),
+        )),
+    ));
 
-    let mut timer = Source::new(FrameRate::Thirty);
-    timer.start();
+    action.add_selection(selection);
+    track.add_action(action);
+
+    environment.set_track(track);
+    environment.timecode(0).start();
 
     for _ in 0..=10 {
-        println!("@{:?}", timer.time());
-        for (_, resolved_fixture) in environment.fixtures.resolve(timer.time(), &patch) {
+        let time = environment.timecode(0).time();
+        println!("@{:?}", time);
+
+        environment.tick();
+
+        for (_, resolved_fixture) in environment.fixtures.resolve(time, &patch) {
             println!("    {:?}", resolved_fixture);
         }
 
@@ -59,8 +70,9 @@ fn main() {
 
     println!("=== FIXTURE DMX ===");
     let mut multiverse = Multiverse::new();
+    let time = environment.timecode(0).time();
 
-    for (id, resolved_fixture) in environment.fixtures.resolve(timer.time(), &patch) {
+    for (id, resolved_fixture) in environment.fixtures.resolve(time, &patch) {
         let dmx_string = patch.get_profile(&id).to_dmx(&resolved_fixture);
         println!("{}: {:?}", id, dmx_string);
 

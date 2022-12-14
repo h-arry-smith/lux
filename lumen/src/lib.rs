@@ -9,6 +9,7 @@ pub mod fixture_set;
 pub mod parameter;
 pub mod patch;
 pub mod timecode;
+pub mod track;
 pub mod value;
 pub use patch::Patch;
 mod query;

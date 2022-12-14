@@ -23,6 +23,25 @@ impl Time {
         }
     }
 
+    pub fn at(
+        hours: u128,
+        minutes: u128,
+        seconds: u128,
+        frames: u128,
+        frame_rate: FrameRate,
+    ) -> Self {
+        let mut nanoseconds = 0;
+        nanoseconds += hours * NANOS_PER_HOUR;
+        nanoseconds += minutes * NANOS_PER_MINUTE;
+        nanoseconds += seconds * NANOS_PER_SECOND;
+        nanoseconds += frames * frame_rate.nanos_per_frame();
+
+        Self {
+            nanoseconds,
+            frame_rate,
+        }
+    }
+
     // NOTE: It should always be safe to unwarp the conversions here, as they
     //       are all modulus of a value samller than u8, so never can exceed
     //       the u8 maximum.

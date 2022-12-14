@@ -37,14 +37,14 @@ impl FrameRate {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum State {
     Stopped,
     Running,
     Paused,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Source {
     start_time: Option<Instant>,
     pause_time: Option<Duration>,
@@ -130,6 +130,10 @@ impl Source {
                 self.start_time = Some(Instant::now() - duration);
             }
         }
+    }
+
+    pub fn fps(&self) -> FrameRate {
+        self.frame_rate
     }
 }
 
