@@ -58,13 +58,7 @@ fn main() {
 
     action.add_group(apply_group);
 
-    for apply_group in action.apply_groups {
-        for (_, fixture) in environment.query(&apply_group.query.evaluate(&environment.fixtures)) {
-            for apply in apply_group.applies.iter() {
-                fixture.apply(apply);
-            }
-        }
-    }
+    environment.run_action(&action);
 
     let mut timer = Source::new(FrameRate::Thirty);
     timer.start();

@@ -1,4 +1,4 @@
-use crate::{fixture::Fixture, fixture_set::FixtureSet, query::QueryResult};
+use crate::{action::Action, fixture::Fixture, fixture_set::FixtureSet, query::QueryResult};
 
 // FIXME: Remove public access to fixtures
 pub struct Environment {
@@ -9,6 +9,16 @@ impl Environment {
     pub fn new() -> Self {
         Self {
             fixtures: FixtureSet::new(),
+        }
+    }
+
+    pub fn run_action(&mut self, action: &Action) {
+        for apply_group in action.apply_groups.iter() {
+            for (_, fixture) in self.query(&apply_group.query.evaluate(&self.fixtures)) {
+                for apply in apply_group.applies.iter() {
+                    fixture.apply(apply);
+                }
+            }
         }
     }
 
