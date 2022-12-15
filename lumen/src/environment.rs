@@ -12,7 +12,7 @@ impl Environment {
         }
     }
 
-    pub fn query_fixtures<'a>(
+    pub fn query<'a>(
         &'a mut self,
         result: &'a QueryResult,
     ) -> impl Iterator<Item = (&usize, &mut Fixture)> {

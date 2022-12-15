@@ -1,6 +1,7 @@
 use std::{thread, time::Duration};
 
 use lumen::{
+    action::Apply,
     address::Address,
     parameter::{Param, Parameter},
     patch::FixtureProfile,
@@ -8,9 +9,9 @@ use lumen::{
     universe::Multiverse,
     value::{
         generator::{Fade, Static},
-        Values,
+        Literal, Values,
     },
-    Environment, Patch,
+    Environment, Patch, QueryBuilder,
 };
 
 // TODO: This is fine for testing purposes but we need to think about the right
@@ -34,15 +35,17 @@ fn main() {
         patch.patch(n, Address::new(1, n as u16), &dimmer);
     }
 
-    for (_, fixture) in environment.fixtures.all() {
-        fixture.set(
-            Param::Intensity,
-            Box::new(Fade::new(
-                Static::new(Values::make_literal(0.0)),
-                Static::new(Values::make_literal(100.0)),
-                Duration::new(2, 0),
-            )),
-        );
+    let query = QueryBuilder::new().all().build();
+    let fade = Fade::new(
+        Static::new(Values::make_literal(0.0)),
+        Static::new(Values::make_percentage(100.0)),
+        Duration::new(2, 0),
+    );
+
+    let apply = Apply::new(Param::Intensity, Box::new(fade));
+
+    for (_, fixture) in environment.query(&query.evaluate(&environment.fixtures)) {
+        fixture.apply(&apply);
     }
 
     let mut timer = Source::new(FrameRate::Thirty);

@@ -2,6 +2,7 @@
 
 mod environment;
 pub use environment::Environment;
+pub mod action;
 pub mod address;
 pub mod dmx;
 pub mod fixture;

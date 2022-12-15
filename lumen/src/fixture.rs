@@ -1,3 +1,4 @@
+use crate::action::Apply;
 use crate::timecode::time::Time;
 use std::collections::hash_map::Iter;
 use std::collections::HashMap;
@@ -30,7 +31,11 @@ impl Fixture {
         self.id
     }
 
-    pub fn set(&mut self, parameter: Param, generator: Box<dyn Generator>) {
+    pub fn apply(&mut self, apply: &Apply) {
+        self.set(apply.parameter, apply.generator.clone());
+    }
+
+    fn set(&mut self, parameter: Param, generator: Box<dyn Generator>) {
         self.parameters.insert(parameter, generator);
     }
 
