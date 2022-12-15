@@ -1,7 +1,7 @@
 use std::{thread, time::Duration};
 
 use lumen::{
-    action::{Apply, ApplyGroup},
+    action::{Action, Apply, ApplyGroup},
     address::Address,
     parameter::{Param, Parameter},
     patch::FixtureProfile,
@@ -35,6 +35,8 @@ fn main() {
         patch.patch(n, Address::new(1, n as u16), &dimmer);
     }
 
+    let mut action = Action::new();
+
     let query = QueryBuilder::new().all().build();
     let fade = Fade::new(
         Static::new(Values::make_literal(0.0)),
@@ -43,12 +45,24 @@ fn main() {
     );
 
     let apply = Apply::new(Param::Intensity, Box::new(fade));
-    let mut selection = ApplyGroup::new(query);
-    selection.add_apply(apply);
+    let mut apply_group = ApplyGroup::new(query);
+    apply_group.add_apply(apply);
 
-    for (_, fixture) in environment.query(&selection.query.evaluate(&environment.fixtures)) {
-        for apply in selection.applies.iter() {
-            fixture.apply(apply);
+    action.add_group(apply_group);
+
+    let query = QueryBuilder::new().all().even().build();
+    let static_value = Static::new(Values::make_literal(15.0));
+    let apply = Apply::new(Param::Intensity, Box::new(static_value));
+    let mut apply_group = ApplyGroup::new(query);
+    apply_group.add_apply(apply);
+
+    action.add_group(apply_group);
+
+    for apply_group in action.apply_groups {
+        for (_, fixture) in environment.query(&apply_group.query.evaluate(&environment.fixtures)) {
+            for apply in apply_group.applies.iter() {
+                fixture.apply(apply);
+            }
         }
     }
 

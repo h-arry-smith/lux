@@ -31,3 +31,25 @@ impl ApplyGroup {
         self.applies.push(apply)
     }
 }
+
+pub struct Action {
+    pub apply_groups: Vec<ApplyGroup>,
+}
+
+impl Action {
+    pub fn new() -> Self {
+        Self {
+            apply_groups: Vec::new(),
+        }
+    }
+
+    pub fn add_group(&mut self, apply_group: ApplyGroup) {
+        self.apply_groups.push(apply_group)
+    }
+}
+
+impl Default for Action {
+    fn default() -> Self {
+        Self::new()
+    }
+}
