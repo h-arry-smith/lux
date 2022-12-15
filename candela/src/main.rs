@@ -1,11 +1,9 @@
-use std::{thread, time::Duration};
-
 use lumen::{
+    action::{Action, Apply, ApplyGroup},
     address::Address,
     parameter::{Param, Parameter},
     patch::FixtureProfile,
-    timecode::{time::Time, FrameRate, Source},
-    track::{Action, Applicator, Selection, Track},
+    timecode::{FrameRate, Source},
     universe::Multiverse,
     value::{
         generator::{Fade, Static},
@@ -13,6 +11,7 @@ use lumen::{
     },
     Environment, Patch, QueryBuilder,
 };
+use std::{thread, time::Duration};
 
 // TODO: This is fine for testing purposes but we need to think about the right
 //       architecture for this.
@@ -35,33 +34,39 @@ fn main() {
         patch.patch(n, Address::new(1, n as u16), &dimmer);
     }
 
-    // In reality you wouldn't manually build it up like this, but this is just
-    // for testing, better interfacts to come!
-    let mut track = Track::new(0);
-    let mut action = Action::new(Time::at(0, 0, 1, 0, environment.timecode(0).fps()));
-    let mut selection = Selection::new(QueryBuilder::new().all().build());
-    selection.add_applicator(Applicator::new(
-        Param::Intensity,
-        Box::new(Fade::new(
-            Static::new(Values::make_literal(0.0)),
-            Static::new(Values::make_literal(100.0)),
-            Duration::new(2, 0),
-        )),
-    ));
+    let mut action1 = Action::new();
+    let query = QueryBuilder::new().all().build();
+    let fade = Fade::new(
+        Static::new(Values::make_literal(0.0)),
+        Static::new(Values::make_percentage(100.0)),
+        Duration::new(2, 0),
+    );
+    let apply = Apply::new(Param::Intensity, Box::new(fade));
+    let mut apply_group = ApplyGroup::new(query);
+    apply_group.add_apply(apply);
 
-    action.add_selection(selection);
-    track.add_action(action);
+    action1.add_group(apply_group);
 
-    environment.set_track(track);
-    environment.timecode(0).start();
+    let mut action2 = Action::new();
+    let query = QueryBuilder::new().all().even().build();
+    let static_value = Static::new(Values::make_literal(15.0));
+    let apply = Apply::new(Param::Intensity, Box::new(static_value));
+    let mut apply_group = ApplyGroup::new(query);
+    apply_group.add_apply(apply);
+
+    action2.add_group(apply_group);
+
+    environment.run_action(&action1);
+    environment.run_action(&action2);
+
+    environment.revert();
+
+    let mut timer = Source::new(FrameRate::Thirty);
+    timer.start();
 
     for _ in 0..=10 {
-        let time = environment.timecode(0).time();
-        println!("@{:?}", time);
-
-        environment.tick();
-
-        for (_, resolved_fixture) in environment.fixtures.resolve(time, &patch) {
+        println!("@{:?}", timer.time());
+        for (_, resolved_fixture) in environment.fixtures.resolve(timer.time(), &patch) {
             println!("    {:?}", resolved_fixture);
         }
 
@@ -70,9 +75,8 @@ fn main() {
 
     println!("=== FIXTURE DMX ===");
     let mut multiverse = Multiverse::new();
-    let time = environment.timecode(0).time();
 
-    for (id, resolved_fixture) in environment.fixtures.resolve(time, &patch) {
+    for (id, resolved_fixture) in environment.fixtures.resolve(timer.time(), &patch) {
         let dmx_string = patch.get_profile(&id).to_dmx(&resolved_fixture);
         println!("{}: {:?}", id, dmx_string);
 

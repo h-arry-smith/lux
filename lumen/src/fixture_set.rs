@@ -21,8 +21,12 @@ impl FixtureSet {
     }
 
     // TODO: Proper error handling for when a fixture already exists
-    pub fn create_with_id(&mut self, id: usize) {
+    pub fn create_with_id(&mut self, id: FixtureID) {
         let fixture = Fixture::new(id);
+        self.fixtures.insert(id, fixture);
+    }
+
+    pub fn add_fixture(&mut self, id: FixtureID, fixture: Fixture) {
         self.fixtures.insert(id, fixture);
     }
 
@@ -50,6 +54,18 @@ impl FixtureSet {
 
     pub fn iter_mut(&mut self) -> IterMut<'_, FixtureID, Fixture> {
         self.fixtures.iter_mut()
+    }
+}
+
+impl Clone for FixtureSet {
+    fn clone(&self) -> Self {
+        let mut set = FixtureSet::new();
+
+        for (id, fixture) in self.all_ref() {
+            set.add_fixture(*id, fixture.clone());
+        }
+
+        set
     }
 }
 

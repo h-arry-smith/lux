@@ -9,11 +9,30 @@ use crate::value::Value;
 use super::convertable::{LiteralConverter, PercentageConverter};
 use super::Values;
 
-pub trait Generator: Debug {
+pub trait Generator: Debug + GeneratorClone {
     fn generate(&mut self, time: &Time, parameter: &Parameter) -> Values;
 }
 
-#[derive(Debug)]
+pub trait GeneratorClone {
+    fn clone_box(&self) -> Box<dyn Generator>;
+}
+
+impl<G> GeneratorClone for G
+where
+    G: 'static + Generator + Clone,
+{
+    fn clone_box(&self) -> Box<dyn Generator> {
+        Box::new(self.clone())
+    }
+}
+
+impl Clone for Box<dyn Generator> {
+    fn clone(&self) -> Self {
+        self.clone_box()
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct Static {
     value: Values,
 }
@@ -30,7 +49,7 @@ impl Generator for Static {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Fade<G> {
     start: G,
     end: G,
@@ -86,7 +105,7 @@ where
 
 impl<G> Generator for Fade<G>
 where
-    G: Generator,
+    G: Generator + Clone + 'static,
 {
     fn generate(&mut self, time: &Time, parameter: &Parameter) -> Values {
         let start = self.start.generate(time, parameter);
