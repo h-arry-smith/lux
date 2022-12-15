@@ -67,6 +67,18 @@ impl Debug for Fixture {
     }
 }
 
+impl Clone for Fixture {
+    fn clone(&self) -> Self {
+        let mut fixture = Fixture::new(self.id);
+
+        for (param, generator) in self.parameters.iter() {
+            fixture.set(*param, generator.clone())
+        }
+
+        fixture
+    }
+}
+
 pub struct ResolvedFixture {
     id: FixtureID,
     parameters: ResolvedParameterMap,

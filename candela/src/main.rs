@@ -9,7 +9,7 @@ use lumen::{
     universe::Multiverse,
     value::{
         generator::{Fade, Static},
-        Literal, Values,
+        Values,
     },
     Environment, Patch, QueryBuilder,
 };
@@ -35,30 +35,32 @@ fn main() {
         patch.patch(n, Address::new(1, n as u16), &dimmer);
     }
 
-    let mut action = Action::new();
-
+    let mut action1 = Action::new();
     let query = QueryBuilder::new().all().build();
     let fade = Fade::new(
         Static::new(Values::make_literal(0.0)),
         Static::new(Values::make_percentage(100.0)),
         Duration::new(2, 0),
     );
-
     let apply = Apply::new(Param::Intensity, Box::new(fade));
     let mut apply_group = ApplyGroup::new(query);
     apply_group.add_apply(apply);
 
-    action.add_group(apply_group);
+    action1.add_group(apply_group);
 
+    let mut action2 = Action::new();
     let query = QueryBuilder::new().all().even().build();
     let static_value = Static::new(Values::make_literal(15.0));
     let apply = Apply::new(Param::Intensity, Box::new(static_value));
     let mut apply_group = ApplyGroup::new(query);
     apply_group.add_apply(apply);
 
-    action.add_group(apply_group);
+    action2.add_group(apply_group);
 
-    environment.run_action(&action);
+    environment.run_action(&action1);
+    environment.run_action(&action2);
+
+    environment.revert();
 
     let mut timer = Source::new(FrameRate::Thirty);
     timer.start();
