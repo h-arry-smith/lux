@@ -1,7 +1,7 @@
 use std::{thread, time::Duration};
 
 use lumen::{
-    action::Apply,
+    action::{Apply, ApplyGroup},
     address::Address,
     parameter::{Param, Parameter},
     patch::FixtureProfile,
@@ -43,9 +43,13 @@ fn main() {
     );
 
     let apply = Apply::new(Param::Intensity, Box::new(fade));
+    let mut selection = ApplyGroup::new(query);
+    selection.add_apply(apply);
 
-    for (_, fixture) in environment.query(&query.evaluate(&environment.fixtures)) {
-        fixture.apply(&apply);
+    for (_, fixture) in environment.query(&selection.query.evaluate(&environment.fixtures)) {
+        for apply in selection.applies.iter() {
+            fixture.apply(apply);
+        }
     }
 
     let mut timer = Source::new(FrameRate::Thirty);

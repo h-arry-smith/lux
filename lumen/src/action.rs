@@ -1,4 +1,4 @@
-use crate::{parameter::Param, value::Generator};
+use crate::{parameter::Param, query::Query, value::Generator};
 
 pub struct Apply {
     pub parameter: Param,
@@ -11,5 +11,23 @@ impl Apply {
             parameter,
             generator,
         }
+    }
+}
+
+pub struct ApplyGroup {
+    pub query: Query,
+    pub applies: Vec<Apply>,
+}
+
+impl ApplyGroup {
+    pub fn new(query: Query) -> Self {
+        Self {
+            query,
+            applies: Vec::new(),
+        }
+    }
+
+    pub fn add_apply(&mut self, apply: Apply) {
+        self.applies.push(apply)
     }
 }
