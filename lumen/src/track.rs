@@ -1,91 +1,162 @@
-use std::slice::Iter;
+use crate::{action::Action, timecode::time::Time, Environment};
 
-use crate::{parameter::Param, query::Query, timecode::time::Time, value::Generator};
-
-// A Track consists of many Actions associated at a paticular Time.
-//
-// Each Action consists of many Selections.
-//
-// A Selection has a Query and a set of Applicators to apply to the fixtures of
-// that query
-//
-// An Applicator has the Param and Generator to set the Fixture.
-
+#[derive(Debug)]
 pub struct Track {
-    tc_source_id: usize,
-    actions: Vec<Action>,
+    actions: Vec<TrackAction>,
+    last_time: Option<Time>,
 }
 
 impl Track {
-    pub fn new(tc_source_id: usize) -> Self {
+    pub fn new() -> Self {
         Self {
-            tc_source_id,
             actions: Vec::new(),
+            last_time: None,
         }
     }
 
-    // TODO: If time is before the previous tick received, then it should not
-    //       return any actions.
-    pub fn actions_to_apply(&self, time: Time) -> Iter<&Action> {
-        todo!();
-        // TODO: Return any action between this tick and the last tick
+    pub fn add_action(&mut self, time: Time, action: Action) {
+        self.actions.push(TrackAction::new(time, action));
+        self.actions.sort();
     }
 
-    pub fn add_action(&mut self, action: Action) {
-        self.actions.push(action);
+    pub fn apply_actions(&mut self, current_time: Time, environment: &mut Environment) {
+        // TODO: We can avoid a lot of work if this current_time is after the last
+        //       time we saw, by just getting actions and applying them, without
+        //       all the other rebuilding
+        match self.last_time {
+            Some(last_time) => {
+                if current_time >= last_time {
+                    // time has progressed lineraly, so just apply unapplied actions
+                    self.apply_unapplied_actions_to_time(current_time, environment);
+                    return;
+                }
+            }
+            None => {
+                // never seen a time before, so set and continue assuming we could
+                // be anywhere
+                self.last_time = Some(current_time);
+            }
+        }
+
+        for track_action in self.actions_after_time(current_time) {
+            track_action.clear_history()
+        }
+
+        // Given the sorted actions by time, find the most recent actions to the
+        // current time with a history
+        match self.most_recent_history_to_time(current_time) {
+            Some(history_id) => {
+                // and revert the environment to the earliest history in the set.
+                environment.revert(history_id)
+            }
+            None => {
+                // If not found, get the first action, run that, mark it with a history
+                // index
+                if let Some(track_action) = self.actions.first_mut() {
+                    let history_id =
+                        environment.generate_history_and_run_action(&track_action.action);
+                    track_action.set_history(history_id);
+                }
+                return;
+            }
+        }
+
+        // get any unapplied actions till the time, and apply them.
+        self.apply_unapplied_actions_to_time(current_time, environment);
     }
 
-    pub fn tc(&self) -> usize {
-        self.tc_source_id
+    fn apply_unapplied_actions_to_time(
+        &mut self,
+        current_time: Time,
+        environment: &mut Environment,
+    ) {
+        for track_action in self
+            .actions
+            .iter_mut()
+            .filter(|action| !action.has_history() && action.time <= current_time)
+        {
+            let id = environment.generate_history();
+            environment.run_action(&track_action.action);
+            track_action.set_history(id);
+        }
+    }
+
+    fn most_recent_history_to_time(&self, time: Time) -> Option<usize> {
+        // find the latest history that has been applied at this time and return
+        // it
+        let mut history = None;
+        for action in self.actions.iter() {
+            if action.has_history() && action.time <= time {
+                history = Some(action.history())
+            }
+        }
+        history
+    }
+
+    fn actions_after_time(&mut self, time: Time) -> impl Iterator<Item = &mut TrackAction> {
+        self.actions
+            .iter_mut()
+            .filter(move |action| action.time > time)
     }
 }
 
-pub struct Action {
+impl Default for Track {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[derive(Debug)]
+pub struct TrackAction {
     time: Time,
-    pub selections: Vec<Selection>,
+    action: Action,
+    history: Option<usize>,
 }
 
-impl Action {
-    pub fn new(time: Time) -> Self {
+impl TrackAction {
+    fn new(time: Time, action: Action) -> Self {
         Self {
             time,
-            selections: Vec::new(),
+            action,
+            history: None,
         }
     }
 
-    pub fn add_selection(&mut self, selection: Selection) {
-        self.selections.push(selection);
+    fn has_history(&self) -> bool {
+        self.history.is_some()
+    }
+
+    fn clear_history(&mut self) {
+        self.history = None
+    }
+
+    fn history(&self) -> usize {
+        self.history.unwrap()
+    }
+
+    fn set_history(&mut self, history_id: usize) {
+        self.history = Some(history_id)
     }
 }
 
-pub struct Selection {
-    pub query: Query,
-    pub applicators: Vec<Applicator>,
-}
-
-impl Selection {
-    pub fn new(query: Query) -> Self {
-        Self {
-            query,
-            applicators: Vec::new(),
-        }
-    }
-
-    pub fn add_applicator(&mut self, applicator: Applicator) {
-        self.applicators.push(applicator);
+impl PartialEq for TrackAction {
+    fn eq(&self, other: &Self) -> bool {
+        self.time == other.time
     }
 }
 
-pub struct Applicator {
-    pub parameter: Param,
-    pub generator: Box<dyn Generator>,
+impl Eq for TrackAction {
+    fn assert_receiver_is_total_eq(&self) {}
 }
 
-impl Applicator {
-    pub fn new(parameter: Param, generator: Box<dyn Generator>) -> Self {
-        Self {
-            parameter,
-            generator,
-        }
+impl PartialOrd for TrackAction {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for TrackAction {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.time.cmp(&other.time)
     }
 }

@@ -14,9 +14,18 @@ impl Environment {
         }
     }
 
-    pub fn run_action(&mut self, action: &Action) {
-        self.record_history();
+    pub fn generate_history_and_run_action(&mut self, action: &Action) -> usize {
+        let id = self.generate_history();
+        self.run_action(action);
 
+        id
+    }
+
+    pub fn generate_history(&mut self) -> usize {
+        self.record_history()
+    }
+
+    pub fn run_action(&mut self, action: &Action) {
         for apply_group in action.apply_groups.iter() {
             for (_, fixture) in self.query(&apply_group.query.evaluate(&self.fixtures)) {
                 for apply in apply_group.applies.iter() {
@@ -26,9 +35,12 @@ impl Environment {
         }
     }
 
-    pub fn revert(&mut self) {
-        if let Some(old_fixture_set) = self.history.pop() {
-            self.fixtures = old_fixture_set;
+    pub fn revert(&mut self, history_index: usize) {
+        if self.history.get(history_index).is_some() {
+            // discard all other histories
+            self.history = self.history.split_off(history_index);
+            // restore the last history
+            self.fixtures = self.history.pop().unwrap();
         }
     }
 
@@ -41,8 +53,18 @@ impl Environment {
             .filter(|(_, f)| result.contains(&f.id()))
     }
 
-    fn record_history(&mut self) {
-        self.history.push(self.fixtures.clone())
+    // We return the most recent history ID for the reference of any history
+    // generator that wants to know where to return to.
+    // The returned history ID always refers to the point in the history before the
+    // action was applied.
+
+    // As a return to a point in history discards everything after it, we don't
+    // have to worry about those ID's shifting.
+    // This may be hopelessly naive, but for now we will use it and in the future
+    // we may create some unique identifier for a history
+    fn record_history(&mut self) -> usize {
+        self.history.push(self.fixtures.clone());
+        self.history.len() - 1
     }
 }
 

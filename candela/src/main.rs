@@ -3,7 +3,8 @@ use lumen::{
     address::Address,
     parameter::{Param, Parameter},
     patch::FixtureProfile,
-    timecode::{FrameRate, Source},
+    timecode::{time::Time, FrameRate, Source},
+    track::Track,
     universe::Multiverse,
     value::{
         generator::{Fade, Static},
@@ -49,28 +50,36 @@ fn main() {
 
     let mut action2 = Action::new();
     let query = QueryBuilder::new().all().even().build();
-    let static_value = Static::new(Values::make_literal(15.0));
-    let apply = Apply::new(Param::Intensity, Box::new(static_value));
+    let fade = Fade::new(
+        Static::new(Values::make_literal(100.0)),
+        Static::new(Values::make_percentage(50.0)),
+        Duration::new(2, 0),
+    );
+    let apply = Apply::new(Param::Intensity, Box::new(fade));
     let mut apply_group = ApplyGroup::new(query);
     apply_group.add_apply(apply);
 
     action2.add_group(apply_group);
 
-    environment.run_action(&action1);
-    environment.run_action(&action2);
-
-    environment.revert();
-
     let mut timer = Source::new(FrameRate::Thirty);
-    timer.start();
+    let mut track = Track::new();
+    track.add_action(Time::at(0, 0, 0, 0, FrameRate::Thirty), action1);
+    track.add_action(Time::at(0, 0, 2, 0, FrameRate::Thirty), action2);
 
-    for _ in 0..=10 {
-        println!("@{:?}", timer.time());
-        for (_, resolved_fixture) in environment.fixtures.resolve(timer.time(), &patch) {
-            println!("    {:?}", resolved_fixture);
+    for _ in 0..4 {
+        timer.start();
+        for _ in 0..=20 {
+            println!("@{:?}", timer.time());
+
+            track.apply_actions(timer.time(), &mut environment);
+            // dbg!(&environment);
+
+            for (_, resolved_fixture) in environment.fixtures.resolve(timer.time(), &patch) {
+                println!("    {:?}", resolved_fixture);
+            }
+
+            thread::sleep(Duration::new(0, 2_000_000_000 / 10));
         }
-
-        thread::sleep(Duration::new(0, 2_000_000_000 / 10));
     }
 
     println!("=== FIXTURE DMX ===");
