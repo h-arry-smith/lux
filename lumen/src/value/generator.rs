@@ -76,7 +76,9 @@ where
     G: Generator,
 {
     fn fade_between<V: Value>(&mut self, start: V, end: V, elapsed: Duration) -> f32 {
-        if elapsed > self.duration {
+        let fade_elapsed_time = self.fade_relative_elapsed_time(elapsed);
+
+        if fade_elapsed_time > self.duration {
             return end.value();
         }
 
@@ -87,7 +89,7 @@ where
             self.start_time = Some(elapsed);
         }
 
-        let fade_elapsed_time = self.fade_relative_elapsed_time(elapsed);
+        dbg!(&fade_elapsed_time);
 
         let difference = end.value() - start.value();
         let factor = fade_elapsed_time.as_secs_f32() / self.duration.as_secs_f32();
@@ -98,7 +100,7 @@ where
     fn fade_relative_elapsed_time(&self, elapsed: Duration) -> Duration {
         match self.start_time {
             Some(start) => elapsed - start,
-            None => elapsed,
+            None => Duration::new(0, 0),
         }
     }
 }

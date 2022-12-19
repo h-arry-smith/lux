@@ -38,7 +38,7 @@ fn main() {
     let mut action1 = Action::new();
     let query = QueryBuilder::new().all().build();
     let fade = Fade::new(
-        Static::new(Values::make_literal(0.0)),
+        Static::new(Values::make_percentage(0.0)),
         Static::new(Values::make_percentage(100.0)),
         Duration::new(2, 0),
     );
@@ -51,7 +51,7 @@ fn main() {
     let mut action2 = Action::new();
     let query = QueryBuilder::new().all().even().build();
     let fade = Fade::new(
-        Static::new(Values::make_literal(100.0)),
+        Static::new(Values::make_percentage(100.0)),
         Static::new(Values::make_percentage(50.0)),
         Duration::new(2, 0),
     );
@@ -72,7 +72,6 @@ fn main() {
             println!("@{:?}", timer.time());
 
             track.apply_actions(timer.time(), &mut environment);
-            // dbg!(&environment);
 
             for (_, resolved_fixture) in environment.fixtures.resolve(timer.time(), &patch) {
                 println!("    {:?}", resolved_fixture);
