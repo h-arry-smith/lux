@@ -99,7 +99,7 @@ where
 
     fn fade_relative_elapsed_time(&self, elapsed: Duration) -> Duration {
         match self.start_time {
-            Some(start) => elapsed - start,
+            Some(start) => elapsed.checked_sub(start).unwrap_or_default(),
             None => Duration::new(0, 0),
         }
     }
@@ -130,10 +130,8 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::time;
-    use crate::timecode::FrameRate;
-
     use super::*;
+    use crate::time;
 
     #[test]
     fn static_always_returns_same_value() {
@@ -142,15 +140,15 @@ mod tests {
         let parameter = Parameter::new(0, 0.0, 100.0);
 
         assert_eq!(
-            static_generator.generate(&time!(0 0 0 0, Thirty), &parameter),
+            static_generator.generate(&time!(0 0 0 0 Thirty), &parameter),
             Values::make_literal(50.0),
         );
         assert_eq!(
-            static_generator.generate(&time!(0 0 2 0, Thirty), &parameter),
+            static_generator.generate(&time!(0 0 2 0 Thirty), &parameter),
             Values::make_literal(50.0),
         );
         assert_eq!(
-            static_generator.generate(&time!(0 0 4 0, Thirty), &parameter),
+            static_generator.generate(&time!(0 0 4 0 Thirty), &parameter),
             Values::make_literal(50.0),
         );
     }
@@ -163,15 +161,15 @@ mod tests {
         let parameter = Parameter::new(0, 0.0, 100.0);
 
         assert_eq!(
-            fade.generate(&time!(0 0 0 0, Thirty), &parameter),
+            fade.generate(&time!(0 0 0 0 Thirty), &parameter),
             Values::make_literal(0.0)
         );
         assert_eq!(
-            fade.generate(&time!(0 0 1 0, Thirty), &parameter),
+            fade.generate(&time!(0 0 1 0 Thirty), &parameter),
             Values::make_literal(50.0)
         );
         assert_eq!(
-            fade.generate(&time!(0 0 2 0, Thirty), &parameter),
+            fade.generate(&time!(0 0 2 0 Thirty), &parameter),
             Values::make_literal(100.0)
         );
     }
@@ -184,15 +182,15 @@ mod tests {
         let parameter = Parameter::new(0, 25.0, 75.0);
 
         assert_eq!(
-            fade.generate(&time!(0 0 0 0, Thirty), &parameter),
+            fade.generate(&time!(0 0 0 0 Thirty), &parameter),
             Values::make_literal(25.0)
         );
         assert_eq!(
-            fade.generate(&time!(0 0 1 0, Thirty), &parameter),
+            fade.generate(&time!(0 0 1 0 Thirty), &parameter),
             Values::make_literal(50.0)
         );
         assert_eq!(
-            fade.generate(&time!(0 0 2 0, Thirty), &parameter),
+            fade.generate(&time!(0 0 2 0 Thirty), &parameter),
             Values::make_literal(75.0)
         );
     }

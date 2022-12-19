@@ -3,13 +3,15 @@ use crate::{action::Action, timecode::time::Time, Environment};
 #[derive(Debug)]
 pub struct Track {
     actions: Vec<TrackAction>,
+    offset: Time,
     last_time: Option<Time>,
 }
 
 impl Track {
-    pub fn new() -> Self {
+    pub fn new(offset: Time) -> Self {
         Self {
             actions: Vec::new(),
+            offset,
             last_time: None,
         }
     }
@@ -20,9 +22,12 @@ impl Track {
     }
 
     pub fn apply_actions(&mut self, current_time: Time, environment: &mut Environment) {
-        // TODO: We can avoid a lot of work if this current_time is after the last
-        //       time we saw, by just getting actions and applying them, without
-        //       all the other rebuilding
+        if current_time < self.offset {
+            return;
+        }
+
+        let current_time = current_time - self.offset;
+
         match self.last_time {
             Some(last_time) => {
                 if current_time >= last_time {
@@ -97,12 +102,6 @@ impl Track {
         self.actions
             .iter_mut()
             .filter(move |action| action.time > time)
-    }
-}
-
-impl Default for Track {
-    fn default() -> Self {
-        Self::new()
     }
 }
 

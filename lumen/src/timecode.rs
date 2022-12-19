@@ -6,6 +6,7 @@ use std::{
 use self::time::Time;
 pub mod time;
 
+const NANOS_PER_MS: u128 = 1_000_000;
 const NANOS_PER_SECOND: u128 = 1_000_000_000;
 const NANOS_PER_MINUTE: u128 = NANOS_PER_SECOND * 60;
 const NANOS_PER_HOUR: u128 = NANOS_PER_MINUTE * 60;
@@ -62,11 +63,13 @@ impl Source {
         }
     }
 
+    // TODO: Milliseconds should be clamped to the frame boundaries. A real time
+    //       code source will conver frame number to milliseconds.
     pub fn time(&self) -> Time {
         match self.state {
-            State::Stopped => Time::new(0, self.frame_rate),
-            State::Running => Time::from(&self.start_time.unwrap().elapsed(), self.frame_rate),
-            State::Paused => Time::from(&self.pause_time.unwrap(), self.frame_rate),
+            State::Stopped => Time::new(0),
+            State::Running => Time::from(&self.start_time.unwrap().elapsed()),
+            State::Paused => Time::from(&self.pause_time.unwrap()),
         }
     }
 
@@ -139,21 +142,33 @@ impl Source {
 
 #[macro_export]
 macro_rules! time {
-    ($h:literal $m:literal $s:literal $f: literal, $rate:ident) => {{
+    ($h:literal $m:literal $s:literal $f:literal $rate:ident) => {{
         let mut seconds = 0;
         seconds += $h * 60 * 60;
         seconds += $m * 60;
         seconds += $s;
 
-        let nanos = FrameRate::$rate.nanos_per_frame() * $f;
+        let nanos = $f * $crate::timecode::FrameRate::$rate.nanos_per_frame();
 
-        Time::from(&Duration::new(seconds, nanos as u32), FrameRate::$rate)
+        Time::from(&Duration::new(seconds, nanos as u32))
+    }};
+
+    ($h:literal $m:literal $s:literal $ms:literal) => {{
+        let mut seconds = 0;
+        seconds += $h * 60 * 60;
+        seconds += $m * 60;
+        seconds += $s;
+
+        let nanos = $ms * NANOS_PER_MS;
+
+        Time::from(&Duration::new(seconds, nanos as u32))
     }};
 }
 
 #[cfg(test)]
 mod tests {
     use crate::timecode::Time;
+    use crate::timecode::NANOS_PER_MS;
     use std::{
         thread,
         time::{Duration, Instant},
@@ -163,11 +178,17 @@ mod tests {
 
     // TODO: These macros are shared between files, must be a way to make it common.
     macro_rules! assert_correct_time {
-        ($time:ident, $h:literal $m:literal $s:literal $f:literal) => {
+        ($time:ident, $h:literal $m:literal $s:literal $f:literal $rate:ident) => {
             assert_eq!($time.hours(), $h);
             assert_eq!($time.minutes(), $m);
             assert_eq!($time.seconds(), $s);
-            assert_eq!($time.frames(), $f);
+            assert_eq!($time.frames(FrameRate::$rate), $f);
+        };
+        ($time:ident, $h:literal $m:literal $s:literal $ms:literal) => {
+            assert_eq!($time.hours(), $h);
+            assert_eq!($time.minutes(), $m);
+            assert_eq!($time.seconds(), $s);
+            assert_eq!($time.milliseconds(), $ms);
         };
     }
 
@@ -175,7 +196,7 @@ mod tests {
     fn new_source_starts_at_zero() {
         let source = Source::new(FrameRate::Thirty);
         let time = source.time();
-        assert_correct_time!(time, 0 0 0 0);
+        assert_correct_time!(time, 0 0 0 0 Thirty);
     }
 
     #[test]
@@ -186,7 +207,7 @@ mod tests {
         source.start_at_time(start);
 
         let time = source.time();
-        assert_correct_time!(time, 0 0 3 0);
+        assert_correct_time!(time, 0 0 3 0 Thirty);
     }
 
     #[test]
@@ -222,7 +243,7 @@ mod tests {
         thread::sleep(Duration::new(0, 100_000_000));
 
         let time = source.time();
-        assert_correct_time!(time, 0 0 0 6);
+        assert_correct_time!(time, 0 0 0 6 Thirty);
     }
 
     #[test]
@@ -233,7 +254,7 @@ mod tests {
         source.stop();
 
         let time = source.time();
-        assert_correct_time!(time, 0 0 0 0);
+        assert_correct_time!(time, 0 0 0 0 Thirty);
     }
 
     #[test]
@@ -241,10 +262,10 @@ mod tests {
         let mut source = Source::new(FrameRate::Thirty);
         source.start();
         thread::sleep(Duration::new(0, 50_000_000));
-        let seek_time = time!(0 0 3 0, Thirty);
+        let seek_time = time!(0 0 3 0);
         source.seek(seek_time);
         let time = source.time();
-        assert_correct_time!(time, 0 0 3 0);
+        assert_correct_time!(time, 0 0 3 0 Thirty);
     }
 
     #[test]
@@ -252,12 +273,17 @@ mod tests {
         let mut source = Source::new(FrameRate::Thirty);
         source.start();
         source.pause();
-        let seek_time = time!(1 2 8 4, Thirty);
+        let seek_time = time!(1 2 8 500);
+        dbg!(&seek_time);
+        dbg!(&seek_time.frames(FrameRate::Thirty));
 
         source.seek(seek_time);
         // + 0 frames (paused)
         thread::sleep(Duration::new(0, 100_000_000));
         let time = source.time();
-        assert_correct_time!(time, 1 2 8 4);
+        dbg!(&source);
+        dbg!(&time);
+        dbg!(&time.frames(FrameRate::Thirty));
+        assert_correct_time!(time, 1 2 8 500);
     }
 }

@@ -36,6 +36,7 @@ impl Environment {
     }
 
     pub fn revert(&mut self, history_index: usize) {
+        dbg!(&history_index);
         if self.history.get(history_index).is_some() {
             // discard all other histories
             self.history = self.history.split_off(history_index);

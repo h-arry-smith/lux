@@ -62,14 +62,16 @@ fn main() {
     action2.add_group(apply_group);
 
     let mut timer = Source::new(FrameRate::Thirty);
-    let mut track = Track::new();
-    track.add_action(Time::at(0, 0, 0, 0, FrameRate::Thirty), action1);
-    track.add_action(Time::at(0, 0, 2, 0, FrameRate::Thirty), action2);
+    let mut track = Track::new(Time::at(0, 0, 3, 0));
+    track.add_action(Time::at(0, 0, 0, 0), action1);
+    track.add_action(Time::at(0, 0, 2, 0), action2);
 
-    for _ in 0..4 {
+    environment.generate_history();
+
+    for _ in 0..2 {
         timer.start();
-        for _ in 0..=20 {
-            println!("@{:?}", timer.time());
+        for _ in 0..=10 {
+            println!("@{}", timer.time().tc_string(FrameRate::Thirty));
 
             track.apply_actions(timer.time(), &mut environment);
 
@@ -77,7 +79,7 @@ fn main() {
                 println!("    {:?}", resolved_fixture);
             }
 
-            thread::sleep(Duration::new(0, 2_000_000_000 / 10));
+            thread::sleep(Duration::new(1, 0));
         }
     }
 
