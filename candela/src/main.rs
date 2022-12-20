@@ -70,7 +70,7 @@ fn main() {
 
     for _ in 0..2 {
         timer.start();
-        for _ in 0..=10 {
+        for _ in 0..=4 {
             println!("@{}", timer.time().tc_string(FrameRate::Thirty));
 
             track.apply_actions(timer.time(), &mut environment);

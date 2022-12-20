@@ -3,7 +3,7 @@ use std::fmt::Debug;
 use std::ops::Sub;
 use std::time::Duration;
 
-#[derive(PartialOrd, Ord, Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct Time {
     nanoseconds: u128,
 }
@@ -64,6 +64,15 @@ impl Time {
         (self.nanoseconds / NANOS_PER_HOUR).try_into().unwrap()
     }
 
+    fn total_milliseconds(&self) -> u64 {
+        let mut milliseconds = self.milliseconds() as u64;
+        milliseconds += self.seconds() as u64 * 1000;
+        milliseconds += self.minutes() as u64 * 60 * 1000;
+        milliseconds += self.hours() as u64 * 60 * 60 * 1000;
+
+        milliseconds
+    }
+
     pub fn tc_string(&self, frame_rate: FrameRate) -> String {
         format!(
             "{}:{}:{}:{} @{:?}",
@@ -88,6 +97,9 @@ impl From<Time> for Duration {
     }
 }
 
+// NOTE: Our time resoloution is equivelant if they match to the millisecond,
+//       not the nanosecond. So we have to implement these traits ourselves.
+
 impl PartialEq for Time {
     fn eq(&self, other: &Self) -> bool {
         self.hours() == other.hours()
@@ -96,7 +108,20 @@ impl PartialEq for Time {
             && self.milliseconds() == other.milliseconds()
     }
 }
+
 impl Eq for Time {}
+
+impl PartialOrd for Time {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Time {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.total_milliseconds().cmp(&other.total_milliseconds())
+    }
+}
 
 impl Debug for Time {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
