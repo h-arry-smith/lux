@@ -6,7 +6,6 @@ use crate::{action::Action, timecode::time::Time, Environment};
 pub struct Track {
     actions: Vec<TrackAction>,
     offset: Time,
-    last_time: Option<Time>,
 }
 
 impl Track {
@@ -14,7 +13,6 @@ impl Track {
         Self {
             actions: Vec::new(),
             offset: Time::at(0, 0, 0, 0),
-            last_time: None,
         }
     }
 
@@ -35,7 +33,7 @@ impl Track {
         let mut unrun: HashMap<Time, Vec<&TrackAction>> = HashMap::new();
 
         for action in self.actions.iter() {
-            if action.time <= time {
+            if action.time <= time && !action.has_history() {
                 match unrun.get_mut(&action.time) {
                     Some(other_actions_at_this_time) => {
                         other_actions_at_this_time.push(action);
@@ -58,89 +56,89 @@ impl Track {
         }
     }
 
-    pub fn apply_actions(&mut self, current_time: Time, environment: &mut Environment) {
-        if current_time < self.offset {
-            return;
-        }
+    //     pub fn apply_actions(&mut self, current_time: Time, environment: &mut Environment) {
+    //         if current_time < self.offset {
+    //             return;
+    //         }
 
-        let current_time = current_time - self.offset;
+    //         let current_time = current_time - self.offset;
 
-        match self.last_time {
-            Some(last_time) => {
-                if current_time >= last_time {
-                    // time has progressed lineraly, so just apply unapplied actions
-                    self.apply_unapplied_actions_to_time(current_time, environment);
-                    self.last_time = Some(current_time);
-                    return;
-                }
-            }
-            None => {
-                // never seen a time before, so set and continue assuming we could
-                // be anywhere
-                self.last_time = Some(current_time);
-            }
-        }
+    //         match self.last_time {
+    //             Some(last_time) => {
+    //                 if current_time >= last_time {
+    //                     // time has progressed lineraly, so just apply unapplied actions
+    //                     self.apply_unapplied_actions_to_time(current_time, environment);
+    //                     self.last_time = Some(current_time);
+    //                     return;
+    //                 }
+    //             }
+    //             None => {
+    //                 // never seen a time before, so set and continue assuming we could
+    //                 // be anywhere
+    //                 self.last_time = Some(current_time);
+    //             }
+    //         }
 
-        for track_action in self.actions_after_time(current_time) {
-            track_action.clear_history();
-        }
+    //         for track_action in self.actions_after_time(current_time) {
+    //             track_action.clear_history();
+    //         }
 
-        // Given the sorted actions by time, find the most recent actions to the
-        // current time with a history
-        match self.most_recent_history_to_time(current_time) {
-            Some(history_id) => {
-                // and revert the environment to the earliest history in the set.
-                environment.revert(history_id)
-            }
-            None => {
-                // If not found, get the first action, run that, mark it with a history
-                // index
-                if let Some(track_action) = self.actions.first_mut() {
-                    let history_id =
-                        environment.generate_history_and_run_action(&track_action.action);
-                    track_action.set_history(history_id);
-                }
-                return;
-            }
-        }
+    //         // Given the sorted actions by time, find the most recent actions to the
+    //         // current time with a history
+    //         match self.most_recent_history_to_time(current_time) {
+    //             Some(history_id) => {
+    //                 // and revert the environment to the earliest history in the set.
+    //                 environment.revert(history_id)
+    //             }
+    //             None => {
+    //                 // If not found, get the first action, run that, mark it with a history
+    //                 // index
+    //                 if let Some(track_action) = self.actions.first_mut() {
+    //                     let history_id =
+    //                         environment.generate_history_and_run_action(&track_action.action);
+    //                     track_action.set_history(history_id);
+    //                 }
+    //                 return;
+    //             }
+    //         }
 
-        // get any unapplied actions till the time, and apply them.
-        self.apply_unapplied_actions_to_time(current_time, environment);
-    }
+    //         // get any unapplied actions till the time, and apply them.
+    //         self.apply_unapplied_actions_to_time(current_time, environment);
+    //     }
 
-    fn apply_unapplied_actions_to_time(
-        &mut self,
-        current_time: Time,
-        environment: &mut Environment,
-    ) {
-        for track_action in self
-            .actions
-            .iter_mut()
-            .filter(|action| !action.has_history() && action.time <= current_time)
-        {
-            let id = environment.generate_history();
-            environment.run_action(&track_action.action);
-            track_action.set_history(id);
-        }
-    }
+    //     fn apply_unapplied_actions_to_time(
+    //         &mut self,
+    //         current_time: Time,
+    //         environment: &mut Environment,
+    //     ) {
+    //         for track_action in self
+    //             .actions
+    //             .iter_mut()
+    //             .filter(|action| !action.has_history() && action.time <= current_time)
+    //         {
+    //             let id = environment.generate_history();
+    //             environment.run_action(&track_action.action);
+    //             track_action.set_history(id);
+    //         }
+    //     }
 
-    fn most_recent_history_to_time(&self, time: Time) -> Option<usize> {
-        // find the latest history that has been applied at this time and return
-        // it
-        let mut history = None;
-        for action in self.actions.iter() {
-            if action.has_history() && action.time <= time {
-                history = Some(action.history())
-            }
-        }
-        history
-    }
+    //     fn most_recent_history_to_time(&self, time: Time) -> Option<usize> {
+    //         // find the latest history that has been applied at this time and return
+    //         // it
+    //         let mut history = None;
+    //         for action in self.actions.iter() {
+    //             if action.has_history() && action.time <= time {
+    //                 history = Some(action.history())
+    //             }
+    //         }
+    //         history
+    //     }
 
-    fn actions_after_time(&mut self, time: Time) -> impl Iterator<Item = &mut TrackAction> {
-        self.actions
-            .iter_mut()
-            .filter(move |action| action.time > time)
-    }
+    //     fn actions_after_time(&mut self, time: Time) -> impl Iterator<Item = &mut TrackAction> {
+    //         self.actions
+    //             .iter_mut()
+    //             .filter(move |action| action.time > time)
+    //     }
 }
 
 impl Default for Track {

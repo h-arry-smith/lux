@@ -87,6 +87,24 @@ mod unrun_actions_at_time {
         assert_eq!(actions.get(&Time::at(0, 0, 1, 0)).unwrap().len(), 2);
         assert_eq!(actions.get(&Time::at(0, 0, 2, 0)).unwrap().len(), 2);
     }
+
+    #[test]
+    fn doesnt_return_tracks_with_history() {
+        let action = create_example_action();
+
+        let mut track = Track::new();
+        track.add_action(Time::at(0, 0, 1, 0), action.clone());
+        track.add_action(Time::at(0, 0, 1, 0), action.clone());
+        track.add_action(Time::at(0, 0, 2, 0), action.clone());
+        track.add_action(Time::at(0, 0, 2, 0), action);
+
+        track.set_action_history_for_time(Time::at(0, 0, 1, 0), 1);
+
+        let actions = track.unrun_actions_at_time(Time::at(0, 0, 2, 0));
+
+        assert!(actions.get(&Time::at(0, 0, 1, 0)).is_none());
+        assert_eq!(actions.get(&Time::at(0, 0, 2, 0)).unwrap().len(), 2);
+    }
 }
 
 #[cfg(test)]
