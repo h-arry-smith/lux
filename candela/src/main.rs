@@ -66,14 +66,14 @@ fn main() {
     track.add_action(Time::at(0, 0, 0, 0), action1);
     track.add_action(Time::at(0, 0, 2, 0), action2);
 
-    environment.generate_history();
+    environment.add_track(track);
 
     for _ in 0..2 {
         timer.start();
         for _ in 0..=4 {
             println!("@{}", timer.time().tc_string(FrameRate::Thirty));
 
-            track.apply_actions(timer.time(), &mut environment);
+            environment.run_to_time(timer.time());
 
             for (_, resolved_fixture) in environment.fixtures.resolve(timer.time(), &patch) {
                 println!("    {:?}", resolved_fixture);

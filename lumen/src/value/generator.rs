@@ -11,6 +11,7 @@ use super::Values;
 
 pub trait Generator: Debug + GeneratorClone {
     fn generate(&mut self, time: &Time, parameter: &Parameter) -> Values;
+    fn value(&self) -> Values;
 }
 
 pub trait GeneratorClone {
@@ -45,6 +46,10 @@ impl Static {
 
 impl Generator for Static {
     fn generate(&mut self, _time: &Time, _parameter: &Parameter) -> Values {
+        self.value
+    }
+
+    fn value(&self) -> Values {
         self.value
     }
 }
@@ -123,6 +128,11 @@ where
                 Values::make_percentage(self.fade_between(start, end, elapsed))
             }
         }
+    }
+
+    // For value inspection of a fade we just return the end value
+    fn value(&self) -> Values {
+        self.end.value()
     }
 }
 

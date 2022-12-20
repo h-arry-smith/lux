@@ -39,6 +39,10 @@ impl Fixture {
         self.parameters.insert(parameter, generator);
     }
 
+    pub fn param(&self, parameter: Param) -> Option<&Box<dyn Generator>> {
+        self.parameters.get(&parameter)
+    }
+
     pub fn resolve(&mut self, time: &Time, profile: &FixtureProfile) -> ResolvedFixture {
         let mut resolved_fixture = ResolvedFixture::new(self.id);
         for (param, generator) in self.parameters.iter_mut() {

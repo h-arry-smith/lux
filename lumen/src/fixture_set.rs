@@ -1,4 +1,4 @@
-use crate::timecode::time::Time;
+use crate::{action::Action, query::Query, timecode::time::Time};
 use std::collections::{
     hash_map::{Iter, IterMut},
     HashMap,
@@ -54,6 +54,23 @@ impl FixtureSet {
 
     pub fn iter_mut(&mut self) -> IterMut<'_, FixtureID, Fixture> {
         self.fixtures.iter_mut()
+    }
+
+    pub fn apply_action(&mut self, action: &Action) {
+        for apply_group in action.apply_groups.iter() {
+            for (_, fixture) in self.query(&apply_group.query) {
+                for apply in apply_group.applies.iter() {
+                    fixture.apply(apply);
+                }
+            }
+        }
+    }
+
+    pub fn query(&mut self, query: &Query) -> impl Iterator<Item = (&FixtureID, &mut Fixture)> {
+        let result = query.evaluate(self);
+        self.fixtures
+            .iter_mut()
+            .filter(move |(_, f)| result.contains(&f.id()))
     }
 }
 
