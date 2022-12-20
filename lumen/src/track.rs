@@ -18,6 +18,10 @@ impl Track {
         }
     }
 
+    pub fn actions(&self) -> &Vec<TrackAction> {
+        &self.actions
+    }
+
     pub fn set_offset(&mut self, time: Time) {
         self.offset = time;
     }
@@ -44,6 +48,14 @@ impl Track {
         }
 
         unrun
+    }
+
+    pub fn set_action_history_for_time(&mut self, time: Time, history_id: usize) {
+        for action in self.actions.iter_mut() {
+            if action.time == time {
+                action.set_history(history_id)
+            }
+        }
     }
 
     pub fn apply_actions(&mut self, current_time: Time, environment: &mut Environment) {
@@ -153,7 +165,7 @@ impl TrackAction {
         }
     }
 
-    fn has_history(&self) -> bool {
+    pub fn has_history(&self) -> bool {
         self.history.is_some()
     }
 

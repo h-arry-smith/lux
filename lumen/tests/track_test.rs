@@ -5,6 +5,40 @@ use lumen::{
     QueryBuilder,
 };
 
+mod set_action_history_for_time {
+    use lumen::{timecode::time::Time, track::Track};
+
+    use crate::create_example_action;
+
+    #[test]
+    fn set_single_action_history() {
+        let action = create_example_action();
+
+        let mut track = Track::new();
+        track.add_action(Time::at(0, 0, 1, 0), action.clone());
+        track.add_action(Time::at(0, 0, 3, 0), action);
+
+        track.set_action_history_for_time(Time::at(0, 0, 1, 0), 1);
+
+        assert!(track.actions().first().unwrap().has_history());
+        assert!(!track.actions().last().unwrap().has_history());
+    }
+
+    #[test]
+    fn set_multiple_action_history() {
+        let action = create_example_action();
+
+        let mut track = Track::new();
+        track.add_action(Time::at(0, 0, 1, 0), action.clone());
+        track.add_action(Time::at(0, 0, 1, 0), action);
+
+        track.set_action_history_for_time(Time::at(0, 0, 1, 0), 1);
+
+        assert!(track.actions().first().unwrap().has_history());
+        assert!(track.actions().last().unwrap().has_history());
+    }
+}
+
 mod unrun_actions_at_time {
     use lumen::{timecode::time::Time, track::Track};
 
