@@ -1,10 +1,13 @@
 use super::{FrameRate, NANOS_PER_HOUR, NANOS_PER_MINUTE, NANOS_PER_MS, NANOS_PER_SECOND};
 use std::fmt::Debug;
+use std::hash::Hash;
 use std::ops::Sub;
 use std::time::Duration;
 
 #[derive(Copy, Clone)]
 pub struct Time {
+    // TODO: If we always operate at ms resolution, maybe we should just convert
+    //       to ms at the earliest possible oppurtunity.
     nanoseconds: u128,
 }
 
@@ -134,6 +137,12 @@ impl Debug for Time {
             self.milliseconds(),
             self.nanoseconds
         )
+    }
+}
+
+impl Hash for Time {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.total_milliseconds().hash(state)
     }
 }
 

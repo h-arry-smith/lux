@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{action::Action, timecode::time::Time, Environment};
 
 #[derive(Debug)]
@@ -8,17 +10,40 @@ pub struct Track {
 }
 
 impl Track {
-    pub fn new(offset: Time) -> Self {
+    pub fn new() -> Self {
         Self {
             actions: Vec::new(),
-            offset,
+            offset: Time::at(0, 0, 0, 0),
             last_time: None,
         }
+    }
+
+    pub fn set_offset(&mut self, time: Time) {
+        self.offset = time;
     }
 
     pub fn add_action(&mut self, time: Time, action: Action) {
         self.actions.push(TrackAction::new(time, action));
         self.actions.sort();
+    }
+
+    pub fn unrun_actions_at_time(&self, time: Time) -> HashMap<Time, Vec<&TrackAction>> {
+        let mut unrun: HashMap<Time, Vec<&TrackAction>> = HashMap::new();
+
+        for action in self.actions.iter() {
+            if action.time <= time {
+                match unrun.get_mut(&action.time) {
+                    Some(other_actions_at_this_time) => {
+                        other_actions_at_this_time.push(action);
+                    }
+                    None => {
+                        unrun.insert(action.time, vec![action]);
+                    }
+                }
+            }
+        }
+
+        unrun
     }
 
     pub fn apply_actions(&mut self, current_time: Time, environment: &mut Environment) {
@@ -33,6 +58,7 @@ impl Track {
                 if current_time >= last_time {
                     // time has progressed lineraly, so just apply unapplied actions
                     self.apply_unapplied_actions_to_time(current_time, environment);
+                    self.last_time = Some(current_time);
                     return;
                 }
             }
@@ -44,7 +70,7 @@ impl Track {
         }
 
         for track_action in self.actions_after_time(current_time) {
-            track_action.clear_history()
+            track_action.clear_history();
         }
 
         // Given the sorted actions by time, find the most recent actions to the
@@ -102,6 +128,12 @@ impl Track {
         self.actions
             .iter_mut()
             .filter(move |action| action.time > time)
+    }
+}
+
+impl Default for Track {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

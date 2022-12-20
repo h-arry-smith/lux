@@ -8,7 +8,7 @@ pub type QueryResult = HashSet<FixtureID>;
 
 // TODO: The mut ref its a bit nasty. Maybe there is a better way to architect this.
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Query {
     steps: Vec<Step>,
 }

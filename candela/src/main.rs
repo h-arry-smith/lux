@@ -62,7 +62,7 @@ fn main() {
     action2.add_group(apply_group);
 
     let mut timer = Source::new(FrameRate::Thirty);
-    let mut track = Track::new(Time::at(0, 0, 3, 0));
+    let mut track = Track::new();
     track.add_action(Time::at(0, 0, 0, 0), action1);
     track.add_action(Time::at(0, 0, 2, 0), action2);
 

@@ -2,13 +2,14 @@ use crate::fixture::FixtureID;
 
 use super::Query;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Step {
     All,
     Even,
     Id(FixtureID),
 }
 
+#[derive(Debug, Clone)]
 pub struct QueryBuilder {
     steps: Vec<Step>,
 }

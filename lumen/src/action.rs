@@ -1,6 +1,6 @@
 use crate::{parameter::Param, query::Query, value::Generator};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Apply {
     pub parameter: Param,
     pub generator: Box<dyn Generator>,
@@ -15,7 +15,7 @@ impl Apply {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ApplyGroup {
     pub query: Query,
     pub applies: Vec<Apply>,
@@ -34,7 +34,7 @@ impl ApplyGroup {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Action {
     pub apply_groups: Vec<ApplyGroup>,
 }
