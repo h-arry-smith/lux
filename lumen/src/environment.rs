@@ -1,74 +1,15 @@
 use std::collections::HashMap;
 
-use crate::{fixture_set::FixtureSet, timecode::time::Time, track::Track};
+use crate::{
+    fixture_set::FixtureSet,
+    history::History,
+    timecode::time::Time,
+    track::{Track, Tracks},
+};
 
 // TODO: This struct splitting technique is succesful for dealing with mutable
 //       borrows, but shouldn't live in this file, and all these interfaces need
 //       tidying up.
-
-struct Tracks {
-    tracks: Vec<Track>,
-}
-
-impl Tracks {
-    fn new() -> Self {
-        Self { tracks: Vec::new() }
-    }
-
-    pub fn push(&mut self, value: Track) {
-        self.tracks.push(value)
-    }
-
-    // TODO: All built tracks live here, but should be able to be marked active
-    //       and inactive.
-    pub fn active(&self) -> impl Iterator<Item = &Track> {
-        self.tracks.iter()
-    }
-
-    pub fn active_mut(&mut self) -> impl Iterator<Item = &mut Track> {
-        self.tracks.iter_mut()
-    }
-}
-
-pub struct History {
-    history: Vec<FixtureSet>,
-}
-
-impl History {
-    fn new() -> Self {
-        Self {
-            history: Vec::new(),
-        }
-    }
-    // We return the most recent history ID for the reference of any history
-    // generator that wants to know where to return to.
-    // The returned history ID always refers to the point in the history before the
-    // action was applied.
-
-    // As a return to a point in history discards everything after it, we don't
-    // have to worry about those ID's shifting.
-    // This may be hopelessly naive, but for now we will use it and in the future
-    // we may create some unique identifier for a history
-    fn record(&mut self, fixture_set: FixtureSet) -> usize {
-        self.history.push(fixture_set);
-        self.history.len() - 1
-    }
-
-    fn revert(&mut self, history_index: usize) -> Option<FixtureSet> {
-        if self.history.get(history_index).is_some() {
-            // discard all other histories
-            self.history = self.history.split_off(history_index);
-            // restore the last history
-            Some(self.history.pop().unwrap())
-        } else {
-            None
-        }
-    }
-
-    pub fn len(&self) -> usize {
-        self.history.len()
-    }
-}
 
 pub struct Environment {
     pub fixtures: FixtureSet,

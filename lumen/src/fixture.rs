@@ -39,6 +39,7 @@ impl Fixture {
         self.parameters.insert(parameter, generator);
     }
 
+    #[allow(clippy::borrowed_box)]
     pub fn param(&self, parameter: Param) -> Option<&Box<dyn Generator>> {
         self.parameters.get(&parameter)
     }

@@ -7,6 +7,7 @@ pub mod address;
 pub mod dmx;
 pub mod fixture;
 pub mod fixture_set;
+pub mod history;
 pub mod parameter;
 pub mod patch;
 pub mod timecode;

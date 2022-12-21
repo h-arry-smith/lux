@@ -2,6 +2,36 @@ use std::collections::HashMap;
 
 use crate::{action::Action, timecode::time::Time};
 
+pub struct Tracks {
+    tracks: Vec<Track>,
+}
+
+impl Tracks {
+    pub fn new() -> Self {
+        Self { tracks: Vec::new() }
+    }
+
+    pub fn push(&mut self, value: Track) {
+        self.tracks.push(value)
+    }
+
+    // TODO: All built tracks live here, but should be able to be marked active
+    //       and inactive.
+    pub fn active(&self) -> impl Iterator<Item = &Track> {
+        self.tracks.iter()
+    }
+
+    pub fn active_mut(&mut self) -> impl Iterator<Item = &mut Track> {
+        self.tracks.iter_mut()
+    }
+}
+
+impl Default for Tracks {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[derive(Debug)]
 pub struct Track {
     actions: Vec<TrackAction>,
