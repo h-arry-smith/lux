@@ -2,6 +2,7 @@ use crate::fixture_set::FixtureSet;
 
 pub type HistoryID = usize;
 
+#[derive(Debug)]
 pub struct History {
     history: Vec<FixtureSet>,
 }
@@ -44,6 +45,10 @@ impl History {
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.len() == 0
+    }
+
+    pub fn clear(&mut self) {
+        self.history.clear()
     }
 }
 

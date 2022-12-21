@@ -9,6 +9,7 @@ use crate::{
     Patch,
 };
 
+#[derive(Debug)]
 pub struct FixtureSet {
     fixtures: HashMap<FixtureID, Fixture>,
 }
@@ -71,6 +72,15 @@ impl FixtureSet {
         self.fixtures
             .iter_mut()
             .filter(move |(_, f)| result.contains(&f.id()))
+    }
+
+    pub fn clean_clone(&self) -> Self {
+        let mut set = FixtureSet::new();
+        for (id, fixture) in self.all_ref() {
+            set.create_with_id(*id);
+        }
+
+        set
     }
 }
 

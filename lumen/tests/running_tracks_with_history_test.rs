@@ -6,7 +6,6 @@ use lumen::{
     QueryBuilder,
 };
 
-// TIME MOVING FORWARD - SINGLE TRACK
 mod single_track_moving_forward {
     use lumen::{parameter::Param, timecode::time::Time, track::Track, value::Values};
 
@@ -124,9 +123,37 @@ mod single_track_moving_forward {
     }
 }
 
-// TIME MOVES BACKWARDS - SINGLE TRACK
-// Run one action at T1, go back to start, return to initial state
-// Run one action at T1, one at T3, go to T2 and check state is H1
+mod single_track_moving_backwards {
+    use lumen::{parameter::Param, timecode::time::Time, track::Track};
+
+    use crate::{action, build_environment};
+
+    // PLAYHEAD     >    *
+    //    TRACK ----O-----
+    //     TIME     1    0
+    //  HISTORY     1    0
+    #[test]
+    fn one_action_at_t1_go_back_to_start_initial_state_restored() {
+        let mut environment = build_environment(1);
+        let mut track = Track::new();
+        track.add_action(Time::at(0, 0, 1, 0), action(10.0));
+        environment.add_track(track);
+
+        environment.run_to_time(Time::at(0, 0, 1, 0));
+        environment.run_to_time(Time::at(0, 0, 0, 0));
+
+        assert_eq!(environment.history.len(), 0);
+        assert!(environment
+            .fixtures
+            .get(&1)
+            .unwrap()
+            .param(Param::Intensity)
+            .is_none())
+    }
+    // Run one action at T1, one at T3, go to T2 and check state is H1
+
+    // One action at T0, One action at T1, go to T0 and check no state from T1 remains
+}
 
 // TIME MOVES FORWARD - MULTI TRACK
 // Run two seperate track with 1 action at T1, and generate one history
@@ -139,7 +166,7 @@ mod single_track_moving_forward {
 // Run two tracks, with two action at T1, two action at T3, go to T2 and check state is H1
 // Run three tracks, with multiple actions all at different times, return to the middle and check history
 
-// TIME MOFES BACKWARD, AND THEN FORWARD AGAIN
+// TIME MOVES BACKWARD, AND THEN FORWARD AGAIN
 // Run two tracks, with two action at T1 and T3, run all the way, return to T2,
 // then all the way and check state is fine.
 

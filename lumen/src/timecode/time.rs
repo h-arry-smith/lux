@@ -67,6 +67,10 @@ impl Time {
         (self.nanoseconds / NANOS_PER_HOUR).try_into().unwrap()
     }
 
+    pub fn is_zero(&self) -> bool {
+        self.total_milliseconds() == 0
+    }
+
     fn total_milliseconds(&self) -> u64 {
         let mut milliseconds = self.milliseconds() as u64;
         milliseconds += self.seconds() as u64 * 1000;

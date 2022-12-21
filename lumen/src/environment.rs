@@ -15,6 +15,7 @@ pub struct Environment {
     pub fixtures: FixtureSet,
     pub history: History,
     tracks: Tracks,
+    last_time: Option<Time>,
 }
 
 impl Environment {
@@ -23,6 +24,7 @@ impl Environment {
             fixtures: FixtureSet::new(),
             history: History::new(),
             tracks: Tracks::new(),
+            last_time: None,
         }
     }
 
@@ -31,6 +33,14 @@ impl Environment {
     }
 
     pub fn run_to_time(&mut self, time: Time) {
+        if let Some(last_time) = self.last_time {
+            if time < last_time {
+                self.revert_to_time(time);
+            }
+        }
+
+        self.last_time = Some(time);
+
         let mut all_unrun_actions = BTreeMap::new();
         // for each active track
         for track in self.tracks.active() {
@@ -41,7 +51,7 @@ impl Environment {
         let mut histories = Vec::new();
 
         // apply the actions at each time generating a history
-        for (time_frame, track_actions) in all_unrun_actions {
+        for (time_frame, track_actions) in all_unrun_actions.into_iter() {
             let history_id = self.history.record(self.fixtures.clone());
 
             // collect a history id for each time group
@@ -57,6 +67,14 @@ impl Environment {
             for track in self.tracks.active_mut() {
                 track.set_action_history_for_time(time_frame, history_id);
             }
+        }
+    }
+
+    fn revert_to_time(&mut self, time: Time) {
+        if time.is_zero() {
+            let default_fixture_state = self.fixtures.clean_clone();
+            self.fixtures = default_fixture_state;
+            self.history.clear();
         }
     }
 }
