@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use crate::{
     fixture_set::FixtureSet,
@@ -31,7 +31,7 @@ impl Environment {
     }
 
     pub fn run_to_time(&mut self, time: Time) {
-        let mut all_unrun_actions = HashMap::new();
+        let mut all_unrun_actions = BTreeMap::new();
         // for each active track
         for track in self.tracks.active() {
             // get all the unrun actions and merge them into time groups

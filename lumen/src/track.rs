@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use crate::{action::Action, timecode::time::Time};
 
@@ -59,8 +59,8 @@ impl Track {
         self.actions.sort();
     }
 
-    pub fn unrun_actions_at_time(&self, time: Time) -> HashMap<Time, Vec<&TrackAction>> {
-        let mut unrun: HashMap<Time, Vec<&TrackAction>> = HashMap::new();
+    pub fn unrun_actions_at_time(&self, time: Time) -> BTreeMap<Time, Vec<&TrackAction>> {
+        let mut unrun: BTreeMap<Time, Vec<&TrackAction>> = BTreeMap::new();
 
         for action in self.actions.iter() {
             if action.time <= time && !action.has_history() {
