@@ -3,5 +3,5 @@
 members = [
   "lux",
   "lumen",
-  "candela"
+  "candela/src-tauri"
 ]
