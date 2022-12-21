@@ -107,6 +107,83 @@ mod unrun_actions_at_time {
     }
 }
 
+mod get_closest_action_to_time_with_history {
+    use lumen::{timecode::time::Time, track::Track};
+
+    use crate::create_example_action;
+
+    fn example_track() -> Track {
+        let mut track = Track::new();
+        for n in 1..=5 {
+            track.add_action(Time::at(0, 0, n, 0), create_example_action())
+        }
+
+        track
+    }
+
+    #[test]
+    fn returns_none_if_no_actions() {
+        let track = Track::new();
+
+        assert!(track
+            .get_closest_action_to_time_with_history(Time::at(0, 0, 0, 0))
+            .is_none());
+    }
+
+    #[test]
+    fn returns_none_if_actions_but_no_history() {
+        let track = example_track();
+
+        assert!(track
+            .get_closest_action_to_time_with_history(Time::at(0, 0, 2, 0))
+            .is_none());
+    }
+
+    #[test]
+    fn returns_none_if_actions_with_history_but_before_all_of_them() {
+        let mut track = example_track();
+        track.set_action_history_for_time(Time::at(0, 0, 3, 0), 1);
+
+        assert!(track
+            .get_closest_action_to_time_with_history(Time::at(0, 0, 2, 0))
+            .is_none());
+    }
+
+    #[test]
+    fn returns_closest_action_with_history() {
+        let mut track = example_track();
+        for n in 1..=5 {
+            track.set_action_history_for_time(Time::at(0, 0, n, 0), n as usize);
+        }
+
+        assert_eq!(
+            track
+                .get_closest_action_to_time_with_history(Time::at(0, 0, 3, 500))
+                .unwrap()
+                .history(),
+            3
+        );
+    }
+
+    #[test]
+    fn returns_closest_action_with_history_when_multiple_actions_at_same_time() {
+        let mut track = example_track();
+        track.add_action(Time::at(0, 0, 3, 0), create_example_action());
+
+        for n in 1..=5 {
+            track.set_action_history_for_time(Time::at(0, 0, n, 0), n as usize);
+        }
+
+        assert_eq!(
+            track
+                .get_closest_action_to_time_with_history(Time::at(0, 0, 3, 500))
+                .unwrap()
+                .history(),
+            3
+        );
+    }
+}
+
 #[cfg(test)]
 fn create_example_action() -> Action {
     let mut action = Action::new();

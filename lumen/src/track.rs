@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use crate::{action::Action, timecode::time::Time};
+use crate::{action::Action, history::HistoryID, timecode::time::Time};
 
 pub struct Tracks {
     tracks: Vec<Track>,
@@ -78,11 +78,39 @@ impl Track {
         unrun
     }
 
-    pub fn set_action_history_for_time(&mut self, time: Time, history_id: usize) {
+    pub fn set_action_history_for_time(&mut self, time: Time, history_id: HistoryID) {
         for action in self.actions.iter_mut() {
             if action.time == time {
                 action.set_history(history_id)
             }
+        }
+    }
+
+    pub fn get_closest_action_to_time_with_history(&self, time: Time) -> Option<&TrackAction> {
+        let mut closest_action = None;
+
+        for track_action in &self.actions {
+            if track_action.time <= time && track_action.has_history() {
+                closest_action = Some(track_action)
+            }
+
+            if track_action.time > time {
+                break;
+            }
+        }
+
+        closest_action
+    }
+
+    pub fn clear_history(&mut self) {
+        for action in self.actions.iter_mut() {
+            action.clear_history();
+        }
+    }
+
+    pub fn clear_history_after_time(&mut self, time: Time) {
+        for action in self.actions.iter_mut().filter(|action| action.time > time) {
+            action.clear_history();
         }
     }
 }
@@ -117,12 +145,16 @@ impl TrackAction {
         self.history.is_some()
     }
 
-    fn clear_history(&mut self) {
+    pub fn clear_history(&mut self) {
         self.history = None
     }
 
-    fn history(&self) -> usize {
+    pub fn history(&self) -> usize {
         self.history.unwrap()
+    }
+
+    pub fn time(&self) -> &Time {
+        &self.time
     }
 
     fn set_history(&mut self, history_id: usize) {

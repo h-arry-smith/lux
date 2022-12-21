@@ -27,7 +27,7 @@ impl History {
         self.history.len() - 1
     }
 
-    pub fn revert(&mut self, history_index: usize) -> Option<FixtureSet> {
+    pub fn revert(&mut self, history_index: HistoryID) -> Option<FixtureSet> {
         if self.history.get(history_index).is_some() {
             // discard all other histories
             self.history = self.history.split_off(history_index);

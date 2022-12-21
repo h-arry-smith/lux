@@ -1,3 +1,4 @@
+use lumen::fixture::FixtureID;
 use lumen::Environment;
 use lumen::{
     action::{Action, Apply, ApplyGroup},
@@ -124,9 +125,9 @@ mod single_track_moving_forward {
 }
 
 mod single_track_moving_backwards {
-    use lumen::{parameter::Param, timecode::time::Time, track::Track};
+    use lumen::{parameter::Param, timecode::time::Time, track::Track, value::Values};
 
-    use crate::{action, build_environment};
+    use crate::{action, action_for, build_environment};
 
     // PLAYHEAD     >    *
     //    TRACK ----O-----
@@ -150,9 +151,62 @@ mod single_track_moving_backwards {
             .param(Param::Intensity)
             .is_none())
     }
-    // Run one action at T1, one at T3, go to T2 and check state is H1
 
-    // One action at T0, One action at T1, go to T0 and check no state from T1 remains
+    // PLAYHEAD     >    >    *
+    //    TRACK ----O----O-----
+    //     TIME     1    3    2
+    //  HISTORY     1    2    1
+    #[test]
+    fn one_action_at_t1_one_at_t3_go_back_t2_and_check_state_is_h1() {
+        let mut environment = build_environment(1);
+        let mut track = Track::new();
+        track.add_action(Time::at(0, 0, 1, 0), action(10.0));
+        track.add_action(Time::at(0, 0, 3, 0), action(30.0));
+        environment.add_track(track);
+
+        environment.run_to_time(Time::at(0, 0, 3, 0));
+        environment.run_to_time(Time::at(0, 0, 2, 0));
+
+        assert_eq!(environment.history.len(), 1);
+        assert_eq!(
+            environment
+                .fixtures
+                .get(&1)
+                .unwrap()
+                .param(Param::Intensity)
+                .unwrap()
+                .value(),
+            Values::make_literal(10.0)
+        )
+    }
+
+    // PLAYHEAD >    >    *
+    //    TRACK O----O-----
+    //     TIME 0    1    0
+    //  HISTORY 1    2    1
+    #[test]
+    fn one_action_at_t0_one_action_at_t1_go_back_to_t0_and_no_h2_remains() {
+        let mut environment = build_environment(2);
+        let mut track = Track::new();
+        track.add_action(Time::at(0, 0, 0, 0), action(10.0));
+        track.add_action(Time::at(0, 0, 1, 0), action_for(20.0, 2));
+        environment.add_track(track);
+
+        environment.run_to_time(Time::at(0, 0, 1, 0));
+        environment.run_to_time(Time::at(0, 0, 0, 0));
+
+        assert_eq!(environment.history.len(), 1);
+        assert_eq!(
+            environment
+                .fixtures
+                .get(&2)
+                .unwrap()
+                .param(Param::Intensity)
+                .unwrap()
+                .value(),
+            Values::make_literal(10.0)
+        )
+    }
 }
 
 // TIME MOVES FORWARD - MULTI TRACK
@@ -184,6 +238,18 @@ fn build_environment(n_fixtures: usize) -> Environment {
 fn action(value: f32) -> Action {
     let mut action = Action::new();
     let query = QueryBuilder::new().all().build();
+    let value = Static::new(Values::make_literal(value));
+    let apply = Apply::new(Param::Intensity, Box::new(value));
+    let mut apply_group = ApplyGroup::new(query);
+    apply_group.add_apply(apply);
+    action.add_group(apply_group);
+
+    action
+}
+#[cfg(test)]
+fn action_for(value: f32, id: FixtureID) -> Action {
+    let mut action = Action::new();
+    let query = QueryBuilder::new().id(id).build();
     let value = Static::new(Values::make_literal(value));
     let apply = Apply::new(Param::Intensity, Box::new(value));
     let mut apply_group = ApplyGroup::new(query);

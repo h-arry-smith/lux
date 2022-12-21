@@ -75,6 +75,45 @@ impl Environment {
             let default_fixture_state = self.fixtures.clean_clone();
             self.fixtures = default_fixture_state;
             self.history.clear();
+
+            for track in self.tracks.active_mut() {
+                track.clear_history();
+            }
+
+            return;
+        }
+
+        let mut closest_track_actions = Vec::new();
+        for track in self.tracks.active() {
+            if let Some(track_action) = track.get_closest_action_to_time_with_history(time) {
+                closest_track_actions.push(track_action);
+            }
+        }
+
+        let closest_track_action = closest_track_actions.iter().reduce(|closest, action| {
+            if closest.time() >= action.time() {
+                closest
+            } else {
+                action
+            }
+        });
+
+        match closest_track_action {
+            Some(track_action) => {
+                self.fixtures = self
+                    .history
+                    .revert(track_action.history())
+                    .expect("Tried to go to an invalid history ID");
+
+                for track in self.tracks.active_mut() {
+                    track.clear_history_after_time(time);
+                }
+            }
+            None => {
+                // If there isn't a history to revert to, we can revert to the
+                // base state
+                self.revert_to_time(Time::at(0, 0, 0, 0));
+            }
         }
     }
 }
