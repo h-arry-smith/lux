@@ -1,4 +1,4 @@
-use crate::{parameter::Param, query::Query, value::Generator};
+use crate::{parameter::Param, query::Query, timecode::time::Time, value::Generator};
 
 #[derive(Debug, Clone)]
 pub struct Apply {
@@ -12,6 +12,10 @@ impl Apply {
             parameter,
             generator,
         }
+    }
+
+    pub fn set_start_time(&mut self, time: Time) {
+        self.generator.set_start_time(time);
     }
 }
 

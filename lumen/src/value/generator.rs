@@ -12,6 +12,7 @@ use super::Values;
 pub trait Generator: Debug + GeneratorClone {
     fn generate(&mut self, time: &Time, parameter: &Parameter) -> Values;
     fn value(&self) -> Values;
+    fn set_start_time(&mut self, _time: Time) {}
 }
 
 pub trait GeneratorClone {
@@ -59,7 +60,7 @@ pub struct Fade<G> {
     start: G,
     end: G,
     duration: Duration,
-    start_time: Option<Duration>,
+    start_time: Option<Time>,
 }
 
 impl<G> Fade<G>
@@ -74,24 +75,12 @@ where
             start_time: None,
         }
     }
-}
 
-impl<G> Fade<G>
-where
-    G: Generator,
-{
     fn fade_between<V: Value>(&mut self, start: V, end: V, elapsed: Duration) -> f32 {
         let fade_elapsed_time = self.fade_relative_elapsed_time(elapsed);
 
         if fade_elapsed_time > self.duration {
             return end.value();
-        }
-
-        // The first time the fade is called, we store the time as a start reference to
-        // the elapsed global time, and use this to calculate how far we are in the
-        // fade
-        if self.start_time.is_none() {
-            self.start_time = Some(elapsed);
         }
 
         let difference = end.value() - start.value();
@@ -102,7 +91,7 @@ where
 
     fn fade_relative_elapsed_time(&self, elapsed: Duration) -> Duration {
         match self.start_time {
-            Some(start) => elapsed.checked_sub(start).unwrap_or_default(),
+            Some(start) => elapsed.checked_sub(start.into()).unwrap_or_default(),
             None => Duration::new(0, 0),
         }
     }
@@ -133,6 +122,10 @@ where
     // For value inspection of a fade we just return the end value
     fn value(&self) -> Values {
         self.end.value()
+    }
+
+    fn set_start_time(&mut self, time: Time) {
+        self.start_time = Some(time);
     }
 }
 

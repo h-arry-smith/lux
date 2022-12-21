@@ -58,7 +58,8 @@ impl Environment {
             histories.push((time_frame, history_id));
 
             for track_action in track_actions {
-                self.fixtures.apply_action(track_action.action());
+                self.fixtures
+                    .apply_action(track_action.action(), time_frame);
             }
         }
 

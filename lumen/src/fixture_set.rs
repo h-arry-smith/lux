@@ -57,11 +57,13 @@ impl FixtureSet {
         self.fixtures.iter_mut()
     }
 
-    pub fn apply_action(&mut self, action: &Action) {
+    pub fn apply_action(&mut self, action: &Action, time: Time) {
         for apply_group in action.apply_groups.iter() {
             for (_, fixture) in self.query(&apply_group.query) {
                 for apply in apply_group.applies.iter() {
-                    fixture.apply(apply);
+                    let mut apply = apply.clone();
+                    apply.set_start_time(time);
+                    fixture.apply(&apply);
                 }
             }
         }
