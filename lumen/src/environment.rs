@@ -105,8 +105,10 @@ impl Environment {
                     .revert(track_action.history())
                     .expect("Tried to go to an invalid history ID");
 
+                let reset_time = *track_action.time();
+
                 for track in self.tracks.active_mut() {
-                    track.clear_history_after_time(time);
+                    track.clear_history_after_time(reset_time);
                 }
             }
             None => {

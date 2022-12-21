@@ -30,7 +30,7 @@ impl History {
     pub fn revert(&mut self, history_index: HistoryID) -> Option<FixtureSet> {
         if self.history.get(history_index).is_some() {
             // discard all other histories
-            self.history = self.history.split_off(history_index);
+            self.history.truncate(history_index + 1);
             // restore the last history
             Some(self.history.pop().unwrap())
         } else {

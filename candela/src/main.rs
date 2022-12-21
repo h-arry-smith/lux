@@ -61,7 +61,6 @@ fn main() {
 
     action2.add_group(apply_group);
 
-    let mut timer = Source::new(FrameRate::Thirty);
     let mut track = Track::new();
     track.add_action(Time::at(0, 0, 0, 0), action1);
     track.add_action(Time::at(0, 0, 2, 0), action2);
@@ -69,24 +68,23 @@ fn main() {
     environment.add_track(track);
 
     for _ in 0..2 {
-        timer.start();
-        for _ in 0..=4 {
-            println!("@{}", timer.time().tc_string(FrameRate::Thirty));
+        for n in (0..=4).rev() {
+            let time = Time::at(0, 0, n, 0);
+            println!("@{}", time.tc_string(FrameRate::Thirty));
 
-            environment.run_to_time(timer.time());
+            environment.run_to_time(time);
 
-            for (_, resolved_fixture) in environment.fixtures.resolve(timer.time(), &patch) {
+            for (_, resolved_fixture) in environment.fixtures.resolve(time, &patch) {
                 println!("    {:?}", resolved_fixture);
             }
-
-            thread::sleep(Duration::new(1, 0));
         }
     }
 
     println!("=== FIXTURE DMX ===");
     let mut multiverse = Multiverse::new();
+    let time = Time::at(0, 0, 4, 0);
 
-    for (id, resolved_fixture) in environment.fixtures.resolve(timer.time(), &patch) {
+    for (id, resolved_fixture) in environment.fixtures.resolve(time, &patch) {
         let dmx_string = patch.get_profile(&id).to_dmx(&resolved_fixture);
         println!("{}: {:?}", id, dmx_string);
 

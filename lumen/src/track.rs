@@ -109,7 +109,7 @@ impl Track {
     }
 
     pub fn clear_history_after_time(&mut self, time: Time) {
-        for action in self.actions.iter_mut().filter(|action| action.time > time) {
+        for action in self.actions.iter_mut().filter(|action| action.time >= time) {
             action.clear_history();
         }
     }
