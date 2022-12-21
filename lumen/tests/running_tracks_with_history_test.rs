@@ -209,11 +209,112 @@ mod single_track_moving_backwards {
     }
 }
 
-// TIME MOVES FORWARD - MULTI TRACK
-// Run two seperate track with 1 action at T1, and generate one history
-// Run two seperate track with 2 action at T2, and generate one history
-// Run two seperate track with two sets of action, and generate two history
-// Run two tracks to T1, and then to T2, and generate two history
+mod multi_track_moving_forward {
+    use lumen::{timecode::time::Time, track::Track};
+
+    use crate::{action, build_environment};
+
+    // PLAYHEAD     *
+    //  TRACK 1 ----O----
+    //  TRACK 2 ----O----
+    //     TIME     1
+    //  HISTORY     1
+    #[test]
+    fn two_track_with_one_action_at_t1_create_one_history() {
+        let mut environment = build_environment(1);
+        let mut track1 = Track::new();
+        let mut track2 = Track::new();
+        track1.add_action(Time::at(0, 0, 1, 0), action(10.0));
+        track2.add_action(Time::at(0, 0, 1, 0), action(20.0));
+        environment.add_track(track1);
+        environment.add_track(track2);
+
+        environment.run_to_time(Time::at(0, 0, 1, 0));
+
+        assert_eq!(environment.history.len(), 1);
+    }
+
+    // PLAYHEAD     *
+    //  TRACK 1 ----O----
+    //          ----O----
+    //  TRACK 2 ----O----
+    //          ----O----
+    //     TIME     1
+    //  HISTORY     1
+    #[test]
+    fn two_track_with_two_actions_at_t1_create_one_history() {
+        let mut environment = build_environment(1);
+        let mut track1 = Track::new();
+        let mut track2 = Track::new();
+        track1.add_action(Time::at(0, 0, 1, 0), action(10.0));
+        track1.add_action(Time::at(0, 0, 1, 0), action(20.0));
+        track2.add_action(Time::at(0, 0, 1, 0), action(30.0));
+        track2.add_action(Time::at(0, 0, 1, 0), action(40.0));
+        environment.add_track(track1);
+        environment.add_track(track2);
+
+        environment.run_to_time(Time::at(0, 0, 1, 0));
+
+        assert_eq!(environment.history.len(), 1);
+    }
+
+    // PLAYHEAD          *
+    //  TRACK 1 ----O----O----
+    //          ----O----O----
+    //  TRACK 2 ----O----O----
+    //          ----O----O----
+    //     TIME     1    2
+    //  HISTORY     1    2
+    #[test]
+    fn two_track_with_two_actions_at_t1_and_two_actions_at_t2_create_two_history() {
+        let mut environment = build_environment(1);
+        let mut track1 = Track::new();
+        let mut track2 = Track::new();
+        track1.add_action(Time::at(0, 0, 1, 0), action(10.0));
+        track1.add_action(Time::at(0, 0, 1, 0), action(20.0));
+        track2.add_action(Time::at(0, 0, 1, 0), action(30.0));
+        track2.add_action(Time::at(0, 0, 1, 0), action(40.0));
+        track1.add_action(Time::at(0, 0, 2, 0), action(10.0));
+        track1.add_action(Time::at(0, 0, 2, 0), action(20.0));
+        track2.add_action(Time::at(0, 0, 2, 0), action(30.0));
+        track2.add_action(Time::at(0, 0, 2, 0), action(40.0));
+        environment.add_track(track1);
+        environment.add_track(track2);
+
+        environment.run_to_time(Time::at(0, 0, 2, 0));
+
+        assert_eq!(environment.history.len(), 2);
+    }
+
+    // PLAYHEAD     >    *
+    //  TRACK 1 ----O----O----
+    //          ----O----O----
+    //  TRACK 2 ----O----O----
+    //          ----O----O----
+    //     TIME     1    2
+    //  HISTORY     1    2
+    #[test]
+    fn two_track_with_two_actions_to_t1_and_two_actions_to_t2_create_two_history() {
+        let mut environment = build_environment(1);
+        let mut track1 = Track::new();
+        let mut track2 = Track::new();
+        track1.add_action(Time::at(0, 0, 1, 0), action(10.0));
+        track1.add_action(Time::at(0, 0, 1, 0), action(20.0));
+        track2.add_action(Time::at(0, 0, 1, 0), action(30.0));
+        track2.add_action(Time::at(0, 0, 1, 0), action(40.0));
+        track1.add_action(Time::at(0, 0, 2, 0), action(10.0));
+        track1.add_action(Time::at(0, 0, 2, 0), action(20.0));
+        track2.add_action(Time::at(0, 0, 2, 0), action(30.0));
+        track2.add_action(Time::at(0, 0, 2, 0), action(40.0));
+        environment.add_track(track1);
+        environment.add_track(track2);
+
+        environment.run_to_time(Time::at(0, 0, 1, 0));
+        environment.run_to_time(Time::at(0, 0, 2, 0));
+
+        assert_eq!(environment.history.len(), 2);
+    }
+}
 
 // TIME MOVES BACKWARD - MULTI TRACK
 // Run two tracks with one action at T1, go back to start, and return to initial state
