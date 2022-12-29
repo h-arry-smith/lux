@@ -1,5 +1,8 @@
 program = _{ SOI ~ "\n"* ~ (stmt ~ "\n"+)* ~ stmt? ~ EOI }
-stmt = { assign }
+stmt = { select | assign }
+
+select = { query ~ "{" ~ "\n"* ~ (stmt ~ "\n"+)*  ~ "}"}
+query = { numeric } 
 
 assign = { ident ~ ":" ~ value }
 value = { numeric }

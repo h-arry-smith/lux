@@ -1,3 +1,10 @@
-intensity: 20.5
-pan: -55.57
-tilt: +100.0
+intensity: 100
+
+1 {
+	intensity: 50
+	intensity: 20
+
+	2 {
+		intensity: 30
+	}
+}
