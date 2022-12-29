@@ -5,6 +5,6 @@ assign = { ident ~ ":" ~ value }
 value = { numeric }
 
 ident = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
-numeric = @{ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? }
+numeric = @{ ("+" | "-")? ~ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? }
 
 WHITESPACE = _{ " " | "\t" }
