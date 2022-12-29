@@ -1,0 +1,10 @@
+program = _{ SOI ~ "\n"* ~ (stmt ~ "\n"+) * ~ stmt? ~ EOI }
+stmt = { assign }
+
+assign = { ident ~ ":" ~ value }
+value = { integer }
+
+ident = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
+integer = @{ ASCII_DIGIT+ }
+
+WHITESPACE = _{ " " | "\t" }
