@@ -1,10 +1,10 @@
-program = _{ SOI ~ "\n"* ~ (stmt ~ "\n"+) * ~ stmt? ~ EOI }
+program = _{ SOI ~ "\n"* ~ (stmt ~ "\n"+)* ~ stmt? ~ EOI }
 stmt = { assign }
 
 assign = { ident ~ ":" ~ value }
-value = { integer }
+value = { numeric }
 
 ident = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
-integer = @{ ASCII_DIGIT+ }
+numeric = @{ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? }
 
 WHITESPACE = _{ " " | "\t" }

@@ -48,12 +48,12 @@ fn parse_value(pair: pest::iterators::Pair<Rule>) -> AstNode {
     let pair = pair.into_inner().next().unwrap();
 
     match pair.as_rule() {
-        Rule::integer => parse_integer(pair),
+        Rule::numeric => parse_numeric(pair),
         _ => panic!("Unexpected value: {}", pair.as_str()),
     }
 }
 
-fn parse_integer(pair: pest::iterators::Pair<Rule>) -> AstNode {
-    let integer = pair.as_str().parse::<i64>().expect("not a valid integer");
-    AstNode::IntegerLiteral(integer)
+fn parse_numeric(pair: pest::iterators::Pair<Rule>) -> AstNode {
+    let number = pair.as_str().parse::<f64>().expect("not a valid integer");
+    AstNode::Numeric(number)
 }
