@@ -76,7 +76,7 @@ where
         }
     }
 
-    fn fade_between<V: Value>(&mut self, start: V, end: V, elapsed: Duration) -> f32 {
+    fn fade_between<V: Value>(&mut self, start: V, end: V, elapsed: Duration) -> f64 {
         let fade_elapsed_time = self.fade_relative_elapsed_time(elapsed);
 
         if fade_elapsed_time > self.duration {
@@ -84,7 +84,7 @@ where
         }
 
         let difference = end.value() - start.value();
-        let factor = fade_elapsed_time.as_secs_f32() / self.duration.as_secs_f32();
+        let factor = fade_elapsed_time.as_secs_f64() / self.duration.as_secs_f64();
 
         start.value() + (difference * factor)
     }

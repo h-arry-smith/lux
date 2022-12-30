@@ -25,21 +25,21 @@ impl Display for Param {
 }
 
 pub struct Parameter {
-    min: f32,
-    max: f32,
+    min: f64,
+    max: f64,
     offset: usize,
 }
 
 impl Parameter {
-    pub fn new(offset: usize, min: f32, max: f32) -> Self {
+    pub fn new(offset: usize, min: f64, max: f64) -> Self {
         Self { min, max, offset }
     }
 
-    pub fn min(&self) -> f32 {
+    pub fn min(&self) -> f64 {
         self.min
     }
 
-    pub fn max(&self) -> f32 {
+    pub fn max(&self) -> f64 {
         self.max
     }
 
@@ -48,7 +48,7 @@ impl Parameter {
     }
 
     // TODO: Parameter should have a custom default
-    pub fn default(&self) -> f32 {
+    pub fn default(&self) -> f64 {
         0.0
     }
 }

@@ -25,13 +25,13 @@ use std::fmt::Debug;
 
 /// A `Perecentage` type represents a percentage based value.
 ///
-/// A `Percentage` is constructed from a `f32` representing it's percentaage
+/// A `Percentage` is constructed from a `f64` representing it's percentaage
 /// value.
 ///
 /// A `Percentage` implements the [`Value`] trait.
 #[derive(Clone, Copy, PartialEq)]
 pub struct Percentage {
-    pub percentage: f32,
+    pub percentage: f64,
 }
 
 impl Percentage {
@@ -43,7 +43,7 @@ impl Percentage {
     /// use lumen::value::Percentage;
     /// let percentage = Percentage::new(50.0);
     /// ```
-    pub fn new(percentage: f32) -> Self {
+    pub fn new(percentage: f64) -> Self {
         Self { percentage }
     }
 
@@ -72,17 +72,17 @@ impl Percentage {
         Literal::new(result)
     }
 
-    fn factor(&self) -> f32 {
+    fn factor(&self) -> f64 {
         self.percentage / 100.0
     }
 }
 
 impl Value for Percentage {
-    fn value(&self) -> f32 {
+    fn value(&self) -> f64 {
         self.percentage
     }
 
-    fn set(&mut self, value: f32) {
+    fn set(&mut self, value: f64) {
         self.percentage = value
     }
 

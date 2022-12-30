@@ -12,8 +12,8 @@ use crate::{dmx::Dmx, parameter::Parameter};
 use self::convertable::{Convertable, Converter};
 
 pub trait Value: Debug {
-    fn value(&self) -> f32;
-    fn set(&mut self, value: f32);
+    fn value(&self) -> f64;
+    fn set(&mut self, value: f64);
     fn to_dmx(&self, parameter: &Parameter) -> Dmx;
 }
 
@@ -24,11 +24,11 @@ pub enum Values {
 }
 
 impl Values {
-    pub fn make_literal(value: f32) -> Values {
+    pub fn make_literal(value: f64) -> Values {
         Values::Literal(Literal::new(value))
     }
 
-    pub fn make_percentage(percentage: f32) -> Values {
+    pub fn make_percentage(percentage: f64) -> Values {
         Values::Percentage(Percentage::new(percentage))
     }
 

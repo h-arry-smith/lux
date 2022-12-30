@@ -5,21 +5,21 @@ use std::fmt::Debug;
 
 #[derive(Copy, Clone, PartialEq)]
 pub struct Literal {
-    pub value: f32,
+    pub value: f64,
 }
 
 impl Literal {
-    pub fn new(value: f32) -> Self {
+    pub fn new(value: f64) -> Self {
         Self { value }
     }
 }
 
 impl Value for Literal {
-    fn value(&self) -> f32 {
+    fn value(&self) -> f64 {
         self.value
     }
 
-    fn set(&mut self, value: f32) {
+    fn set(&mut self, value: f64) {
         self.value = value
     }
 
