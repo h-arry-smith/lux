@@ -34,8 +34,8 @@ fn parse_statement(pair: pest::iterators::Pair<Rule>) -> AstNode {
         Rule::assign => {
             let mut pair = pair.into_inner();
             let ident = parse_identifier(pair.next().unwrap());
-            let value = parse_value(pair.next().unwrap());
-            AstNode::Assign(Box::new(ident), Box::new(value))
+            let generator = parse_generator(pair.next().unwrap());
+            AstNode::Assign(Box::new(ident), Box::new(generator))
         }
         Rule::select => {
             let mut pair = pair.into_inner();
@@ -55,7 +55,7 @@ fn parse_identifier(pair: pest::iterators::Pair<Rule>) -> AstNode {
     }
 }
 
-fn parse_value(pair: pest::iterators::Pair<Rule>) -> AstNode {
+fn parse_generator(pair: pest::iterators::Pair<Rule>) -> AstNode {
     let pair = pair.into_inner().next().unwrap();
 
     match pair.as_rule() {

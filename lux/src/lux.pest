@@ -4,8 +4,8 @@ stmt = { select | assign }
 select = { query ~ "{" ~ "\n"* ~ (stmt ~ "\n"+)*  ~ "}"}
 query = { numeric } 
 
-assign = { ident ~ ":" ~ value }
-value = { numeric }
+assign = { ident ~ ":" ~ generator }
+generator = { numeric }
 
 ident = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
 numeric = @{ ("+" | "-")? ~ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? }
