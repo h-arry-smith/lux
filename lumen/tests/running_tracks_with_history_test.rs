@@ -495,7 +495,7 @@ fn build_environment(n_fixtures: usize) -> Environment {
 }
 
 #[cfg(test)]
-fn action(value: f32) -> Action {
+fn action(value: f64) -> Action {
     let mut action = Action::new();
     let query = QueryBuilder::new().all().build();
     let value = Static::new(Values::make_literal(value));
@@ -507,7 +507,7 @@ fn action(value: f32) -> Action {
     action
 }
 #[cfg(test)]
-fn action_for(value: f32, id: FixtureID) -> Action {
+fn action_for(value: f64, id: FixtureID) -> Action {
     let mut action = Action::new();
     let query = QueryBuilder::new().id(id).build();
     let value = Static::new(Values::make_literal(value));

@@ -159,6 +159,7 @@ mod tests {
         let start = Static::new(Values::make_literal(0.0));
         let end = Static::new(Values::make_literal(100.0));
         let mut fade = Fade::new(start, end, Duration::new(2, 0));
+        fade.set_start_time(Time::at(0, 0, 0, 0));
         let parameter = Parameter::new(0, 0.0, 100.0);
 
         assert_eq!(
@@ -180,6 +181,7 @@ mod tests {
         let start = Static::new(Values::make_literal(25.0));
         let end = Static::new(Values::make_percentage(100.0));
         let mut fade = Fade::new(start, end, Duration::new(2, 0));
+        fade.set_start_time(Time::at(0, 0, 0, 0));
         let parameter = Parameter::new(0, 25.0, 75.0);
 
         assert_eq!(
