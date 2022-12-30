@@ -84,6 +84,10 @@ impl FixtureSet {
 
         set
     }
+
+    pub fn fixture_exists(&self, id: &FixtureID) -> bool {
+        self.fixtures.contains_key(id)
+    }
 }
 
 impl Clone for FixtureSet {

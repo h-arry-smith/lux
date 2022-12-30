@@ -22,6 +22,7 @@ impl Query {
                 Step::All => Self::all(fixtures, &mut found),
                 Step::Even => Self::even(&mut found),
                 Step::Id(id) => Self::id(id, fixtures, &mut found),
+                Step::Range(start, end) => Self::range(start, end, fixtures, &mut found),
             }
         }
 
@@ -29,8 +30,8 @@ impl Query {
     }
 
     fn all(fixtures: &FixtureSet, found: &mut QueryResult) {
-        for id in fixtures.all_ref().map(|(_, f)| f.id()) {
-            found.insert(id);
+        for (id, _) in fixtures.all_ref() {
+            found.insert(*id);
         }
     }
 
@@ -45,8 +46,17 @@ impl Query {
     }
 
     fn id(id: &FixtureID, fixtures: &FixtureSet, found: &mut QueryResult) {
-        if let Some(fixture) = fixtures.get(id) {
-            found.insert(fixture.id());
+        if fixtures.fixture_exists(id) {
+            found.insert(*id);
+        }
+    }
+
+    fn range(start: &FixtureID, end: &FixtureID, fixtures: &FixtureSet, found: &mut QueryResult) {
+        for (id, _) in fixtures
+            .all_ref()
+            .filter(|(id, _)| (start..end).contains(id))
+        {
+            found.insert(*id);
         }
     }
 }

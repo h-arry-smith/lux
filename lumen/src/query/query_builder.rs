@@ -6,6 +6,7 @@ use super::Query;
 pub enum Step {
     All,
     Even,
+    Range(FixtureID, FixtureID),
     Id(FixtureID),
 }
 
@@ -35,6 +36,11 @@ impl QueryBuilder {
 
     pub fn id(mut self, id: usize) -> Self {
         self.steps.push(Step::Id(id));
+        self
+    }
+
+    pub fn range(mut self, start: usize, end: usize) -> Self {
+        self.steps.push(Step::Range(start, end));
         self
     }
 }

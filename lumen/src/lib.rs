@@ -15,5 +15,6 @@ pub mod track;
 pub mod value;
 pub use patch::Patch;
 mod query;
+pub use query::Query;
 pub mod universe;
 pub use query::query_builder::QueryBuilder;
