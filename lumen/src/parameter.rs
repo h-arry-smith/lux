@@ -9,6 +9,15 @@ pub enum Param {
     Intensity,
 }
 
+impl Param {
+    pub fn from_string(string: &str) -> Option<Param> {
+        match string {
+            "intensity" => Some(Param::Intensity),
+            _ => None,
+        }
+    }
+}
+
 impl Display for Param {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self)
