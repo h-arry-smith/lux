@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 
 use crate::{action::Action, history::HistoryID, timecode::time::Time};
 
+#[derive(Clone)]
 pub struct Tracks {
     tracks: Vec<Track>,
 }
@@ -32,7 +33,7 @@ impl Default for Tracks {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Track {
     actions: Vec<TrackAction>,
     offset: Time,
@@ -121,7 +122,7 @@ impl Default for Track {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TrackAction {
     time: Time,
     action: Action,

@@ -1,13 +1,15 @@
-use crate::{parameter::Param, query::Query, timecode::time::Time, value::Generator};
+use crate::{
+    parameter::Param, query::Query, timecode::time::Time, value::generator::BoxedGenerator,
+};
 
 #[derive(Debug, Clone)]
 pub struct Apply {
     pub parameter: Param,
-    pub generator: Box<dyn Generator>,
+    pub generator: BoxedGenerator,
 }
 
 impl Apply {
-    pub fn new(parameter: Param, generator: Box<dyn Generator>) -> Self {
+    pub fn new(parameter: Param, generator: BoxedGenerator) -> Self {
         Self {
             parameter,
             generator,

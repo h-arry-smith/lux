@@ -19,7 +19,10 @@ use lumen::{
     action::{Action, Apply, ApplyGroup},
     parameter::Param,
     timecode::time::Time,
-    value::{generator::Static, Generator, Values},
+    value::{
+        generator::{BoxedGenerator, Static},
+        Values,
+    },
     Environment, Query, QueryBuilder, Step,
 };
 
@@ -112,7 +115,7 @@ impl Evaluator {
     fn evaluate_generator(
         &mut self,
         generator: &AstNode,
-    ) -> Result<Box<dyn Generator>, EvaluationError> {
+    ) -> Result<BoxedGenerator, EvaluationError> {
         let generator = match generator {
             AstNode::Numeric(number) => Box::new(Static::new(Values::make_literal(*number))),
             _ => {

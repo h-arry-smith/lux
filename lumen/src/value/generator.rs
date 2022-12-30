@@ -9,6 +9,8 @@ use crate::value::Value;
 use super::convertable::{LiteralConverter, PercentageConverter};
 use super::Values;
 
+pub type BoxedGenerator = Box<dyn Generator + Send + Sync>;
+
 pub trait Generator: Debug + GeneratorClone {
     fn generate(&mut self, time: &Time, parameter: &Parameter) -> Values;
     fn value(&self) -> Values;
@@ -16,19 +18,19 @@ pub trait Generator: Debug + GeneratorClone {
 }
 
 pub trait GeneratorClone {
-    fn clone_box(&self) -> Box<dyn Generator>;
+    fn clone_box(&self) -> BoxedGenerator;
 }
 
 impl<G> GeneratorClone for G
 where
-    G: 'static + Generator + Clone,
+    G: 'static + Generator + Clone + Send + Sync,
 {
-    fn clone_box(&self) -> Box<dyn Generator> {
+    fn clone_box(&self) -> BoxedGenerator {
         Box::new(self.clone())
     }
 }
 
-impl Clone for Box<dyn Generator> {
+impl Clone for BoxedGenerator {
     fn clone(&self) -> Self {
         self.clone_box()
     }
@@ -99,7 +101,7 @@ where
 
 impl<G> Generator for Fade<G>
 where
-    G: Generator + Clone + 'static,
+    G: Generator + Clone + Send + Sync + 'static,
 {
     fn generate(&mut self, time: &Time, parameter: &Parameter) -> Values {
         let start = self.start.generate(time, parameter);

@@ -1,16 +1,17 @@
 use crate::action::Apply;
 use crate::timecode::time::Time;
+use crate::value::generator::BoxedGenerator;
 use std::collections::hash_map::Iter;
 use std::collections::HashMap;
 use std::fmt::Debug;
 
 use crate::parameter::Param;
 use crate::patch::FixtureProfile;
-use crate::value::{Generator, Values};
+use crate::value::Values;
 
 pub type FixtureID = usize;
 
-type ParameterMap = HashMap<Param, Box<dyn Generator>>;
+type ParameterMap = HashMap<Param, BoxedGenerator>;
 
 type ResolvedParameterMap = HashMap<Param, Values>;
 
@@ -35,12 +36,12 @@ impl Fixture {
         self.set(apply.parameter, apply.generator.clone());
     }
 
-    fn set(&mut self, parameter: Param, generator: Box<dyn Generator>) {
+    fn set(&mut self, parameter: Param, generator: BoxedGenerator) {
         self.parameters.insert(parameter, generator);
     }
 
     #[allow(clippy::borrowed_box)]
-    pub fn param(&self, parameter: Param) -> Option<&Box<dyn Generator>> {
+    pub fn param(&self, parameter: Param) -> Option<&BoxedGenerator> {
         self.parameters.get(&parameter)
     }
 

@@ -11,6 +11,7 @@ use crate::{
 //       borrows, but shouldn't live in this file, and all these interfaces need
 //       tidying up.
 
+#[derive(Clone)]
 pub struct Environment {
     pub fixtures: FixtureSet,
     pub history: History,

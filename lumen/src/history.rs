@@ -2,7 +2,7 @@ use crate::fixture_set::FixtureSet;
 
 pub type HistoryID = usize;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct History {
     history: Vec<FixtureSet>,
 }
