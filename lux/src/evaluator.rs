@@ -20,7 +20,7 @@ use lumen::{
     parameter::Param,
     timecode::time::Time,
     value::{generator::Static, Generator, Values},
-    Environment, QueryBuilder,
+    Environment, Query, QueryBuilder,
 };
 
 type EvaluationResult = Result<(), EvaluationError>;
@@ -28,6 +28,7 @@ type EvaluationResult = Result<(), EvaluationError>;
 pub struct Evaluator {
     pub env: Environment,
     global_action: Action,
+    apply_groups: Vec<ApplyGroup>,
 }
 
 impl Evaluator {
@@ -35,13 +36,22 @@ impl Evaluator {
         Self {
             env,
             global_action: Action::new(),
+            apply_groups: Vec::new(),
         }
     }
 
     pub fn evaluate(&mut self, program: Vec<AstNode>) -> EvaluationResult {
+        self.add_global_apply_group();
+
         for node in program.iter() {
             self.evaluate_statement(node)?;
         }
+
+        for apply_group in self.apply_groups.drain(0..) {
+            self.global_action.add_group(apply_group);
+        }
+
+        dbg!(&self.global_action);
 
         // NOTE: This is obviously temporary, but we just apply the global action at time 0
         self.env
@@ -51,37 +61,33 @@ impl Evaluator {
         Ok(())
     }
 
-    fn evaluate_statement(&mut self, node: &AstNode) -> EvaluationResult {
+    fn add_global_apply_group(&mut self) {
         let query = QueryBuilder::new().all().build();
-        let mut global_apply_group = ApplyGroup::new(query);
+        self.apply_groups.push(ApplyGroup::new(query));
+    }
 
+    fn evaluate_statement(&mut self, node: &AstNode) -> EvaluationResult {
         match node {
             AstNode::Apply(identifier, value) => {
-                self.evaluate_apply(identifier, value, &mut global_apply_group)?;
+                self.evaluate_apply(identifier, value)?;
             }
-            AstNode::Select(_, _) => todo!(),
+            AstNode::Select(query, statements) => {
+                self.evaluate_select(query, statements)?;
+            }
             _ => {
                 return self.evaluation_error(format!("Expected a statement but got: {:?}", node));
             }
         }
-
-        self.global_action.add_group(global_apply_group);
-
         Ok(())
     }
 
-    fn evaluate_apply(
-        &mut self,
-        identifier: &AstNode,
-        generator: &AstNode,
-        apply_group: &mut ApplyGroup,
-    ) -> EvaluationResult {
+    fn evaluate_apply(&mut self, identifier: &AstNode, generator: &AstNode) -> EvaluationResult {
         let identifier = self.evaluate_identifier(identifier)?;
         let generator = self.evaluate_generator(generator)?;
 
         let apply = Apply::new(identifier, generator);
 
-        apply_group.add_apply(apply);
+        self.current_apply_group().add_apply(apply);
 
         Ok(())
     }
@@ -118,6 +124,50 @@ impl Evaluator {
         };
 
         Ok(generator)
+    }
+
+    fn evaluate_select(&mut self, query: &AstNode, statements: &Vec<AstNode>) -> EvaluationResult {
+        let query = self.evaluate_query(query)?;
+        self.open_apply_group(query);
+
+        for statement in statements {
+            self.evaluate_statement(statement)?;
+        }
+
+        Ok(())
+    }
+
+    // NOTE: Not even close to final query logic, only handles one number!
+    fn evaluate_query(&mut self, query: &AstNode) -> Result<Query, EvaluationError> {
+        let mut query_builder = QueryBuilder::new();
+        match query {
+            AstNode::Query(id) => {
+                query_builder = query_builder.id(*id);
+            }
+            _ => {
+                return self.evaluation_error("invalid query".to_string());
+            }
+        }
+
+        Ok(query_builder.build())
+    }
+
+    fn open_apply_group(&mut self, query: Query) {
+        self.apply_groups.push(ApplyGroup::new(query))
+    }
+
+    fn close_apply_group(&mut self) {
+        let apply_group = self
+            .apply_groups
+            .pop()
+            .expect("trying to close an apply group when one doesn't exist");
+        self.global_action.add_group(apply_group);
+    }
+
+    fn current_apply_group(&mut self) -> &mut ApplyGroup {
+        self.apply_groups
+            .last_mut()
+            .expect("trying to get a mut ref to the current apply group but there isn't one")
     }
 
     fn evaluation_error<T>(&self, text: String) -> Result<T, EvaluationError> {

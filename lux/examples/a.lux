@@ -1,10 +1,9 @@
 intensity: 100
 
 1 {
-	intensity: 50
-	intensity: 20
+	intensity: 10
+}
 
-	2 {
-		intensity: 30
-	}
+2 {
+	intensity: 20
 }
