@@ -187,7 +187,7 @@ mod get_closest_action_to_time_with_history {
 #[cfg(test)]
 fn create_example_action() -> Action {
     let mut action = Action::new();
-    let query = QueryBuilder::new().all().build();
+    let query = QueryBuilder::new().build();
     let value = Static::new(Values::make_literal(25.0));
     let apply = Apply::new(Param::Intensity, Box::new(value));
     let mut apply_group = ApplyGroup::new(query);

@@ -62,7 +62,7 @@ impl Evaluator {
     }
 
     fn add_global_apply_group(&mut self) {
-        let query = QueryBuilder::new().all().build();
+        let query = QueryBuilder::new().build();
         self.apply_groups.push(ApplyGroup::new(query));
     }
 
@@ -137,9 +137,13 @@ impl Evaluator {
         Ok(())
     }
 
-    // NOTE: Not even close to final query logic, only handles one number!
     fn evaluate_query(&mut self, query: &AstNode) -> Result<Query, EvaluationError> {
         let mut query_steps = Vec::new();
+        // TODO: Maybe we could pass a reference here, but maybe it makes sense for
+        //       a query to own it's subquery?
+        if !self.current_apply_group().query.steps.is_empty() {
+            query_steps.push(Step::SubQuery(self.current_apply_group().query.clone()));
+        }
 
         if let AstNode::Query(steps) = query {
             for step in steps {

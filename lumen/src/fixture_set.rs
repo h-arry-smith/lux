@@ -1,7 +1,7 @@
 use crate::{action::Action, query::Query, timecode::time::Time};
 use std::collections::{
     hash_map::{Iter, IterMut},
-    HashMap,
+    HashMap, HashSet,
 };
 
 use crate::{
@@ -70,7 +70,7 @@ impl FixtureSet {
     }
 
     pub fn query(&mut self, query: &Query) -> impl Iterator<Item = (&FixtureID, &mut Fixture)> {
-        let result = query.evaluate(self);
+        let result = query.evaluate(&self.ids());
         self.fixtures
             .iter_mut()
             .filter(move |(_, f)| result.contains(&f.id()))
@@ -78,7 +78,7 @@ impl FixtureSet {
 
     pub fn clean_clone(&self) -> Self {
         let mut set = FixtureSet::new();
-        for (id, fixture) in self.all_ref() {
+        for (id, _) in self.all_ref() {
             set.create_with_id(*id);
         }
 
@@ -87,6 +87,15 @@ impl FixtureSet {
 
     pub fn fixture_exists(&self, id: &FixtureID) -> bool {
         self.fixtures.contains_key(id)
+    }
+
+    pub fn ids(&self) -> HashSet<FixtureID> {
+        let mut ids = HashSet::new();
+        for (id, _) in self.fixtures.iter() {
+            ids.insert(*id);
+        }
+
+        ids
     }
 }
 

@@ -18,3 +18,4 @@ mod query;
 pub use query::Query;
 pub mod universe;
 pub use query::query_builder::QueryBuilder;
+pub use query::query_builder::Step;

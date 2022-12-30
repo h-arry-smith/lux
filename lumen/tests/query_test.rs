@@ -14,7 +14,7 @@ macro_rules! assert_query_has_ids {
 fn all() {
     let fixture_set = build_example_fixture_set(EXAMPLE_SIZE);
     let query = QueryBuilder::new().all().build();
-    let result = query.evaluate(&fixture_set);
+    let result = query.evaluate(&fixture_set.ids());
 
     assert_query_has_ids!(result 1 2 3 4 5 6 7 9 10);
 }
@@ -22,8 +22,8 @@ fn all() {
 #[test]
 fn even() {
     let fixture_set = build_example_fixture_set(EXAMPLE_SIZE);
-    let query = QueryBuilder::new().all().even().build();
-    let result = query.evaluate(&fixture_set);
+    let query = QueryBuilder::new().even().build();
+    let result = query.evaluate(&fixture_set.ids());
 
     assert_query_has_ids!(result 2 4 6 8 10);
 }
@@ -32,7 +32,7 @@ fn even() {
 fn id() {
     let fixture_set = build_example_fixture_set(EXAMPLE_SIZE);
     let query = QueryBuilder::new().id(1).id(2).id(5).build();
-    let result = query.evaluate(&fixture_set);
+    let result = query.evaluate(&fixture_set.ids());
 
     assert_query_has_ids!(result 1 2 5);
 }

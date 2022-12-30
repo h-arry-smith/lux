@@ -8,6 +8,7 @@ pub enum Step {
     Even,
     Range(FixtureID, FixtureID),
     Id(FixtureID),
+    SubQuery(Query),
 }
 
 #[derive(Debug, Clone)]
@@ -41,6 +42,11 @@ impl QueryBuilder {
 
     pub fn range(mut self, start: usize, end: usize) -> Self {
         self.steps.push(Step::Range(start, end));
+        self
+    }
+
+    pub fn sub_query(mut self, query: Query) -> Self {
+        self.steps.push(Step::SubQuery(query));
         self
     }
 }

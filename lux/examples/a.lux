@@ -1,5 +1,15 @@
-intensity: 100
-
 1..5 {
 	intensity: 50
+
+	1..3 {
+		intensity: 30
+
+		1..2 {
+			intensity: 20
+
+			1 {
+				intensity: 10
+			}
+		}
+	}
 }
