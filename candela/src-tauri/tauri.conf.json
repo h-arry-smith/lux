@@ -60,10 +60,10 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
+        "height": 1000,
         "resizable": true,
         "title": "candela",
-        "width": 800
+        "width": 1000
       }
     ]
   }

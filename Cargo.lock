@@ -171,6 +171,8 @@ dependencies = [
 name = "candela"
 version = "0.0.0"
 dependencies = [
+ "lumen",
+ "lux",
  "serde",
  "serde_json",
  "tauri",
