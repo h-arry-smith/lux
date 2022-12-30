@@ -31,11 +31,11 @@ fn parse_statements(pairs: pest::iterators::Pairs<Rule>) -> Vec<AstNode> {
 
 fn parse_statement(pair: pest::iterators::Pair<Rule>) -> AstNode {
     match pair.as_rule() {
-        Rule::assign => {
+        Rule::apply => {
             let mut pair = pair.into_inner();
             let ident = parse_identifier(pair.next().unwrap());
             let generator = parse_generator(pair.next().unwrap());
-            AstNode::Assign(Box::new(ident), Box::new(generator))
+            AstNode::Apply(Box::new(ident), Box::new(generator))
         }
         Rule::select => {
             let mut pair = pair.into_inner();

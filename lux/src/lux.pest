@@ -1,10 +1,10 @@
 program = _{ SOI ~ "\n"* ~ (stmt ~ "\n"+)* ~ stmt? ~ EOI }
-stmt = { select | assign }
+stmt = { select | apply }
 
 select = { query ~ "{" ~ "\n"* ~ (stmt ~ "\n"+)*  ~ "}"}
 query = { numeric } 
 
-assign = { ident ~ ":" ~ generator }
+apply = { ident ~ ":" ~ generator }
 generator = { numeric }
 
 ident = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
