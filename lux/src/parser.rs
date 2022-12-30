@@ -70,6 +70,34 @@ fn parse_numeric(pair: pest::iterators::Pair<Rule>) -> AstNode {
 }
 
 fn parse_query(pair: pest::iterators::Pair<Rule>) -> AstNode {
+    dbg!(&pair);
+    let pair = pair.into_inner().next().unwrap();
+    let mut query_nodes = Vec::new();
+
+    match pair.as_rule() {
+        Rule::id => {
+            query_nodes.push(parse_query_id(pair));
+        }
+        Rule::qrange => {
+            query_nodes.push(parse_query_range(pair.into_inner()));
+        }
+        _ => panic!("Invalid query: {}", pair.as_str()),
+    }
+
+    AstNode::Query(query_nodes)
+}
+
+fn parse_query_id(pair: pest::iterators::Pair<Rule>) -> AstNode {
     let number = pair.as_str().parse::<usize>().expect("not a valid id");
-    AstNode::Query(number)
+    AstNode::FixtureID(number)
+}
+
+fn parse_query_range(mut pairs: pest::iterators::Pairs<Rule>) -> AstNode {
+    let start = pairs.next().unwrap();
+    let end = pairs.next().unwrap();
+
+    let start = parse_query_id(start);
+    let end = parse_query_id(end);
+
+    AstNode::QRange(Box::new(start), Box::new(end))
 }

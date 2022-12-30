@@ -2,7 +2,10 @@ program = _{ SOI ~ "\n"* ~ (stmt ~ "\n"+)* ~ stmt? ~ EOI }
 stmt = { select | apply }
 
 select = { query ~ "{" ~ "\n"* ~ (stmt ~ "\n"+)*  ~ "}"}
-query = { numeric } 
+query = { query_step+ } 
+query_step = _{ qrange | id }
+qrange = ${ id ~ ".." ~ id }
+id = @{ ASCII_DIGIT+ }
 
 apply = { ident ~ ":" ~ generator }
 generator = { numeric }

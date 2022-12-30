@@ -20,7 +20,7 @@ use lumen::{
     parameter::Param,
     timecode::time::Time,
     value::{generator::Static, Generator, Values},
-    Environment, Query, QueryBuilder,
+    Environment, Query, QueryBuilder, Step,
 };
 
 type EvaluationResult = Result<(), EvaluationError>;
@@ -139,17 +139,41 @@ impl Evaluator {
 
     // NOTE: Not even close to final query logic, only handles one number!
     fn evaluate_query(&mut self, query: &AstNode) -> Result<Query, EvaluationError> {
-        let mut query_builder = QueryBuilder::new();
-        match query {
-            AstNode::Query(id) => {
-                query_builder = query_builder.id(*id);
+        let mut query_steps = Vec::new();
+
+        if let AstNode::Query(steps) = query {
+            for step in steps {
+                query_steps.push(self.evaluate_query_step(step)?);
             }
-            _ => {
-                return self.evaluation_error("invalid query".to_string());
-            }
+        } else {
+            return self.evaluation_error("expected a query".to_string());
         }
 
-        Ok(query_builder.build())
+        Ok(Query::new(query_steps))
+    }
+
+    fn evaluate_query_step(&mut self, step: &AstNode) -> Result<Step, EvaluationError> {
+        match step {
+            AstNode::FixtureID(id) => Ok(Step::Id(*id)),
+            AstNode::QRange(start, end) => self.evaluate_query_range(start, end),
+            _ => self.evaluation_error(format!("expected a valid query step but got: {:?}", step)),
+        }
+    }
+
+    fn evaluate_query_range(
+        &mut self,
+        start: &AstNode,
+        end: &AstNode,
+    ) -> Result<Step, EvaluationError> {
+        if let AstNode::FixtureID(start) = start {
+            if let AstNode::FixtureID(end) = end {
+                Ok(Step::Range(*start, *end))
+            } else {
+                self.evaluation_error("end value of range must be a fixture id".to_string())
+            }
+        } else {
+            self.evaluation_error("start value of range must be a fixture id".to_string())
+        }
     }
 
     fn open_apply_group(&mut self, query: Query) {
