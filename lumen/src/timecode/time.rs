@@ -75,19 +75,18 @@ impl Time {
         let mut milliseconds = self.milliseconds() as u64;
         milliseconds += self.seconds() as u64 * 1000;
         milliseconds += self.minutes() as u64 * 60 * 1000;
-        milliseconds += self.hours() as u64 * 60 * 60 * 1000;
+        milliseconds += self.hours() * 60 * 60 * 1000;
 
         milliseconds
     }
 
     pub fn tc_string(&self, frame_rate: FrameRate) -> String {
         format!(
-            "{}:{}:{}:{} @{:?}",
+            "{:02}:{:02}:{:02}:{:02}",
             self.hours(),
             self.minutes(),
             self.seconds(),
             self.frames(frame_rate),
-            frame_rate
         )
     }
 }
@@ -96,7 +95,7 @@ impl From<Time> for Duration {
     fn from(time: Time) -> Self {
         let mut seconds = time.seconds() as u64;
         seconds += time.minutes() as u64 * 60;
-        seconds += time.hours() as u64 * 60 * 60;
+        seconds += time.hours() * 60 * 60;
 
         let nanos = time.milliseconds() as u128 * NANOS_PER_MS;
 
