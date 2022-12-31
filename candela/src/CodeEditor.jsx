@@ -16,7 +16,8 @@ export function CodeEditor(props) {
   useEffect(() => {
     console.log(monaco);
     if (monaco) {    
-       setUp(monaco);
+      setUp(monaco);
+      onTextChange(example_code);
     }
   }, [monaco])
 
@@ -25,6 +26,10 @@ export function CodeEditor(props) {
   }
 
   function handleChange(value, _event) {
+    onTextChange(value);
+  }
+
+  function onTextChange(value) {
     invoke("on_text_change", { source: value }).then((msg) => props.setConsoleText(msg));
   }
 

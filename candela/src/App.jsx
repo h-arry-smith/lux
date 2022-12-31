@@ -1,17 +1,17 @@
-import { CodeEditor } from "./CodeEditor"
 import "./App.css"
-import { useState } from "react";
+import { CodePane } from "./CodePane"
+import { InfoPane } from "./InfoPane";
 
 function App() {
-  let [consoleText, setConsoleText] = useState("temp console");
 
   return (
-    <div className="flex flex-col h-screen w-full">
-      <div className="h-2/3">
-        <CodeEditor setConsoleText={setConsoleText} />
+    <div className="flex w-screen h-screen overflow-none">
+      <div className="w-3/5 border-r border-gray-400">
+        <CodePane />
       </div>
-      <div className="h-1/3 m-1 overflow-scroll border text-sm font-gray-200 border-1 border-white p-1 font-mono bg-black">
-        <pre>{ consoleText }</pre>
+
+      <div className="w-2/5">
+        <InfoPane />
       </div>
     </div>
   );
