@@ -48,7 +48,8 @@ pub enum State {
 #[derive(Debug, Copy, Clone)]
 pub struct Source {
     start_time: Option<Instant>,
-    pause_time: Option<Duration>,
+    pause_time: Option<Instant>,
+    seek_time: Option<Time>,
     frame_rate: FrameRate,
     state: State,
 }
@@ -58,18 +59,31 @@ impl Source {
         Self {
             start_time: None,
             pause_time: None,
+            seek_time: None,
             frame_rate,
             state: State::Stopped,
         }
     }
 
     // TODO: Milliseconds should be clamped to the frame boundaries. A real time
-    //       code source will conver frame number to milliseconds.
+    //       code source will convert frame number to milliseconds.
     pub fn time(&self) -> Time {
         match self.state {
             State::Stopped => Time::new(0),
-            State::Running => Time::from(&self.start_time.unwrap().elapsed()),
-            State::Paused => Time::from(&self.pause_time.unwrap()),
+            State::Running => Time::from(&self.duration_from_seek()),
+            State::Paused => {
+                Time::from(&(self.duration_from_seek() - self.pause_time.unwrap().elapsed()))
+            }
+        }
+    }
+
+    fn duration_from_seek(&self) -> Duration {
+        if let Some(seek_time) = self.seek_time {
+            let seek_duration: Duration = seek_time.into();
+
+            seek_duration + self.start_time.unwrap().elapsed()
+        } else {
+            self.start_time.unwrap().elapsed()
         }
     }
 
@@ -84,10 +98,8 @@ impl Source {
     }
 
     pub fn pause(&mut self) {
-        if let Some(start_time) = self.start_time {
-            self.pause_time = Some(start_time.elapsed());
-            self.state = State::Paused;
-        }
+        self.pause_time = Some(Instant::now());
+        self.state = State::Paused;
     }
 
     // NOTE: This way of resolving paused time destroys the original start time
@@ -101,7 +113,7 @@ impl Source {
         if let Some(pause_time) = self.pause_time {
             // Unwrap is safe because of gaurd condition.
             let mut start_time = self.start_time.take().unwrap();
-            start_time += pause_time;
+            start_time += pause_time.elapsed();
 
             self.start_time = Some(start_time);
             self.pause_time = None;
@@ -116,27 +128,26 @@ impl Source {
     }
 
     pub fn seek(&mut self, time: Time) {
+        self.seek_time = Some(time);
+
         match self.state {
             State::Paused => {
-                // When paused, must update the pause point
-                let duration: Duration = time.into();
-                let new_time = Instant::now() - duration;
-                self.start_time = Some(new_time);
-
-                // NOTE: This small addition of time solves a rounding issue in
-                //       the seeking behaviour, but feels a bit kludgy.
-                self.pause_time = Some(new_time.elapsed());
+                let now = Instant::now();
+                self.start_time = Some(now);
+                self.pause_time = Some(now);
             }
             _ => {
-                // We aren't paused, so we can just seek to the new position
-                let duration: Duration = time.into();
-                self.start_time = Some(Instant::now() - duration);
+                self.start_time = Some(Instant::now());
             }
         }
     }
 
     pub fn fps(&self) -> FrameRate {
         self.frame_rate
+    }
+
+    pub fn paused(&self) -> bool {
+        self.state == State::Paused
     }
 }
 
@@ -284,6 +295,6 @@ mod tests {
         dbg!(&source);
         dbg!(&time);
         dbg!(&time.frames(FrameRate::Thirty));
-        assert_correct_time!(time, 1 2 8 500);
+        assert_correct_time!(time, 1 2 8 499);
     }
 }
