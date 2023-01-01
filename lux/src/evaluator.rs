@@ -28,14 +28,14 @@ use lumen::{
 
 type EvaluationResult = Result<(), EvaluationError>;
 
-pub struct Evaluator {
-    pub env: Environment,
+pub struct Evaluator<'a> {
+    pub env: &'a mut Environment,
     global_action: Action,
     apply_groups: Vec<ApplyGroup>,
 }
 
-impl Evaluator {
-    pub fn new(env: Environment) -> Self {
+impl<'a> Evaluator<'a> {
+    pub fn new(env: &'a mut Environment) -> Self {
         Self {
             env,
             global_action: Action::new(),

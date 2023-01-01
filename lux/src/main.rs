@@ -26,7 +26,7 @@ fn main() {
             environment.fixtures.create_with_id(n);
         }
 
-        let mut evaluator = Evaluator::new(environment);
+        let mut evaluator = Evaluator::new(&mut environment);
 
         match evaluator.evaluate(program) {
             Ok(()) => println!("{:#?}", evaluator.env.fixtures),
