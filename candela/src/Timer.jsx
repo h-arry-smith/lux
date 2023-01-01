@@ -50,20 +50,26 @@ export function Timer() {
     <div class="flex h-full">
       <div className="flex flex-col flex-0">
         <div className="flex h-1/2 w-24 mt-1 ml-1 pb-1">
-          <div className="w-1/2 flex justify-center items-center h-full border rounded bg-gray-600 hover:border-yellow-500 hover:text-yellow-500">
-            <PlayIcon className="w-6 h-6" onClick={startTime} />
-          </div>
-          <div className="w-1/2 flex justify-center items-center h-full border rounded bg-gray-600 ml-1 hover:border-yellow-500 hover:text-yellow-500">
-            <PauseIcon className="w-6 h-6" onClick={pauseTime} />
-          </div>
+          <button 
+            onClick={startTime}
+            className="w-1/2 flex justify-center items-center h-full border rounded bg-gray-600 hover:border-yellow-500 hover:text-yellow-500">
+            <PlayIcon className="w-6 h-6" />
+          </button>
+          <button 
+            onClick={pauseTime}
+            className="w-1/2 flex justify-center items-center h-full border rounded bg-gray-600 ml-1 hover:border-yellow-500 hover:text-yellow-500">
+            <PauseIcon className="w-6 h-6" />
+          </button>
         </div>
         <div className="flex h-1/2 ml-1 pb-1">
-          <div className="w-1/2 flex justify-center items-center h-full border rounded bg-gray-600 hover:border-yellow-500 hover:text-yellow-500">
-            <StopIcon className="w-6 h-6" onClick={stopTime} />
-          </div>
-          <div className="w-1/2 flex justify-center items-center h-full border rounded bg-gray-600 ml-1 hover:border-yellow-500">
+          <button 
+            onClick={stopTime}
+            className="w-1/2 flex justify-center items-center h-full border rounded bg-gray-600 hover:border-yellow-500 hover:text-yellow-500">
+            <StopIcon className="w-6 h-6" />
+          </button>
+          <button className="w-1/2 flex justify-center items-center h-full border rounded bg-gray-600 ml-1 hover:border-yellow-500">
             D
-          </div>
+          </button>
         </div>
       </div>
 

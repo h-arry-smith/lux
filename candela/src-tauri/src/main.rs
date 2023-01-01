@@ -3,10 +3,17 @@
     windows_subsystem = "windows"
 )]
 
-use lumen::{timecode::Source, Environment};
+use lumen::{
+    address::Address,
+    fixture_set::ResolvedFixtureMap,
+    parameter::{Param, Parameter},
+    patch::FixtureProfile,
+    timecode::Source,
+    Environment, Patch,
+};
 use lux::{evaluator::Evaluator, parser::parse};
-use std::{fmt::Write, sync::Mutex};
-use tauri::State;
+use std::{fmt::Write, sync::Mutex, thread, time::Duration};
+use tauri::{State, Window};
 
 #[tauri::command]
 fn on_text_change(source: String, lockable_environment: State<LockableEnvironment>) -> String {
@@ -23,8 +30,8 @@ fn on_text_change(source: String, lockable_environment: State<LockableEnvironmen
         }
     }
 
-    let environment = lockable_environment.env.lock().unwrap();
-    let mut evaluator = Evaluator::new(environment.to_owned());
+    let mut environment = lockable_environment.env.lock().unwrap();
+    let mut evaluator = Evaluator::new(&mut environment);
 
     match evaluator.evaluate(result.unwrap()) {
         Ok(()) => {
@@ -54,6 +61,7 @@ fn start_time(source: State<Mutex<Source>>) -> String {
         source.start();
     }
 
+    dbg!(&source);
     source.time().tc_string(source.fps())
 }
 
@@ -61,6 +69,7 @@ fn start_time(source: State<Mutex<Source>>) -> String {
 fn pause_time(source: State<Mutex<Source>>) -> String {
     let mut source = source.lock().unwrap();
     source.pause();
+    dbg!(&source);
     source.time().tc_string(source.fps())
 }
 
@@ -68,8 +77,39 @@ fn pause_time(source: State<Mutex<Source>>) -> String {
 fn stop_time(source: State<Mutex<Source>>) -> String {
     let mut source = source.lock().unwrap();
     source.stop();
+    dbg!(&source);
     source.time().tc_string(source.fps())
 }
+
+#[tauri::command]
+fn init_tick(window: Window) {
+    std::thread::spawn(move || loop {
+        window.emit("tick", 0).unwrap();
+        thread::sleep(Duration::new(0, 1_000_000_000 / 60));
+    });
+}
+
+#[tauri::command]
+fn resolve(
+    lockable_environment: State<LockableEnvironment>,
+    source: State<Mutex<Source>>,
+) -> ResolvedFixtureMap {
+    let mut env = lockable_environment.env.lock().unwrap();
+    let source = source.lock().unwrap();
+
+    let mut dimmer = FixtureProfile::new();
+    dimmer.set_parameter(Param::Intensity, Parameter::new(0, 0.0, 100.0));
+    let mut patch = Patch::new();
+
+    for n in 1..=10 {
+        patch.patch(n, Address::new(1, n as u16), &dimmer);
+    }
+
+    let t = source.time();
+    env.run_to_time(t);
+    env.fixtures.resolve(t, &patch)
+}
+
 struct LockableEnvironment {
     env: Mutex<Environment>,
 }
@@ -88,11 +128,13 @@ fn main() {
         })
         .manage(Mutex::new(source))
         .invoke_handler(tauri::generate_handler![
+            init_tick,
             on_text_change,
             get_current_time,
             start_time,
             pause_time,
             stop_time,
+            resolve
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

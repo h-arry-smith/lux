@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CodeEditor } from "./CodeEditor"
+import { CodeEditor } from "./CodeEditor";
 
 export function CodePane() {
   let [consoleText, setConsoleText] = useState("temp console");
