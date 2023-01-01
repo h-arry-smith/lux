@@ -1,3 +1,5 @@
+use serde::Serialize;
+
 use crate::action::Apply;
 use crate::timecode::time::Time;
 use crate::value::generator::BoxedGenerator;
@@ -85,6 +87,7 @@ impl Clone for Fixture {
     }
 }
 
+#[derive(Serialize)]
 pub struct ResolvedFixture {
     id: FixtureID,
     parameters: ResolvedParameterMap,

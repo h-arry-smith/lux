@@ -9,9 +9,12 @@ use crate::{
     Patch,
 };
 
+pub type FixtureMap = HashMap<FixtureID, Fixture>;
+pub type ResolvedFixtureMap = HashMap<FixtureID, ResolvedFixture>;
+
 #[derive(Debug)]
 pub struct FixtureSet {
-    fixtures: HashMap<FixtureID, Fixture>,
+    fixtures: FixtureMap,
 }
 
 impl FixtureSet {
@@ -46,7 +49,7 @@ impl FixtureSet {
         }
     }
 
-    pub fn resolve(&mut self, time: Time, patch: &Patch) -> HashMap<usize, ResolvedFixture> {
+    pub fn resolve(&mut self, time: Time, patch: &Patch) -> ResolvedFixtureMap {
         self.fixtures
             .iter_mut()
             .map(|(i, f)| (*i, f.resolve(&time, patch.get_profile(i))))

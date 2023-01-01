@@ -18,6 +18,8 @@
 //! );
 //! ```
 
+use serde::{Deserialize, Serialize};
+
 use crate::{dmx::Dmx, parameter::Parameter};
 
 use super::{Literal, Value};
@@ -29,7 +31,7 @@ use std::fmt::Debug;
 /// value.
 ///
 /// A `Percentage` implements the [`Value`] trait.
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Percentage {
     pub percentage: f64,
 }

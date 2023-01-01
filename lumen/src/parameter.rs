@@ -1,10 +1,12 @@
 use std::fmt::Display;
 
+use serde::{Deserialize, Serialize};
+
 // TODO: A parameter has many options, that need to be built up from time
 //       from a file. We need a ParameterBuilder and also a struct or
 //       something for reading them from files.
 
-#[derive(Eq, Hash, PartialEq, Debug, Copy, Clone)]
+#[derive(Eq, Hash, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum Param {
     Intensity,
 }

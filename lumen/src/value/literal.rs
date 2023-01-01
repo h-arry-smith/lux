@@ -1,9 +1,11 @@
+use serde::{Deserialize, Serialize};
+
 use crate::{dmx::Dmx, parameter::Parameter};
 
 use super::Value;
 use std::fmt::Debug;
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Literal {
     pub value: f64,
 }

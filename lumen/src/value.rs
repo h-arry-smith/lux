@@ -1,6 +1,7 @@
 mod convertable;
 pub mod generator;
 pub use generator::Generator;
+use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 mod literal;
 pub use literal::Literal;
@@ -17,7 +18,7 @@ pub trait Value: Debug {
     fn to_dmx(&self, parameter: &Parameter) -> Dmx;
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum Values {
     Literal(Literal),
     Percentage(Percentage),
