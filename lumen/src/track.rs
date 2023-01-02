@@ -25,6 +25,10 @@ impl Tracks {
     pub fn active_mut(&mut self) -> impl Iterator<Item = &mut Track> {
         self.tracks.iter_mut()
     }
+
+    pub fn clear(&mut self) {
+        self.tracks.clear()
+    }
 }
 
 impl Default for Tracks {

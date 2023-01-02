@@ -19,6 +19,7 @@ use lumen::{
     action::{Action, Apply, ApplyGroup},
     parameter::Param,
     timecode::time::Time,
+    track::Track,
     value::{
         generator::{BoxedGenerator, Static},
         Values,
@@ -56,10 +57,11 @@ impl<'a> Evaluator<'a> {
 
         dbg!(&self.global_action);
 
-        // NOTE: This is obviously temporary, but we just apply the global action at time 0
-        self.env
-            .fixtures
-            .apply_action(&self.global_action, Time::at(0, 0, 0, 0));
+        let mut track = Track::new();
+        track.add_action(Time::at(0, 0, 0, 0), self.global_action.clone());
+
+        self.env.reset();
+        self.env.set_track(track);
 
         Ok(())
     }

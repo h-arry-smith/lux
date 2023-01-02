@@ -8,7 +8,7 @@ use lumen::{
     fixture_set::ResolvedFixtureMap,
     parameter::{Param, Parameter},
     patch::FixtureProfile,
-    timecode::Source,
+    timecode::{time::Time, Source},
     Environment, Patch,
 };
 use lux::{evaluator::Evaluator, parser::parse};
@@ -16,7 +16,11 @@ use std::{fmt::Write, sync::Mutex, thread, time::Duration};
 use tauri::{State, Window};
 
 #[tauri::command]
-fn on_text_change(source: String, lockable_environment: State<LockableEnvironment>) -> String {
+fn on_text_change(
+    source: String,
+    lockable_environment: State<LockableEnvironment>,
+    time_source: State<Mutex<Source>>,
+) -> String {
     let result = parse(&source);
     let mut console_text = String::new();
 
@@ -32,10 +36,13 @@ fn on_text_change(source: String, lockable_environment: State<LockableEnvironmen
 
     let mut environment = lockable_environment.env.lock().unwrap();
     let mut evaluator = Evaluator::new(&mut environment);
+    let evaluation_result = evaluator.evaluate(result.unwrap());
 
-    match evaluator.evaluate(result.unwrap()) {
+    match evaluation_result {
         Ok(()) => {
-            writeln!(console_text, "{:#?}", evaluator.env.fixtures).unwrap();
+            time_source.lock().unwrap().seek(Time::at(0, 0, 0, 0));
+            environment.run_to_time(Time::at(0, 0, 0, 0));
+            writeln!(console_text, "{:#?}", environment.fixtures).unwrap();
         }
         Err(err) => {
             writeln!(console_text, "evaluation error: {}", err).unwrap();

@@ -33,9 +33,20 @@ impl Environment {
         self.tracks.push(track)
     }
 
+    pub fn set_track(&mut self, track: Track) {
+        self.tracks.clear();
+        self.tracks.push(track);
+    }
+
+    pub fn reset(&mut self) {
+        self.last_time = None;
+        self.revert_to_time(Time::at(0, 0, 0, 0));
+    }
+
     pub fn run_to_time(&mut self, time: Time) {
         if let Some(last_time) = self.last_time {
             if time < last_time {
+                dbg!("revert");
                 self.revert_to_time(time);
             }
         }

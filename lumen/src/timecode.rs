@@ -72,7 +72,13 @@ impl Source {
             State::Stopped => Time::new(0),
             State::Running => Time::from(&self.duration_from_seek()),
             State::Paused => {
-                Time::from(&(self.duration_from_seek() - self.pause_time.unwrap().elapsed()))
+                let time = self
+                    .duration_from_seek()
+                    .checked_sub(self.pause_time.unwrap().elapsed());
+                match time {
+                    Some(t) => Time::from(&t),
+                    None => Time::at(0, 0, 0, 0),
+                }
             }
         }
     }
