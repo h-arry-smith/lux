@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/tauri";
 import { appWindow } from "@tauri-apps/api/window"
 import { Timer } from "./Timer";
+import { Fixture } from "./Fixture";
 
 export function InfoPane() {
   let [resolvedFixtures, setResolvedFixtures] = useState({});
@@ -25,10 +26,10 @@ export function InfoPane() {
       <div className="h-full">
         { resolvedFixtures && Object.entries(resolvedFixtures).map(([id, parameters]) => {
           return (
-            <>
-              <p> {id} </p>
-              <p> {JSON.stringify(parameters)} </p>
-            </>
+            <Fixture
+              key={id}
+              id={id}
+              parameters={parameters["parameters"]} />
           )    
         }) 
       }
