@@ -1,6 +1,6 @@
 use std::{env, fs};
 
-use lumen::Environment;
+use lumen::{timecode::time::Time, Environment};
 // TODO: Remove this file and build a proper test runner against real .lux files!
 use lux::{evaluator::Evaluator, parser::parse};
 
@@ -29,7 +29,10 @@ fn main() {
         let mut evaluator = Evaluator::new(&mut environment);
 
         match evaluator.evaluate(program) {
-            Ok(()) => println!("{:#?}", evaluator.env.fixtures),
+            Ok(()) => {
+                environment.run_to_time(Time::at(0, 0, 0, 0));
+                println!("{:#?}", environment.fixtures);
+            }
             Err(err) => eprintln!("error: {}", err),
         }
     }

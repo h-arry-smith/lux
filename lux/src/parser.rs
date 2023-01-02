@@ -70,7 +70,6 @@ fn parse_numeric(pair: pest::iterators::Pair<Rule>) -> AstNode {
 }
 
 fn parse_query(pair: pest::iterators::Pair<Rule>) -> AstNode {
-    dbg!(&pair);
     let pair = pair.into_inner().next().unwrap();
     let mut query_nodes = Vec::new();
 

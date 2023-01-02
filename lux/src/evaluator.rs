@@ -33,6 +33,7 @@ pub struct Evaluator<'a> {
     pub env: &'a mut Environment,
     global_action: Action,
     apply_groups: Vec<ApplyGroup>,
+    parent_apply_group: Vec<usize>,
 }
 
 impl<'a> Evaluator<'a> {
@@ -41,6 +42,7 @@ impl<'a> Evaluator<'a> {
             env,
             global_action: Action::new(),
             apply_groups: Vec::new(),
+            parent_apply_group: Vec::new(),
         }
     }
 
@@ -55,8 +57,6 @@ impl<'a> Evaluator<'a> {
             self.global_action.add_group(apply_group);
         }
 
-        dbg!(&self.global_action);
-
         let mut track = Track::new();
         track.add_action(Time::at(0, 0, 0, 0), self.global_action.clone());
 
@@ -69,6 +69,7 @@ impl<'a> Evaluator<'a> {
     fn add_global_apply_group(&mut self) {
         let query = QueryBuilder::new().build();
         self.apply_groups.push(ApplyGroup::new(query));
+        self.parent_apply_group.push(self.apply_groups.len() - 1);
     }
 
     fn evaluate_statement(&mut self, node: &AstNode) -> EvaluationResult {
@@ -139,15 +140,20 @@ impl<'a> Evaluator<'a> {
             self.evaluate_statement(statement)?;
         }
 
+        self.close_apply_group();
+
         Ok(())
     }
 
     fn evaluate_query(&mut self, query: &AstNode) -> Result<Query, EvaluationError> {
         let mut query_steps = Vec::new();
-        // TODO: Maybe we could pass a reference here, but maybe it makes sense for
-        //       a query to own it's subquery?
-        if !self.current_apply_group().query.steps.is_empty() {
-            query_steps.push(Step::SubQuery(self.current_apply_group().query.clone()));
+
+        if let Some(parent_group_index) = self.parent_apply_group.last() {
+            let parent_group = self.apply_groups.get(*parent_group_index).unwrap();
+            dbg!(&parent_group);
+            if !parent_group.query.steps.is_empty() {
+                query_steps.push(Step::SubQuery(parent_group.query.clone()));
+            }
         }
 
         if let AstNode::Query(steps) = query {
@@ -186,15 +192,12 @@ impl<'a> Evaluator<'a> {
     }
 
     fn open_apply_group(&mut self, query: Query) {
-        self.apply_groups.push(ApplyGroup::new(query))
+        self.apply_groups.push(ApplyGroup::new(query));
+        self.parent_apply_group.push(self.apply_groups.len() - 1);
     }
 
     fn close_apply_group(&mut self) {
-        let apply_group = self
-            .apply_groups
-            .pop()
-            .expect("trying to close an apply group when one doesn't exist");
-        self.global_action.add_group(apply_group);
+        self.parent_apply_group.pop();
     }
 
     fn current_apply_group(&mut self) -> &mut ApplyGroup {
