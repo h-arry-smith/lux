@@ -291,16 +291,11 @@ mod tests {
         source.start();
         source.pause();
         let seek_time = time!(1 2 8 500);
-        dbg!(&seek_time);
-        dbg!(&seek_time.frames(FrameRate::Thirty));
 
         source.seek(seek_time);
         // + 0 frames (paused)
         thread::sleep(Duration::new(0, 100_000_000));
         let time = source.time();
-        dbg!(&source);
-        dbg!(&time);
-        dbg!(&time.frames(FrameRate::Thirty));
         assert_correct_time!(time, 1 2 8 499);
     }
 }

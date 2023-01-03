@@ -68,7 +68,6 @@ fn start_time(source: State<Mutex<Source>>) -> String {
         source.start();
     }
 
-    dbg!(&source);
     source.time().tc_string(source.fps())
 }
 
@@ -76,7 +75,6 @@ fn start_time(source: State<Mutex<Source>>) -> String {
 fn pause_time(source: State<Mutex<Source>>) -> String {
     let mut source = source.lock().unwrap();
     source.pause();
-    dbg!(&source);
     source.time().tc_string(source.fps())
 }
 
@@ -84,7 +82,6 @@ fn pause_time(source: State<Mutex<Source>>) -> String {
 fn stop_time(source: State<Mutex<Source>>) -> String {
     let mut source = source.lock().unwrap();
     source.stop();
-    dbg!(&source);
     source.time().tc_string(source.fps())
 }
 

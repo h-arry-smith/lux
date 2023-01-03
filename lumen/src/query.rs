@@ -20,8 +20,6 @@ impl Query {
         let mut result = QueryResult::new();
         let mut fixtures = fixtures.clone();
 
-        dbg!(&self.steps);
-
         for step in self.steps.iter() {
             match step {
                 Step::All => {

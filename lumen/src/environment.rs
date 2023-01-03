@@ -46,7 +46,6 @@ impl Environment {
     pub fn run_to_time(&mut self, time: Time) {
         if let Some(last_time) = self.last_time {
             if time < last_time {
-                dbg!("revert");
                 self.revert_to_time(time);
             }
         }

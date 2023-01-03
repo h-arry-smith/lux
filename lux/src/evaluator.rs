@@ -150,7 +150,6 @@ impl<'a> Evaluator<'a> {
 
         if let Some(parent_group_index) = self.parent_apply_group.last() {
             let parent_group = self.apply_groups.get(*parent_group_index).unwrap();
-            dbg!(&parent_group);
             if !parent_group.query.steps.is_empty() {
                 query_steps.push(Step::SubQuery(parent_group.query.clone()));
             }

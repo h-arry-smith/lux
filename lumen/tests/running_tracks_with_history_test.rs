@@ -167,8 +167,6 @@ mod single_track_moving_backwards {
         environment.run_to_time(Time::at(0, 0, 3, 0));
         environment.run_to_time(Time::at(0, 0, 2, 0));
 
-        dbg!(&environment.history);
-
         assert_eq!(environment.history.len(), 1);
         assert_eq!(
             environment
