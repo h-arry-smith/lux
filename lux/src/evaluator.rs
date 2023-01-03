@@ -57,6 +57,8 @@ impl<'a> Evaluator<'a> {
             self.global_action.add_group(apply_group);
         }
 
+        dbg!(&self.global_action);
+
         let mut track = Track::new();
         track.add_action(Time::at(0, 0, 0, 0), self.global_action.clone());
 
@@ -67,9 +69,9 @@ impl<'a> Evaluator<'a> {
     }
 
     fn add_global_apply_group(&mut self) {
-        let query = QueryBuilder::new().build();
+        let query = QueryBuilder::new().all().build();
         self.apply_groups.push(ApplyGroup::new(query));
-        self.parent_apply_group.push(self.apply_groups.len() - 1);
+        // self.parent_apply_group.push(self.apply_groups.len() - 1);
     }
 
     fn evaluate_statement(&mut self, node: &AstNode) -> EvaluationResult {
@@ -93,7 +95,7 @@ impl<'a> Evaluator<'a> {
 
         let apply = Apply::new(identifier, generator);
 
-        self.current_apply_group().add_apply(apply);
+        self.parent_apply_group().add_apply(apply);
 
         Ok(())
     }
@@ -203,6 +205,18 @@ impl<'a> Evaluator<'a> {
         self.apply_groups
             .last_mut()
             .expect("trying to get a mut ref to the current apply group but there isn't one")
+    }
+
+    fn parent_apply_group(&mut self) -> &mut ApplyGroup {
+        if let Some(parent_group_index) = self.parent_apply_group.last() {
+            self.apply_groups
+                .get_mut(*parent_group_index)
+                .expect("tried to apply to a parent apply group that doesn't exist")
+        } else {
+            self.apply_groups
+                .first_mut()
+                .expect("no global apply group to apply too")
+        }
     }
 
     fn evaluation_error<T>(&self, text: String) -> Result<T, EvaluationError> {
