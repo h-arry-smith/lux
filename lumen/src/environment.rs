@@ -33,12 +33,10 @@ impl Environment {
         self.tracks.push(track)
     }
 
-    pub fn set_track(&mut self, track: Track) {
-        self.tracks.clear();
-        self.tracks.push(track);
-    }
-
     pub fn reset(&mut self) {
+        self.fixtures = self.fixtures.clean_clone();
+        self.history.clear();
+        self.tracks.clear();
         self.last_time = None;
         self.revert_to_time(Time::at(0, 0, 0, 0));
     }

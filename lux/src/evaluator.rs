@@ -61,7 +61,7 @@ impl<'a> Evaluator<'a> {
         track.add_action(Time::at(0, 0, 0, 0), self.global_action.clone());
 
         self.env.reset();
-        self.env.set_track(track);
+        self.env.add_track(track);
 
         Ok(())
     }
