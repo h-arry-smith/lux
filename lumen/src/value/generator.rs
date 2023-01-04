@@ -48,8 +48,12 @@ impl Static {
 }
 
 impl Generator for Static {
-    fn generate(&mut self, _time: &Time, _parameter: &Parameter) -> Values {
-        self.value
+    fn generate(&mut self, _time: &Time, parameter: &Parameter) -> Values {
+        match self.value {
+            Values::Literal(literal) => 
+                Values::make_literal(literal.value().clamp(parameter.min(), parameter.max())),
+            Values::Percentage(_) => self.value,
+        }
     }
 
     fn value(&self) -> Values {
