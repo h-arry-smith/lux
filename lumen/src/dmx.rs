@@ -11,6 +11,10 @@ impl Dmx {
     pub fn from_factor(factor: f64) -> Self {
         Self((255.0 * factor).round() as u8)
     }
+
+    pub fn byte(&self) -> u8 {
+        self.0
+    }
 }
 
 pub struct DmxString {

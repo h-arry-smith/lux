@@ -13,13 +13,13 @@ impl Address {
         Self { universe, address }
     }
 
-    pub fn index(&self) -> usize {
+    pub fn universe_index(&self) -> usize {
         // Humans use 1.001 as the first universe, but its index would be -1 of
         // the human readable format.
         (self.universe - 1) as usize
     }
 
-    pub fn address(&self) -> usize {
+    pub fn address_index(&self) -> usize {
         // Humans use 1.001 as the first address, but its index would be -1 of
         // the human readable format.
         (self.address - 1) as usize

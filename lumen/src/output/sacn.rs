@@ -1,6 +1,41 @@
 // Specification: https://tsp.esta.org/tsp/documents/docs/ANSI_E1-31-2018.pdf
 
-use crate::dmx::Dmx;
+pub struct DataPacket<'a> {
+    root_layer: RootLayer,
+    framing_layer: DataPacketFramingLayer,
+    dmp_layer: DMPLayer<'a>,
+}
+
+impl<'a> DataPacket<'a> {
+    fn new(
+        universe_data: &'a [u8],
+        universe_number: usize,
+        source_name: &str,
+        priority: Option<u8>,
+        sync_address: u16,
+        seq_number: u8,
+        options: u8,
+        cid: [u8; 16],
+    ) -> Self {
+        let dmp_layer = DMPLayer::new(universe_data);
+        let framing_layer = DataPacketFramingLayer::new(
+            dmp_layer.len() as u16,
+            source_name,
+            priority,
+            sync_address,
+            seq_number,
+            options,
+            universe_number as u16,
+        );
+        let root_layer = RootLayer::new(framing_layer.len() as u16, VECTOR_E131_DATA_PACKET, cid);
+
+        Self {
+            root_layer,
+            framing_layer,
+            dmp_layer,
+        }
+    }
+}
 
 // 5 use of the ACN Root Layer Protocol
 // 5.1 Preamble Size - Sources shall set the Preamble Size to 0x0010
@@ -31,6 +66,8 @@ struct RootLayer {
 
 impl RootLayer {
     fn new(length: u16, vector: u32, cid: [u8; 16]) -> Self {
+        let length = length + 22;
+
         Self {
             preamble_size: ROOT_LAYER_POSTAMBLE_SIZE,
             postamble_size: ROOT_LAYER_POSTAMBLE_SIZE,
@@ -92,13 +129,16 @@ impl DataPacketFramingLayer {
         options: u8,
         universe: u16,
     ) -> Self {
+        let length = length + 77;
+
         // 6.2.2 E1.31 Data Packet: Source Name
         // A user-assigned name provided by the source of the packet for use in
         // displaying the identity of a source to a user. There is no mechanism,
         // other than user configuration, to ensure uniqueness of this name. The
         // source name shall be null-terminated.
-        let mut source_name = String::from_utf8(source_name.bytes().take(63).collect())
-            .unwrap_or_else(|_| format!("{:.63}", "bad name"));
+        let source_name = String::from_utf8(source_name.bytes().take(63).collect())
+            .unwrap_or_else(|_| "bad name".to_string());
+        let mut source_name = format!("{: <63}", source_name);
         source_name.push(0x00 as char);
 
         // 6.2.3 E1.31 Data Packet: Priority
@@ -126,6 +166,10 @@ impl DataPacketFramingLayer {
             options,
             universe,
         }
+    }
+
+    fn len(&self) -> usize {
+        (self.flags_and_length & 0x0fff) as usize
     }
 }
 
@@ -180,5 +224,9 @@ impl<'a> DMPLayer<'a> {
             property_value_count: (property_values.len() + 1) as u16,
             property_values,
         }
+    }
+
+    fn len(&self) -> usize {
+        11 + self.property_values.len()
     }
 }

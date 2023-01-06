@@ -18,13 +18,13 @@ impl Multiverse {
     }
 
     pub fn map_string(&mut self, address: &Address, dmx_string: &DmxString) {
-        match self.universes.get_mut(&address.index()) {
+        match self.universes.get_mut(&address.universe_index()) {
             Some(universe) => universe.map_string(address, dmx_string),
             None => {
                 // If we don't have that universe allocated, let's make it.
-                let mut universe = Universe::new(address.index());
+                let mut universe = Universe::new(address.universe_index());
                 universe.map_string(address, dmx_string);
-                self.universes.insert(address.index(), universe);
+                self.universes.insert(address.universe_index(), universe);
             }
         }
     }
@@ -37,7 +37,7 @@ impl Default for Multiverse {
 }
 
 #[derive(Debug)]
-struct Universe {
+pub struct Universe {
     index: usize,
     values: [Dmx; 512],
 }
@@ -51,7 +51,7 @@ impl Universe {
     }
 
     fn map_string(&mut self, address: &Address, dmx_string: &DmxString) {
-        let start = address.address();
+        let start = address.address_index();
 
         // TODO: If the dmx string doesn't fit we should really propogate some
         //       error.
@@ -62,5 +62,13 @@ impl Universe {
         for (i, value) in dmx_string.iter().enumerate() {
             self.values[start + i] = *value;
         }
+    }
+
+    pub fn bytes(&self) -> &[u8] {
+        &self.values.map(|dmx| dmx.byte())
+    }
+
+    pub fn universe_number(&self) -> usize {
+        self.index + 1
     }
 }
