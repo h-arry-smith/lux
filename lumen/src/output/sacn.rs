@@ -64,7 +64,7 @@ const ROOT_LAYER_FLAGS: u16 = 0x7000;
 // packet contains E1.31 Data, or to VECTOR_ROOT_E131_EXTENDED if the packet is
 // for Universe Discovery or for Synchronization.
 const VECTOR_ROOT_E131_DATA: u32 = 0x0000_0004;
-const VECTOR_ROOT_E131_EXTENDED: u32 = 0x0000_0008;
+const _VECTOR_ROOT_E131_EXTENDED: u32 = 0x0000_0008;
 
 struct RootLayer<'a> {
     preamble_size: u16,
