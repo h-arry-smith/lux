@@ -1,23 +1,28 @@
 // Specification: https://tsp.esta.org/tsp/documents/docs/ANSI_E1-31-2018.pdf
 
+use byteorder::{ByteOrder, NetworkEndian};
+
+use crate::universe::Universe;
+
+pub const MAX_PACKET_LENGTH: usize = 638;
+
 pub struct DataPacket<'a> {
-    root_layer: RootLayer,
+    root_layer: RootLayer<'a>,
     framing_layer: DataPacketFramingLayer,
-    dmp_layer: DMPLayer<'a>,
+    dmp_layer: DMPLayer,
 }
 
 impl<'a> DataPacket<'a> {
-    fn new(
-        universe_data: &'a [u8],
-        universe_number: usize,
+    pub fn new(
+        universe: &Universe,
         source_name: &str,
         priority: Option<u8>,
         sync_address: u16,
         seq_number: u8,
         options: u8,
-        cid: [u8; 16],
+        cid: &'a [u8; 16],
     ) -> Self {
-        let dmp_layer = DMPLayer::new(universe_data);
+        let dmp_layer = DMPLayer::new(universe.bytes());
         let framing_layer = DataPacketFramingLayer::new(
             dmp_layer.len() as u16,
             source_name,
@@ -25,15 +30,21 @@ impl<'a> DataPacket<'a> {
             sync_address,
             seq_number,
             options,
-            universe_number as u16,
+            universe.universe_number() as u16,
         );
-        let root_layer = RootLayer::new(framing_layer.len() as u16, VECTOR_E131_DATA_PACKET, cid);
+        let root_layer = RootLayer::new(framing_layer.len() as u16, VECTOR_ROOT_E131_DATA, cid);
 
         Self {
             root_layer,
             framing_layer,
             dmp_layer,
         }
+    }
+
+    pub fn pack(&self, buf: &mut [u8]) {
+        self.root_layer.pack(buf);
+        self.framing_layer.pack(buf);
+        self.dmp_layer.pack(buf);
     }
 }
 
@@ -55,27 +66,36 @@ const ROOT_LAYER_FLAGS: u16 = 0x7000;
 const VECTOR_ROOT_E131_DATA: u32 = 0x0000_0004;
 const VECTOR_ROOT_E131_EXTENDED: u32 = 0x0000_0008;
 
-struct RootLayer {
+struct RootLayer<'a> {
     preamble_size: u16,
     postamble_size: u16,
     acn_packet_identifier: [u8; 12],
     flags_and_length: u16,
     vector: u32,
-    cid: [u8; 16],
+    cid: &'a [u8; 16],
 }
 
-impl RootLayer {
-    fn new(length: u16, vector: u32, cid: [u8; 16]) -> Self {
+impl<'a> RootLayer<'a> {
+    fn new(length: u16, vector: u32, cid: &'a [u8; 16]) -> Self {
         let length = length + 22;
 
         Self {
-            preamble_size: ROOT_LAYER_POSTAMBLE_SIZE,
+            preamble_size: ROOT_LAYER_PREAMBLE_SIZE,
             postamble_size: ROOT_LAYER_POSTAMBLE_SIZE,
             acn_packet_identifier: ACN_PACKET_IDENTIFIER,
             flags_and_length: ROOT_LAYER_FLAGS | length & 0x0fff,
             vector,
             cid,
         }
+    }
+
+    fn pack(&self, buf: &mut [u8]) {
+        NetworkEndian::write_u16(&mut buf[0..2], self.preamble_size);
+        NetworkEndian::write_u16(&mut buf[2..4], self.postamble_size);
+        buf[4..16].copy_from_slice(&self.acn_packet_identifier);
+        NetworkEndian::write_u16(&mut buf[16..18], self.flags_and_length);
+        NetworkEndian::write_u32(&mut buf[18..22], self.vector);
+        buf[22..38].copy_from_slice(self.cid);
     }
 }
 
@@ -168,6 +188,17 @@ impl DataPacketFramingLayer {
         }
     }
 
+    fn pack(&self, buf: &mut [u8]) {
+        NetworkEndian::write_u16(&mut buf[38..40], self.flags_and_length);
+        NetworkEndian::write_u32(&mut buf[40..44], self.vector);
+        buf[44..108].copy_from_slice(self.source_name.as_bytes());
+        buf[108] = self.priority;
+        NetworkEndian::write_u16(&mut buf[109..111], self.sync_address);
+        buf[111] = self.seq_number;
+        buf[112] = self.options;
+        NetworkEndian::write_u16(&mut buf[113..115], self.universe);
+    }
+
     fn len(&self) -> usize {
         (self.flags_and_length & 0x0fff) as usize
     }
@@ -195,18 +226,18 @@ const ADDRESS_INCREMENT: u16 = 0x0001;
 // The first octet of the property values field shall be the DMX512-A [DMX] START Code
 const DMX_START_CODE: u8 = 0x00;
 
-struct DMPLayer<'a> {
+struct DMPLayer {
     flags_and_length: u16,
     vector: u8,
     address_and_data_type: u8,
     first_property_address: u16,
     address_increment: u16,
     property_value_count: u16,
-    property_values: &'a [u8],
+    property_values: [u8; 512],
 }
 
-impl<'a> DMPLayer<'a> {
-    fn new(property_values: &'a [u8]) -> Self {
+impl DMPLayer {
+    fn new(property_values: [u8; 512]) -> Self {
         // The DMP Layer PDU length is computed starting with octet 115 and
         // continuing through the last property value provided in the DMP PDU
         // (octet 637 for a full payload).
@@ -224,6 +255,17 @@ impl<'a> DMPLayer<'a> {
             property_value_count: (property_values.len() + 1) as u16,
             property_values,
         }
+    }
+
+    fn pack(&self, buf: &mut [u8]) {
+        NetworkEndian::write_u16(&mut buf[115..117], self.flags_and_length);
+        buf[117] = self.vector;
+        buf[118] = self.address_and_data_type;
+        NetworkEndian::write_u16(&mut buf[119..121], self.first_property_address);
+        NetworkEndian::write_u16(&mut buf[121..123], self.address_increment);
+        NetworkEndian::write_u16(&mut buf[123..125], self.property_value_count);
+        buf[125] = DMX_START_CODE;
+        buf[126..(126 + self.property_values.len())].copy_from_slice(&self.property_values)
     }
 
     fn len(&self) -> usize {
