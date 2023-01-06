@@ -64,8 +64,8 @@ impl Universe {
         }
     }
 
-    pub fn bytes(&self) -> &[u8] {
-        &self.values.map(|dmx| dmx.byte())
+    pub fn bytes(&self) -> [u8; 512] {
+        self.values.map(|dmx| dmx.byte())
     }
 
     pub fn universe_number(&self) -> usize {

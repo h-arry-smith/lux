@@ -25,7 +25,7 @@ impl SACNOutputter {
         }
     }
 
-    pub fn send_universe(&mut self, universe: Universe) {
+    pub fn send_universe(&mut self, universe: &Universe) {
         let mut buf = [0; MAX_PACKET_LENGTH];
         self.pack_data_packet(&mut buf, universe);
 
@@ -34,11 +34,10 @@ impl SACNOutputter {
         // TODO: Send a universe via an established connection to a server
     }
 
-    pub fn pack_data_packet(&mut self, buf: &mut [u8], universe: Universe) {
+    pub fn pack_data_packet(&mut self, buf: &mut [u8], universe: &Universe) {
         // TODO: Support the various options in the struct below
         let packet = DataPacket::new(
-            universe.bytes(),
-            universe.universe_number(),
+            universe,
             &self.source_name,
             None,
             0,
