@@ -5,6 +5,7 @@ use byteorder::{ByteOrder, NetworkEndian};
 use crate::universe::Universe;
 
 pub const MAX_PACKET_LENGTH: usize = 638;
+pub const ACN_SDT_MULTICAST_PORT: u16 = 5568;
 
 pub struct DataPacket<'a> {
     root_layer: RootLayer<'a>,

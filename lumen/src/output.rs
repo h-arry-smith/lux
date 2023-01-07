@@ -1,3 +1,8 @@
+use std::{
+    net::{ToSocketAddrs, UdpSocket},
+    time::{Duration, Instant},
+};
+
 use crate::universe::Universe;
 
 use self::sacn::{DataPacket, MAX_PACKET_LENGTH};
@@ -7,16 +12,62 @@ pub mod sacn;
 // TODO: Find a common trait for output types to provide same interace for
 //       different protocols, when we have more than just SACN :)
 
+pub enum NetworkState {
+    Uninitialized,
+    Bound,
+    Connected,
+}
+
+pub struct NetworkOutput {
+    socket: Option<UdpSocket>,
+    state: NetworkState,
+    last_connection_attempt: Instant,
+}
+
+impl NetworkOutput {
+    pub fn new() -> Self {
+        Self {
+            socket: None,
+            state: NetworkState::Uninitialized,
+            last_connection_attempt: Instant::now(),
+        }
+    }
+
+    pub fn bind(&mut self, addr: impl ToSocketAddrs) -> Result<(), std::io::Error> {
+        let socket = UdpSocket::bind(addr)?;
+        self.socket = Some(socket);
+        Ok(())
+    }
+
+    pub fn try_connect(&mut self, addr: impl ToSocketAddrs) -> Result<(), std::io::Error> {
+        if self.last_connection_attempt.elapsed() > Duration::new(0, 1_000_000_000 / 2) {
+            self.connect(addr)
+        } else {
+            self.last_connection_attempt = Instant::now();
+            Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "not ready to reconnect",
+            ))
+        }
+    }
+
+    fn connect(&mut self, addr: impl ToSocketAddrs) -> Result<(), std::io::Error> {
+        self.socket.as_mut().unwrap().connect(addr)?;
+        self.state = NetworkState::Connected;
+        Ok(())
+    }
+}
+
 // TODO: Implementing a simple unicast for universe output, but should also
 //       support universe multicasting
 
-pub struct SACNOutputter {
+pub struct SACN {
     source_name: String,
     cid: uuid::Uuid,
     seq_number: u8,
 }
 
-impl SACNOutputter {
+impl SACN {
     pub fn new(source_name: String, cid: uuid::Uuid) -> Self {
         Self {
             source_name,

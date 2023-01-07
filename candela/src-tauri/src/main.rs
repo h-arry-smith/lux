@@ -6,6 +6,7 @@
 use lumen::{
     address::Address,
     fixture_set::ResolvedFixtureMap,
+    output::{sacn::ACN_SDT_MULTICAST_PORT, NetworkOutput},
     parameter::{Param, Parameter},
     patch::FixtureProfile,
     timecode::Source,
@@ -90,6 +91,7 @@ fn init_tick(window: Window) {
 fn resolve(
     lockable_environment: State<LockableEnvironment>,
     source: State<Mutex<Source>>,
+    output: State<Mutex<NetworkOutput>>,
 ) -> ResolvedFixtureMap {
     let mut env = lockable_environment.env.lock().unwrap();
     let source = source.lock().unwrap();
@@ -119,11 +121,17 @@ fn main() {
         environment.fixtures.create_with_id(n);
     }
 
+    let output = NetworkOutput::new();
+    let output = output
+        .bind("127.0.0.1:12345".to_string())
+        .expect("could not bind output");
+
     tauri::Builder::default()
         .manage(LockableEnvironment {
             env: Mutex::new(environment),
         })
         .manage(Mutex::new(source))
+        .manage(Mutex::new(output))
         .invoke_handler(tauri::generate_handler![
             init_tick,
             on_text_change,
@@ -131,7 +139,7 @@ fn main() {
             start_time,
             pause_time,
             stop_time,
-            resolve
+            resolve,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
