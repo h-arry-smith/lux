@@ -18,6 +18,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             let mut network = Network::new();
             network.bind("127.0.0.1:12345");
             network.connect(format!("127.0.0.1:{}", ACN_SDT_MULTICAST_PORT));
+            app_handle.emit_all("network/connected", ()).unwrap();
             app_handle.manage(Mutex::new(network));
             Ok(())
         })
@@ -45,7 +46,7 @@ impl Network {
     }
 
     pub fn try_connect(&mut self, addr: impl ToSocketAddrs) {
-        if self.last_connection_attempt.elapsed() > Duration::new(0, 1_000_000_000 / 2) {
+        if self.last_connection_attempt.elapsed() > Duration::new(0, 1_000_000_000) {
             self.connect(addr);
         }
     }
@@ -58,10 +59,12 @@ impl Network {
         }
     }
 
-    pub fn output_multiverse(&mut self, multiverse: &Multiverse) {
+    pub fn output_multiverse(&mut self, multiverse: &Multiverse) -> Result<(), std::io::Error> {
         for universe in multiverse.universes() {
-            self.output.send_data(universe);
+            self.output.send_data(universe)?;
         }
+
+        Ok(())
     }
 
     pub fn state(&self) -> NetworkState {

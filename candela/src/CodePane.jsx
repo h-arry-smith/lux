@@ -5,7 +5,7 @@ export function CodePane() {
   let [consoleText, setConsoleText] = useState("temp console");
 
   return (
-    <div className="flex flex-col h-screen w-full">
+    <div className="flex flex-col h-full w-full">
       <div className="h-2/3">
         <CodeEditor setConsoleText={setConsoleText} />
       </div>

@@ -91,8 +91,11 @@ fn init_tick(window: Window) {
     });
 }
 
+// TODO: This has become a very large general tick function, which it should
+//       not be, and all this should be factored out.
 #[tauri::command]
 fn resolve(
+    window: Window,
     lockable_environment: State<LockableEnvironment>,
     source: State<Mutex<Source>>,
     network: State<Mutex<Network>>,
@@ -103,6 +106,12 @@ fn resolve(
 
     if network.state() == NetworkState::Bound {
         network.try_connect(format!("127.0.0.1:{}", ACN_SDT_MULTICAST_PORT));
+
+        if network.state() == NetworkState::Connected {
+            // TODO: Must be a way of the plugin to handle its emits when handling
+            //       connection and reconnections.
+            window.emit("network/connected", ()).unwrap();
+        }
     }
 
     let mut dimmer = FixtureProfile::new();
@@ -126,8 +135,9 @@ fn resolve(
         multiverse.map_string(patch.get_address(id), &dmx_string);
     }
 
-    if network.state() == NetworkState::Connected {
-        network.output_multiverse(&multiverse);
+    if network.state() == NetworkState::Connected && network.output_multiverse(&multiverse).is_err()
+    {
+        window.emit("network/disconnected", ()).unwrap();
     }
 
     resolved_map

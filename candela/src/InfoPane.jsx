@@ -23,7 +23,7 @@ export function InfoPane() {
 
   return (
     <div className="flex flex-col h-full w-full">
-      <div className="h-full">
+      <div className="flex-1">
         { resolvedFixtures && Object.entries(resolvedFixtures).map(([id, parameters]) => {
           return (
             <Fixture
