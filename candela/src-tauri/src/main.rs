@@ -3,10 +3,11 @@
     windows_subsystem = "windows"
 )]
 
+use crate::plugins::network::Network;
 use lumen::{
     address::Address,
     fixture_set::ResolvedFixtureMap,
-    output::{sacn::ACN_SDT_MULTICAST_PORT, NetworkOutput, NetworkState},
+    output::{sacn::ACN_SDT_MULTICAST_PORT, NetworkState},
     parameter::{Param, Parameter},
     patch::FixtureProfile,
     timecode::Source,
@@ -14,14 +15,10 @@ use lumen::{
     Environment, Patch,
 };
 use lux::{evaluator::Evaluator, parser::parse};
-use std::{
-    fmt::Write,
-    net::ToSocketAddrs,
-    sync::Mutex,
-    thread,
-    time::{Duration, Instant},
-};
+use std::{fmt::Write, sync::Mutex, thread, time::Duration};
 use tauri::{State, Window};
+
+mod plugins;
 
 #[tauri::command]
 fn on_text_change(source: String, lockable_environment: State<LockableEnvironment>) -> String {
@@ -140,51 +137,6 @@ struct LockableEnvironment {
     env: Mutex<Environment>,
 }
 
-struct Network {
-    output: NetworkOutput,
-    last_connection_attempt: Instant,
-}
-
-impl Network {
-    fn new() -> Self {
-        Self {
-            output: NetworkOutput::new(),
-            last_connection_attempt: Instant::now(),
-        }
-    }
-
-    fn bind(&mut self, addr: impl ToSocketAddrs) {
-        match self.output.bind(addr) {
-            Ok(()) => println!("bound to address"),
-            Err(e) => eprintln!("could not bind: {e}"),
-        }
-    }
-
-    fn try_connect(&mut self, addr: impl ToSocketAddrs) {
-        if self.last_connection_attempt.elapsed() > Duration::new(0, 1_000_000_000 / 2) {
-            self.connect(addr);
-        }
-    }
-
-    fn connect(&mut self, addr: impl ToSocketAddrs) {
-        self.last_connection_attempt = Instant::now();
-        match self.output.connect(addr) {
-            Ok(()) => println!("connected to sacn..."),
-            Err(e) => println!("failed to connect to sacn: {e}"),
-        }
-    }
-
-    fn output_multiverse(&mut self, multiverse: &Multiverse) {
-        for universe in multiverse.universes() {
-            self.output.send_data(universe);
-        }
-    }
-
-    fn state(&self) -> NetworkState {
-        self.output.state
-    }
-}
-
 fn main() {
     let mut environment = Environment::new();
     let source = Source::new(lumen::timecode::FrameRate::Thirty);
@@ -193,16 +145,12 @@ fn main() {
         environment.fixtures.create_with_id(n);
     }
 
-    let mut network = Network::new();
-    network.bind("127.0.0.1:12345");
-    network.connect(format!("127.0.0.1:{}", ACN_SDT_MULTICAST_PORT));
-
     tauri::Builder::default()
+        .plugin(plugins::network::init())
         .manage(LockableEnvironment {
             env: Mutex::new(environment),
         })
         .manage(Mutex::new(source))
-        .manage(Mutex::new(network))
         .invoke_handler(tauri::generate_handler![
             init_tick,
             on_text_change,
