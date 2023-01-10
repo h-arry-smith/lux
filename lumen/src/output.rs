@@ -1,7 +1,4 @@
-use std::{
-    net::{ToSocketAddrs, UdpSocket},
-    time::{Duration, Instant},
-};
+use std::net::{ToSocketAddrs, UdpSocket};
 
 use crate::universe::Universe;
 
@@ -9,9 +6,12 @@ use self::sacn::{DataPacket, MAX_PACKET_LENGTH};
 
 pub mod sacn;
 
+const UUID: &str = "ebe9c992-f874-43b5-a303-91498162881b";
+
 // TODO: Find a common trait for output types to provide same interace for
 //       different protocols, when we have more than just SACN :)
 
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub enum NetworkState {
     Uninitialized,
     Bound,
@@ -20,41 +20,45 @@ pub enum NetworkState {
 
 pub struct NetworkOutput {
     socket: Option<UdpSocket>,
-    state: NetworkState,
-    last_connection_attempt: Instant,
+    protocol: SACN,
+    pub state: NetworkState,
 }
 
 impl NetworkOutput {
     pub fn new() -> Self {
         Self {
             socket: None,
+            protocol: SACN::new(
+                "Candela Test".to_string(),
+                uuid::Uuid::parse_str(UUID).unwrap(),
+            ),
             state: NetworkState::Uninitialized,
-            last_connection_attempt: Instant::now(),
         }
     }
 
     pub fn bind(&mut self, addr: impl ToSocketAddrs) -> Result<(), std::io::Error> {
         let socket = UdpSocket::bind(addr)?;
         self.socket = Some(socket);
+        self.state = NetworkState::Bound;
         Ok(())
     }
 
-    pub fn try_connect(&mut self, addr: impl ToSocketAddrs) -> Result<(), std::io::Error> {
-        if self.last_connection_attempt.elapsed() > Duration::new(0, 1_000_000_000 / 2) {
-            self.connect(addr)
-        } else {
-            self.last_connection_attempt = Instant::now();
-            Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                "not ready to reconnect",
-            ))
-        }
-    }
-
-    fn connect(&mut self, addr: impl ToSocketAddrs) -> Result<(), std::io::Error> {
+    pub fn connect(&mut self, addr: impl ToSocketAddrs) -> Result<(), std::io::Error> {
         self.socket.as_mut().unwrap().connect(addr)?;
         self.state = NetworkState::Connected;
         Ok(())
+    }
+
+    pub fn send_data(&mut self, universe: &Universe) {
+        if let Some(socket) = &self.socket {
+            self.protocol.send_universe(universe, socket);
+        }
+    }
+}
+
+impl Default for NetworkOutput {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -76,13 +80,16 @@ impl SACN {
         }
     }
 
-    pub fn send_universe(&mut self, universe: &Universe) {
+    pub fn send_universe(&mut self, universe: &Universe, socket: &UdpSocket) {
         let mut buf = [0; MAX_PACKET_LENGTH];
         self.pack_data_packet(&mut buf, universe);
 
-        self.seq_number += 1;
+        self.seq_number = self.seq_number.wrapping_add(1);
 
-        // TODO: Send a universe via an established connection to a server
+        // TODO: Propogate this error much more nicely and deal with it in the
+        //       common network output, reseting state to an unconnected state
+        //       if necessary.
+        socket.send(&buf).expect("failed to send");
     }
 
     pub fn pack_data_packet(&mut self, buf: &mut [u8], universe: &Universe) {

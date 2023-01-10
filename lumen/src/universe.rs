@@ -28,6 +28,10 @@ impl Multiverse {
             }
         }
     }
+
+    pub fn universes(&self) -> impl Iterator<Item = &Universe> {
+        self.universes.values()
+    }
 }
 
 impl Default for Multiverse {
