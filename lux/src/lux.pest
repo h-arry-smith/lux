@@ -9,7 +9,7 @@ id = @{ ASCII_DIGIT+ }
 
 apply = { ident ~ ":" ~ generator }
 generator = { fade | static_value }
-fade = { static_value ~ "->" ~ static_value }
+fade = { static_value ~ "->" ~ static_value ~ time? }
 static_value = { percentage | literal }
 
 percentage = @{ numeric ~ "%" }
@@ -17,5 +17,6 @@ literal = @{ numeric }
 
 ident = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
 numeric = @{ ("+" | "-")? ~ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? }
+time = @{ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? ~ "s" }
 
 WHITESPACE = _{ " " | "\t" }

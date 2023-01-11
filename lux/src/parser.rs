@@ -81,7 +81,22 @@ fn parse_fade(mut pairs: pest::iterators::Pairs<Rule>) -> AstNode {
     let start = parse_static_value(pairs.next().unwrap());
     let end = parse_static_value(pairs.next().unwrap());
 
-    AstNode::Fade(Box::new(start), Box::new(end))
+    let time = match pairs.next() {
+        Some(time) => parse_time(time),
+        None => AstNode::Time(3.0),
+    };
+
+    AstNode::Fade(Box::new(start), Box::new(end), Box::new(time))
+}
+
+fn parse_time(pair: pest::iterators::Pair<Rule>) -> AstNode {
+    let seconds = pair
+        .as_str()
+        .strip_suffix('s')
+        .expect("time did not end with s")
+        .parse::<f64>()
+        .expect("not a valid time");
+    AstNode::Time(seconds)
 }
 
 fn parse_literal(pair: pest::iterators::Pair<Rule>) -> AstNode {

@@ -9,5 +9,6 @@ pub enum AstNode {
     FixtureID(usize),
     QRange(Box<AstNode>, Box<AstNode>),
     Static(Box<AstNode>),
-    Fade(Box<AstNode>, Box<AstNode>),
+    Fade(Box<AstNode>, Box<AstNode>, Box<AstNode>),
+    Time(f64),
 }

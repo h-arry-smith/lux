@@ -123,7 +123,7 @@ impl<'a> Evaluator<'a> {
     ) -> Result<BoxedGenerator, EvaluationError> {
         let generator = match generator {
             AstNode::Static(value) => self.evaluate_static(value)?,
-            AstNode::Fade(start, end) => self.evaluate_fade(start, end)?,
+            AstNode::Fade(start, end, time) => self.evaluate_fade(start, end, time)?,
             _ => {
                 return self.evaluation_error(format!(
                     "Expected a valid generator but got: {:?}",
@@ -159,11 +159,20 @@ impl<'a> Evaluator<'a> {
         &mut self,
         start: &AstNode,
         end: &AstNode,
+        time: &AstNode,
     ) -> Result<BoxedGenerator, EvaluationError> {
         let start = self.evaluate_generator(start)?;
         let end = self.evaluate_generator(end)?;
+        let time = self.evaluate_time(time)?;
 
-        Ok(Box::new(Fade::new(start, end, Duration::new(3, 0))))
+        Ok(Box::new(Fade::new(start, end, time)))
+    }
+
+    fn evaluate_time(&mut self, time: &AstNode) -> Result<Duration, EvaluationError> {
+        match time {
+            AstNode::Time(seconds) => Ok(Duration::from_secs_f64(*seconds)),
+            _ => self.evaluation_error(format!("Expected a time but got: {:?}", time)),
+        }
     }
 
     fn evaluate_select(&mut self, query: &AstNode, statements: &Vec<AstNode>) -> EvaluationResult {
