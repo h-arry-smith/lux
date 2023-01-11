@@ -49,9 +49,20 @@ impl NetworkOutput {
         Ok(())
     }
 
-    pub fn send_data(&mut self, universe: &Universe) {
+    pub fn send_data(&mut self, universe: &Universe) -> Result<(), std::io::Error> {
         if let Some(socket) = &self.socket {
-            self.protocol.send_universe(universe, socket);
+            match self.protocol.send_universe(universe, socket) {
+                Ok(_) => Ok(()),
+                Err(err) => {
+                    self.state = NetworkState::Bound;
+                    Err(err)
+                }
+            }
+        } else {
+            Err(std::io::Error::new(
+                std::io::ErrorKind::NotConnected,
+                "no socket",
+            ))
         }
     }
 }
@@ -80,7 +91,11 @@ impl SACN {
         }
     }
 
-    pub fn send_universe(&mut self, universe: &Universe, socket: &UdpSocket) {
+    pub fn send_universe(
+        &mut self,
+        universe: &Universe,
+        socket: &UdpSocket,
+    ) -> Result<usize, std::io::Error> {
         let mut buf = [0; MAX_PACKET_LENGTH];
         self.pack_data_packet(&mut buf, universe);
 
@@ -89,7 +104,7 @@ impl SACN {
         // TODO: Propogate this error much more nicely and deal with it in the
         //       common network output, reseting state to an unconnected state
         //       if necessary.
-        socket.send(&buf).expect("failed to send");
+        socket.send(&buf)
     }
 
     pub fn pack_data_packet(&mut self, buf: &mut [u8], universe: &Universe) {
