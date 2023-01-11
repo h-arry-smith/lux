@@ -12,7 +12,7 @@
 // For now, we will start with a much simpler evaluation strategy, a single file
 // will create an Lumen Environment that can be handed off and executed.
 
-use std::fmt::Display;
+use std::{fmt::Display, time::Duration};
 
 use crate::ast::AstNode;
 use lumen::{
@@ -21,7 +21,7 @@ use lumen::{
     timecode::time::Time,
     track::Track,
     value::{
-        generator::{BoxedGenerator, Static},
+        generator::{BoxedGenerator, Fade, Static},
         Values,
     },
     Environment, Query, QueryBuilder, Step,
@@ -122,7 +122,8 @@ impl<'a> Evaluator<'a> {
         generator: &AstNode,
     ) -> Result<BoxedGenerator, EvaluationError> {
         let generator = match generator {
-            AstNode::Static(value) => self.evaluate_static_value(value)?,
+            AstNode::Static(value) => self.evaluate_static(value)?,
+            AstNode::Fade(start, end) => self.evaluate_fade(start, end)?,
             _ => {
                 return self.evaluation_error(format!(
                     "Expected a valid generator but got: {:?}",
@@ -134,10 +135,12 @@ impl<'a> Evaluator<'a> {
         Ok(generator)
     }
 
-    fn evaluate_static_value(
-        &mut self,
-        value: &AstNode,
-    ) -> Result<BoxedGenerator, EvaluationError> {
+    fn evaluate_static(&mut self, value: &AstNode) -> Result<BoxedGenerator, EvaluationError> {
+        let value = self.evaluate_value(value)?;
+        Ok(Box::new(Static::new(value)))
+    }
+
+    fn evaluate_value(&mut self, value: &AstNode) -> Result<Values, EvaluationError> {
         let value = match value {
             AstNode::Literal(value) => Values::make_literal(*value),
             AstNode::Percentage(value) => Values::make_percentage(*value),
@@ -149,7 +152,18 @@ impl<'a> Evaluator<'a> {
             }
         };
 
-        Ok(Box::new(Static::new(value)))
+        Ok(value)
+    }
+
+    fn evaluate_fade(
+        &mut self,
+        start: &AstNode,
+        end: &AstNode,
+    ) -> Result<BoxedGenerator, EvaluationError> {
+        let start = self.evaluate_generator(start)?;
+        let end = self.evaluate_generator(end)?;
+
+        Ok(Box::new(Fade::new(start, end, Duration::new(3, 0))))
     }
 
     fn evaluate_select(&mut self, query: &AstNode, statements: &Vec<AstNode>) -> EvaluationResult {

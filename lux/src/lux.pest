@@ -8,7 +8,8 @@ qrange = ${ id ~ ".." ~ id }
 id = @{ ASCII_DIGIT+ }
 
 apply = { ident ~ ":" ~ generator }
-generator = { static_value }
+generator = { fade | static_value }
+fade = { static_value ~ "->" ~ static_value }
 static_value = { percentage | literal }
 
 percentage = @{ numeric ~ "%" }

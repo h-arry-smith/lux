@@ -60,6 +60,7 @@ fn parse_generator(pair: pest::iterators::Pair<Rule>) -> AstNode {
 
     match pair.as_rule() {
         Rule::static_value => parse_static_value(pair),
+        Rule::fade => parse_fade(pair.into_inner()),
         _ => panic!("Unexpected generator: {}", pair.as_str()),
     }
 }
@@ -74,6 +75,13 @@ fn parse_static_value(pair: pest::iterators::Pair<Rule>) -> AstNode {
     };
 
     AstNode::Static(Box::new(value))
+}
+
+fn parse_fade(mut pairs: pest::iterators::Pairs<Rule>) -> AstNode {
+    let start = parse_static_value(pairs.next().unwrap());
+    let end = parse_static_value(pairs.next().unwrap());
+
+    AstNode::Fade(Box::new(start), Box::new(end))
 }
 
 fn parse_literal(pair: pest::iterators::Pair<Rule>) -> AstNode {
