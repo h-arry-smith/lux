@@ -1,9 +1,1 @@
-intensity: 20
-
-1..5 {
-	1..3 {
-		intensity: 10
-	}
-
-	intensity: 100
-}
+intensity: 100%

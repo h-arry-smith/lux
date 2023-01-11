@@ -122,7 +122,7 @@ impl<'a> Evaluator<'a> {
         generator: &AstNode,
     ) -> Result<BoxedGenerator, EvaluationError> {
         let generator = match generator {
-            AstNode::Numeric(number) => Box::new(Static::new(Values::make_literal(*number))),
+            AstNode::Static(value) => self.evaluate_static_value(value)?,
             _ => {
                 return self.evaluation_error(format!(
                     "Expected a valid generator but got: {:?}",
@@ -132,6 +132,24 @@ impl<'a> Evaluator<'a> {
         };
 
         Ok(generator)
+    }
+
+    fn evaluate_static_value(
+        &mut self,
+        value: &AstNode,
+    ) -> Result<BoxedGenerator, EvaluationError> {
+        let value = match value {
+            AstNode::Literal(value) => Values::make_literal(*value),
+            AstNode::Percentage(value) => Values::make_percentage(*value),
+            _ => {
+                return self.evaluation_error(format!(
+                    "Expected a valid static value but got: {:?}",
+                    value
+                ))
+            }
+        };
+
+        Ok(Box::new(Static::new(value)))
     }
 
     fn evaluate_select(&mut self, query: &AstNode, statements: &Vec<AstNode>) -> EvaluationResult {

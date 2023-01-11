@@ -59,14 +59,36 @@ fn parse_generator(pair: pest::iterators::Pair<Rule>) -> AstNode {
     let pair = pair.into_inner().next().unwrap();
 
     match pair.as_rule() {
-        Rule::numeric => parse_numeric(pair),
-        _ => panic!("Unexpected value: {}", pair.as_str()),
+        Rule::static_value => parse_static_value(pair),
+        _ => panic!("Unexpected generator: {}", pair.as_str()),
     }
 }
 
-fn parse_numeric(pair: pest::iterators::Pair<Rule>) -> AstNode {
+fn parse_static_value(pair: pest::iterators::Pair<Rule>) -> AstNode {
+    let pair = pair.into_inner().next().unwrap();
+
+    let value = match pair.as_rule() {
+        Rule::literal => parse_literal(pair),
+        Rule::percentage => parse_percentage(pair),
+        _ => panic!("Unexpected value for static generator: {}", pair.as_str()),
+    };
+
+    AstNode::Static(Box::new(value))
+}
+
+fn parse_literal(pair: pest::iterators::Pair<Rule>) -> AstNode {
     let number = pair.as_str().parse::<f64>().expect("not a valid float");
-    AstNode::Numeric(number)
+    AstNode::Literal(number)
+}
+
+fn parse_percentage(pair: pest::iterators::Pair<Rule>) -> AstNode {
+    let str = pair
+        .as_str()
+        .strip_suffix('%')
+        .expect("percentage value did not end with %");
+
+    let number = str.parse::<f64>().expect("not a valid float");
+    AstNode::Percentage(number)
 }
 
 fn parse_query(pair: pest::iterators::Pair<Rule>) -> AstNode {
