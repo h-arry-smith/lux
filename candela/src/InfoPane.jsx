@@ -4,6 +4,10 @@ import { appWindow } from "@tauri-apps/api/window"
 import { Timer } from "./Timer";
 import { Fixture } from "./Fixture";
 
+// FIXME: This info pane is rendering at the tick rate (60fps), which is totally
+//        unnecessary. It should only be rerendering what's changed when we come
+//        to architect this better.
+
 export function InfoPane() {
   let [resolvedFixtures, setResolvedFixtures] = useState({});
   
