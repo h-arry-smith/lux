@@ -50,8 +50,9 @@ impl Static {
 impl Generator for Static {
     fn generate(&mut self, _time: &Time, parameter: &Parameter) -> Values {
         match self.value {
-            Values::Literal(literal) => 
-                Values::make_literal(literal.value().clamp(parameter.min(), parameter.max())),
+            Values::Literal(literal) => {
+                Values::make_literal(literal.value().clamp(parameter.min(), parameter.max()))
+            }
             Values::Percentage(_) => self.value,
         }
     }
@@ -62,18 +63,15 @@ impl Generator for Static {
 }
 
 #[derive(Debug, Clone)]
-pub struct Fade<G> {
-    start: G,
-    end: G,
+pub struct Fade {
+    start: BoxedGenerator,
+    end: BoxedGenerator,
     duration: Duration,
     start_time: Option<Time>,
 }
 
-impl<G> Fade<G>
-where
-    G: Generator,
-{
-    pub fn new(start: G, end: G, duration: Duration) -> Self {
+impl Fade {
+    pub fn new(start: BoxedGenerator, end: BoxedGenerator, duration: Duration) -> Self {
         Self {
             start,
             end,
@@ -103,10 +101,7 @@ where
     }
 }
 
-impl<G> Generator for Fade<G>
-where
-    G: Generator + Clone + Send + Sync + 'static,
-{
+impl Generator for Fade {
     fn generate(&mut self, time: &Time, parameter: &Parameter) -> Values {
         let start = self.start.generate(time, parameter);
         let end = self.end.generate(time, parameter);
@@ -162,8 +157,8 @@ mod tests {
 
     #[test]
     fn fade_between_like_values() {
-        let start = Static::new(Values::make_literal(0.0));
-        let end = Static::new(Values::make_literal(100.0));
+        let start = Box::new(Static::new(Values::make_literal(0.0)));
+        let end = Box::new(Static::new(Values::make_literal(100.0)));
         let mut fade = Fade::new(start, end, Duration::new(2, 0));
         fade.set_start_time(Time::at(0, 0, 0, 0));
         let parameter = Parameter::new(0, 0.0, 100.0);
@@ -184,8 +179,8 @@ mod tests {
 
     #[test]
     fn fade_between_differing_values() {
-        let start = Static::new(Values::make_literal(25.0));
-        let end = Static::new(Values::make_percentage(100.0));
+        let start = Box::new(Static::new(Values::make_literal(25.0)));
+        let end = Box::new(Static::new(Values::make_percentage(100.0)));
         let mut fade = Fade::new(start, end, Duration::new(2, 0));
         fade.set_start_time(Time::at(0, 0, 0, 0));
         let parameter = Parameter::new(0, 25.0, 75.0);
