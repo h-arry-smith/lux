@@ -13,7 +13,7 @@ use crate::value::Values;
 
 pub type FixtureID = usize;
 
-type ParameterMap = HashMap<Param, BoxedGenerator>;
+type ParameterMap = HashMap<Param, Vec<BoxedGenerator>>;
 
 type ResolvedParameterMap = HashMap<Param, Values>;
 
@@ -38,23 +38,36 @@ impl Fixture {
         self.set(apply.parameter, apply.generator.clone());
     }
 
+    pub fn clear_parameter(&mut self, parameter: &Param) {
+        self.parameters.remove(parameter);
+    }
+
     fn set(&mut self, parameter: Param, generator: BoxedGenerator) {
-        self.parameters.insert(parameter, generator);
+        match self.parameters.get_mut(&parameter) {
+            Some(generator_vector) => {
+                generator_vector.push(generator);
+            }
+            None => {
+                self.parameters.insert(parameter, vec![generator]);
+            }
+        }
     }
 
     #[allow(clippy::borrowed_box)]
-    pub fn param(&self, parameter: Param) -> Option<&BoxedGenerator> {
+    pub fn parameters(&self, parameter: Param) -> Option<&Vec<BoxedGenerator>> {
         self.parameters.get(&parameter)
     }
 
     pub fn resolve(&mut self, time: &Time, profile: &FixtureProfile) -> ResolvedFixture {
         let mut resolved_fixture = ResolvedFixture::new(self.id);
-        for (param, generator) in self.parameters.iter_mut() {
+        for (param, generators) in self.parameters.iter_mut() {
             // It only makes sense for a resolved fixture to have params of the
             // target profile, as abstract params on the fixture will never be
             // converted to dmx.
             if let Some(parameter) = profile.get_parameter(param) {
-                resolved_fixture.set(*param, generator.generate(time, parameter));
+                for generator in generators {
+                    resolved_fixture.set(*param, generator.generate(time, parameter));
+                }
             }
         }
 
@@ -79,8 +92,10 @@ impl Clone for Fixture {
     fn clone(&self) -> Self {
         let mut fixture = Fixture::new(self.id);
 
-        for (param, generator) in self.parameters.iter() {
-            fixture.set(*param, generator.clone())
+        for (param, generators) in self.parameters.iter() {
+            for generator in generators {
+                fixture.set(*param, generator.clone())
+            }
         }
 
         fixture

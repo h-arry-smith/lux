@@ -61,9 +61,18 @@ impl FixtureSet {
     }
 
     pub fn apply_action(&mut self, action: &Action, time: Time) {
+        let mut visited = Vec::new();
+
         for apply_group in action.apply_groups.iter() {
-            for (_, fixture) in self.query(&apply_group.query) {
+            for (id, fixture) in self.query(&apply_group.query) {
                 for apply in apply_group.applies.iter() {
+                    // If we are applying to a fixture, parameter pair for the first time in this apply,
+                    // we should empty it of previous generators
+                    if !visited.contains(&(*id, apply.parameter)) {
+                        fixture.clear_parameter(&apply.parameter);
+                        visited.push((*id, apply.parameter));
+                    }
+
                     let mut apply = apply.clone();
                     apply.set_start_time(time);
                     fixture.apply(&apply);

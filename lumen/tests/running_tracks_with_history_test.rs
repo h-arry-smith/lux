@@ -31,7 +31,9 @@ mod single_track_moving_forward {
                 .fixtures
                 .get(&1)
                 .unwrap()
-                .param(Param::Intensity)
+                .parameters(Param::Intensity)
+                .unwrap()
+                .first()
                 .unwrap()
                 .value(),
             Values::make_literal(10.0)
@@ -58,7 +60,9 @@ mod single_track_moving_forward {
                 .fixtures
                 .get(&1)
                 .unwrap()
-                .param(Param::Intensity)
+                .parameters(Param::Intensity)
+                .unwrap()
+                .first()
                 .unwrap()
                 .value(),
             Values::make_literal(20.0)
@@ -88,7 +92,9 @@ mod single_track_moving_forward {
                 .fixtures
                 .get(&1)
                 .unwrap()
-                .param(Param::Intensity)
+                .parameters(Param::Intensity)
+                .unwrap()
+                .first()
                 .unwrap()
                 .value(),
             Values::make_literal(40.0)
@@ -116,7 +122,9 @@ mod single_track_moving_forward {
                 .fixtures
                 .get(&1)
                 .unwrap()
-                .param(Param::Intensity)
+                .parameters(Param::Intensity)
+                .unwrap()
+                .first()
                 .unwrap()
                 .value(),
             Values::make_literal(20.0)
@@ -148,7 +156,7 @@ mod single_track_moving_backwards {
             .fixtures
             .get(&1)
             .unwrap()
-            .param(Param::Intensity)
+            .parameters(Param::Intensity)
             .is_none())
     }
 
@@ -173,7 +181,9 @@ mod single_track_moving_backwards {
                 .fixtures
                 .get(&1)
                 .unwrap()
-                .param(Param::Intensity)
+                .parameters(Param::Intensity)
+                .unwrap()
+                .first()
                 .unwrap()
                 .value(),
             Values::make_literal(10.0)
@@ -201,7 +211,9 @@ mod single_track_moving_backwards {
                 .fixtures
                 .get(&2)
                 .unwrap()
-                .param(Param::Intensity)
+                .parameters(Param::Intensity)
+                .unwrap()
+                .first()
                 .unwrap()
                 .value(),
             Values::make_literal(10.0)
@@ -344,7 +356,7 @@ mod multi_track_moving_backward {
             .fixtures
             .get(&1)
             .unwrap()
-            .param(Param::Intensity)
+            .parameters(Param::Intensity)
             .is_none())
     }
 
@@ -379,7 +391,9 @@ mod multi_track_moving_backward {
                 .fixtures
                 .get(&1)
                 .unwrap()
-                .param(Param::Intensity)
+                .parameters(Param::Intensity)
+                .unwrap()
+                .first()
                 .unwrap()
                 .value(),
             Values::make_literal(20.0)
@@ -428,7 +442,9 @@ mod multi_track_moving_backward {
                 .fixtures
                 .get(&1)
                 .unwrap()
-                .param(Param::Intensity)
+                .parameters(Param::Intensity)
+                .unwrap()
+                .first()
                 .unwrap()
                 .value(),
             Values::make_literal(30.0)
@@ -474,7 +490,9 @@ mod time_moving_both_directions {
                 .fixtures
                 .get(&1)
                 .unwrap()
-                .param(Param::Intensity)
+                .parameters(Param::Intensity)
+                .unwrap()
+                .first()
                 .unwrap()
                 .value(),
             Values::make_literal(40.0)
