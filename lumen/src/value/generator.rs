@@ -11,8 +11,10 @@ use super::Values;
 
 pub type BoxedGenerator = Box<dyn Generator + Send + Sync>;
 
+// TODO: This file needs splitting out to multiple other files
+
 pub trait Generator: Debug + GeneratorClone {
-    fn generate(&mut self, time: &Time, parameter: &Parameter) -> Values;
+    fn generate(&mut self, time: &Time, parameter: &Parameter) -> Option<Values>;
     fn value(&self) -> Values;
     fn set_start_time(&mut self, _time: Time) {}
 }
@@ -48,12 +50,12 @@ impl Static {
 }
 
 impl Generator for Static {
-    fn generate(&mut self, _time: &Time, parameter: &Parameter) -> Values {
+    fn generate(&mut self, _time: &Time, parameter: &Parameter) -> Option<Values> {
         match self.value {
-            Values::Literal(literal) => {
-                Values::make_literal(literal.value().clamp(parameter.min(), parameter.max()))
-            }
-            Values::Percentage(_) => self.value,
+            Values::Literal(literal) => Some(Values::make_literal(
+                literal.value().clamp(parameter.min(), parameter.max()),
+            )),
+            Values::Percentage(_) => Some(self.value),
         }
     }
 
@@ -102,20 +104,28 @@ impl Fade {
 }
 
 impl Generator for Fade {
-    fn generate(&mut self, time: &Time, parameter: &Parameter) -> Values {
-        let start = self.start.generate(time, parameter);
-        let end = self.end.generate(time, parameter);
+    fn generate(&mut self, time: &Time, parameter: &Parameter) -> Option<Values> {
+        let start = self
+            .start
+            .generate(time, parameter)
+            .expect("a fade can not have a delayed value");
+        let end = self
+            .end
+            .generate(time, parameter)
+            .expect("a fade can not have a delayed value");
 
         let elapsed: Duration = (*time).into();
 
         match (start, end) {
             (Values::Literal(start), non_literal_end) => {
                 let end = non_literal_end.convert(&LiteralConverter::new(parameter));
-                Values::make_literal(self.fade_between(start, end, elapsed))
+                Some(Values::make_literal(self.fade_between(start, end, elapsed)))
             }
             (Values::Percentage(start), non_percentage_end) => {
                 let end = non_percentage_end.convert(&PercentageConverter::new(parameter));
-                Values::make_percentage(self.fade_between(start, end, elapsed))
+                Some(Values::make_percentage(
+                    self.fade_between(start, end, elapsed),
+                ))
             }
         }
     }
@@ -143,15 +153,15 @@ mod tests {
 
         assert_eq!(
             static_generator.generate(&time!(0 0 0 0 Thirty), &parameter),
-            Values::make_literal(50.0),
+            Some(Values::make_literal(50.0)),
         );
         assert_eq!(
             static_generator.generate(&time!(0 0 2 0 Thirty), &parameter),
-            Values::make_literal(50.0),
+            Some(Values::make_literal(50.0)),
         );
         assert_eq!(
             static_generator.generate(&time!(0 0 4 0 Thirty), &parameter),
-            Values::make_literal(50.0),
+            Some(Values::make_literal(50.0)),
         );
     }
 
@@ -165,15 +175,15 @@ mod tests {
 
         assert_eq!(
             fade.generate(&time!(0 0 0 0 Thirty), &parameter),
-            Values::make_literal(0.0)
+            Some(Values::make_literal(0.0))
         );
         assert_eq!(
             fade.generate(&time!(0 0 1 0 Thirty), &parameter),
-            Values::make_literal(50.0)
+            Some(Values::make_literal(50.0))
         );
         assert_eq!(
             fade.generate(&time!(0 0 2 0 Thirty), &parameter),
-            Values::make_literal(100.0)
+            Some(Values::make_literal(100.0))
         );
     }
 
@@ -187,15 +197,15 @@ mod tests {
 
         assert_eq!(
             fade.generate(&time!(0 0 0 0 Thirty), &parameter),
-            Values::make_literal(25.0)
+            Some(Values::make_literal(25.0))
         );
         assert_eq!(
             fade.generate(&time!(0 0 1 0 Thirty), &parameter),
-            Values::make_literal(50.0)
+            Some(Values::make_literal(50.0))
         );
         assert_eq!(
             fade.generate(&time!(0 0 2 0 Thirty), &parameter),
-            Values::make_literal(75.0)
+            Some(Values::make_literal(75.0))
         );
     }
 }

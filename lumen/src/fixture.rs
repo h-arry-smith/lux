@@ -66,7 +66,10 @@ impl Fixture {
             // converted to dmx.
             if let Some(parameter) = profile.get_parameter(param) {
                 for generator in generators {
-                    resolved_fixture.set(*param, generator.generate(time, parameter));
+                    // If a generator returns None, we keep the previous value
+                    if let Some(value) = generator.generate(time, parameter) {
+                        resolved_fixture.set(*param, value);
+                    }
                 }
             }
         }
