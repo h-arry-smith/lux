@@ -140,6 +140,58 @@ impl Generator for Fade {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct Delay {
+    delay: Duration,
+    generator: BoxedGenerator,
+    start_time: Option<Time>,
+}
+
+impl Delay {
+    pub fn new(delay: Duration, generator: BoxedGenerator) -> Self {
+        Self {
+            delay,
+            generator,
+            start_time: None,
+        }
+    }
+
+    fn active(&self, time: &Time) -> bool {
+        let start_time = match self.start_time {
+            Some(time) => time,
+            None => Time::at(0, 0, 0, 0),
+        };
+
+        let elapsed: Duration = (*time).into();
+        let relative_elapsed = elapsed.checked_sub(start_time.into()).unwrap_or_default();
+
+        relative_elapsed >= self.delay
+    }
+}
+
+impl Generator for Delay {
+    fn generate(&mut self, time: &Time, parameter: &Parameter) -> Option<Values> {
+        if self.active(time) {
+            self.generator.generate(time, parameter)
+        } else {
+            None
+        }
+    }
+
+    // For value inspection of a fade we return the delayed generator value
+    fn value(&self) -> Values {
+        self.generator.value()
+    }
+
+    fn set_start_time(&mut self, time: Time) {
+        self.start_time = Some(time);
+
+        // The start time of the delay generator is our start time + the delay
+        self.generator
+            .set_start_time(time + Time::from(&self.delay));
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
