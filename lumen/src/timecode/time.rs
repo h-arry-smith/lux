@@ -1,7 +1,7 @@
 use super::{FrameRate, NANOS_PER_HOUR, NANOS_PER_MINUTE, NANOS_PER_MS, NANOS_PER_SECOND};
 use std::fmt::Debug;
 use std::hash::Hash;
-use std::ops::Sub;
+use std::ops::{Add, Sub};
 use std::time::Duration;
 
 #[derive(Copy, Clone)]
@@ -154,6 +154,14 @@ impl Sub for Time {
 
     fn sub(self, rhs: Self) -> Self::Output {
         Time::new(self.nanoseconds - rhs.nanoseconds)
+    }
+}
+
+impl Add for Time {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Time::new(self.nanoseconds + rhs.nanoseconds)
     }
 }
 
