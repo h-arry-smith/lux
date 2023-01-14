@@ -21,7 +21,7 @@ use lumen::{
     timecode::time::Time,
     track::Track,
     value::{
-        generator::{BoxedGenerator, Fade, Static},
+        generator::{BoxedGenerator, Delay, Fade, Static},
         Values,
     },
     Environment, Query, QueryBuilder, Step,
@@ -34,6 +34,7 @@ pub struct Evaluator<'a> {
     global_action: Action,
     apply_groups: Vec<ApplyGroup>,
     parent_apply_group: Vec<usize>,
+    delay_time: Option<Duration>,
 }
 
 impl<'a> Evaluator<'a> {
@@ -43,6 +44,7 @@ impl<'a> Evaluator<'a> {
             global_action: Action::new(),
             apply_groups: Vec::new(),
             parent_apply_group: Vec::new(),
+            delay_time: None,
         }
     }
 
@@ -82,6 +84,9 @@ impl<'a> Evaluator<'a> {
             AstNode::Select(query, statements) => {
                 self.evaluate_select(query, statements)?;
             }
+            AstNode::DelayBlock(time, statements) => {
+                self.evaluate_delay_block(time, statements)?;
+            }
             _ => {
                 return self.evaluation_error(format!("Expected a statement but got: {:?}", node));
             }
@@ -91,7 +96,11 @@ impl<'a> Evaluator<'a> {
 
     fn evaluate_apply(&mut self, identifier: &AstNode, generator: &AstNode) -> EvaluationResult {
         let identifier = self.evaluate_identifier(identifier)?;
-        let generator = self.evaluate_generator(generator)?;
+        let mut generator = self.evaluate_generator(generator)?;
+
+        if let Some(delay_time) = self.delay_time {
+            generator = Box::new(Delay::new(delay_time, generator));
+        }
 
         let apply = Apply::new(identifier, generator);
 
@@ -231,6 +240,21 @@ impl<'a> Evaluator<'a> {
         } else {
             self.evaluation_error("start value of range must be a fixture id".to_string())
         }
+    }
+
+    fn evaluate_delay_block(
+        &mut self,
+        time: &AstNode,
+        statements: &Vec<AstNode>,
+    ) -> EvaluationResult {
+        self.delay_time = Some(self.evaluate_time(time)?);
+
+        for statement in statements {
+            self.evaluate_statement(statement)?;
+        }
+
+        self.delay_time = None;
+        Ok(())
     }
 
     fn open_apply_group(&mut self, query: Query) {

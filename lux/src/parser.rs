@@ -19,6 +19,7 @@ fn parse_statements(pairs: pest::iterators::Pairs<Rule>) -> Vec<AstNode> {
         #[allow(clippy::single_match)]
         let node = match pair.as_rule() {
             Rule::stmt => parse_statement(pair.into_inner().next().unwrap()),
+            Rule::delay_block => parse_delay_block(pair.into_inner()),
             Rule::EOI => break,
             _ => panic!("expected a statement, got: {}", pair.as_str()),
         };
@@ -41,11 +42,17 @@ fn parse_statement(pair: pest::iterators::Pair<Rule>) -> AstNode {
             let mut pair = pair.into_inner();
             let query = parse_query(pair.next().unwrap());
             let statements = parse_statements(pair);
-
             AstNode::Select(Box::new(query), statements)
         }
         _ => panic!("Unexpected statement: {}", pair.as_str()),
     }
+}
+
+fn parse_delay_block(mut pairs: pest::iterators::Pairs<Rule>) -> AstNode {
+    let time = parse_time(pairs.next().unwrap());
+    let statements = parse_statements(pairs);
+
+    AstNode::DelayBlock(Box::new(time), statements)
 }
 
 fn parse_identifier(pair: pest::iterators::Pair<Rule>) -> AstNode {

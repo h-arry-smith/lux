@@ -1,7 +1,13 @@
-program = _{ SOI ~ "\n"* ~ (stmt ~ "\n"+)* ~ stmt? ~ EOI }
+program = _{ SOI ~ "\n"* ~ ( blockstmt ~ "\n"+)* ~ blockstmt? ~ EOI }
+blockstmt = _{ top_level | stmt }
+
+top_level = _{ delay_block }
 stmt = { select | apply }
 
-select = { query ~ "{" ~ "\n"* ~ (stmt ~ "\n"+)*  ~ "}"}
+block = _{ "{" ~ "\n"+ ~ (stmt ~ "\n"+)* ~ "}" }
+delay_block = { "@" ~ time ~ block }
+
+select = { query ~ block }
 query = { query_step+ } 
 query_step = _{ qrange | id }
 qrange = ${ id ~ ".." ~ id }
