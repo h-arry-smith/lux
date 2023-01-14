@@ -26,3 +26,4 @@ numeric = @{ ("+" | "-")? ~ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? }
 time = @{ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? ~ "s" }
 
 WHITESPACE = _{ " " | "\t" }
+COMMENT = _{ "//" ~ (!"\n" ~ ANY)* }
