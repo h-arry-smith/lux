@@ -17,6 +17,9 @@ pub trait Generator: Debug + GeneratorClone {
     fn generate(&mut self, time: &Time, parameter: &Parameter) -> Option<Values>;
     fn value(&self) -> Values;
     fn set_start_time(&mut self, _time: Time) {}
+    fn start_time(&self) -> Time {
+        Time::at(0, 0, 0, 0)
+    }
 }
 
 pub trait GeneratorClone {
@@ -138,6 +141,10 @@ impl Generator for Fade {
     fn set_start_time(&mut self, time: Time) {
         self.start_time = Some(time);
     }
+
+    fn start_time(&self) -> Time {
+        self.start_time.unwrap_or_else(|| Time::at(0, 0, 0, 0))
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -189,6 +196,12 @@ impl Generator for Delay {
         // The start time of the delay generator is our start time + the delay
         self.generator
             .set_start_time(time + Time::from(&self.delay));
+    }
+
+    fn start_time(&self) -> Time {
+        // If start time is unset, then assume a start at 0
+        self.start_time
+            .unwrap_or_else(|| Time::at(0, 0, 0, 0) + Time::from(&self.delay))
     }
 }
 

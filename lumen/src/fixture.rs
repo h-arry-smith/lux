@@ -65,10 +65,15 @@ impl Fixture {
             // target profile, as abstract params on the fixture will never be
             // converted to dmx.
             if let Some(parameter) = profile.get_parameter(param) {
+                let mut latest_time = Time::at(0, 0, 0, 0);
+
                 for generator in generators {
                     // If a generator returns None, we keep the previous value
                     if let Some(value) = generator.generate(time, parameter) {
-                        resolved_fixture.set(*param, value);
+                        if generator.start_time() >= latest_time {
+                            latest_time = generator.start_time();
+                            resolved_fixture.set(*param, value);
+                        }
                     }
                 }
             }
