@@ -2,7 +2,7 @@ mod convertable;
 pub mod generator;
 pub use generator::Generator;
 use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 mod literal;
 pub use literal::Literal;
 mod percentage;
@@ -47,5 +47,16 @@ impl<T> Convertable<T> for Values {
             Values::Literal(literal) => converter.convert_literal(literal),
             Values::Percentage(percentage) => converter.convert_percentage(percentage),
         }
+    }
+}
+
+impl Display for Values {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let value_str = match self {
+            Values::Literal(literal) => format!("{:.02}", literal.value()),
+            Values::Percentage(percentage) => format!("{:.02}%", percentage.value()),
+        };
+
+        write!(f, "{}", value_str)
     }
 }

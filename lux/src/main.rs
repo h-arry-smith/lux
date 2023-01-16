@@ -1,25 +1,36 @@
-use std::{env, fs};
+use std::fmt::Write;
+use std::fs::{self, DirEntry, File};
+use std::io::BufRead;
+use std::io::BufReader;
 
 use lumen::{timecode::time::Time, Environment};
-// TODO: Remove this file and build a proper test runner against real .lux files!
 use lux::{evaluator::Evaluator, parser::parse};
 
 fn main() {
-    let filename = env::args().nth(1).expect("provide a filename");
-    let input = fs::read_to_string(&filename)
-        .unwrap_or_else(|_| panic!("failed to load file: {}", filename));
+    // Gather all the examples in the example directory
+    let examples = fs::read_dir("./examples").expect("could not read examples directory");
+    let examples: Vec<DirEntry> = examples
+        .filter(|file| file.as_ref().unwrap().path().extension().unwrap() == "lux")
+        .map(|file| file.unwrap())
+        .collect();
+
+    println!("Running {} examples...", examples.len());
+
+    for example in examples {
+        run_example(example);
+    }
+
+    // Parse and evaluate each example and check the output
+}
+
+fn run_example(example: DirEntry) {
+    let input = fs::read_to_string(example.path())
+        .unwrap_or_else(|_| panic!("failed to load file: {}", example.path().to_string_lossy()));
 
     let result = parse(&input);
 
-    eprintln!("{:#?}:", result);
-
     if let Ok(program) = result {
-        // TODO: We only pass in an environment because we are going to build a
-        //       patch by hand, but maybe our evalautor does this for us?
-        //       Unless we seperate patch syntax out from Lux, and it has it's
-        //       own parser and evaluator, in which case each evaluator forms
-        //       it's own pass...
-
+        // TODO: This environment is temporary
         let mut environment = Environment::new();
 
         for n in 1..=10 {
@@ -31,9 +42,96 @@ fn main() {
         match evaluator.evaluate(program) {
             Ok(()) => {
                 environment.run_to_time(Time::at(0, 0, 0, 0));
-                println!("{:#?}", environment.fixtures);
+
+                // Compare environment state to expected output defined in example file
+                let test_output = environment_test_output(&environment);
+                let expected_output = get_expected_output(&example);
+
+                if test_output == expected_output {
+                    display_test_result(example, true);
+                } else {
+                    println!("=== RESULT ===");
+                    println!("{}", test_output);
+                    println!("=== EXPECTED ===");
+                    println!("{}", expected_output);
+                    display_test_result(example, false);
+                }
             }
-            Err(err) => eprintln!("error: {}", err),
+            Err(err) => {
+                display_test_result(example, false);
+                eprintln!("error: {}", err);
+            }
+        }
+    } else {
+        display_test_result(example, false);
+    }
+}
+
+fn display_test_result(example: DirEntry, result: bool) {
+    let right = "✅";
+    let wrong = "❌";
+    if result {
+        println!("{:<75} [{}]", example.path().display(), right);
+    } else {
+        println!("{:<75} [{}]", example.path().display(), wrong);
+    }
+}
+
+fn environment_test_output(environment: &Environment) -> String {
+    let mut output = String::new();
+
+    let mut sorted_ids: Vec<usize> = environment.fixtures.ids().iter().cloned().collect();
+    sorted_ids.sort();
+
+    let mut empty_fixtures = Vec::new();
+
+    for id in sorted_ids {
+        let fixture = environment.fixtures.get(&id).unwrap();
+
+        if fixture.parameters().is_empty() {
+            empty_fixtures.push(id);
+            continue;
+        }
+
+        writeln!(output, "FIXTURE {}", id).unwrap();
+
+        for (param, generators) in fixture.parameters() {
+            writeln!(output, "  {}", param).unwrap();
+
+            for generator in generators {
+                writeln!(output, "    {}", generator).unwrap();
+            }
         }
     }
+
+    empty_fixtures.sort();
+    writeln!(
+        output,
+        "FIXTURES {}",
+        empty_fixtures
+            .iter()
+            .map(|id| format!("{}", id))
+            .collect::<Vec<String>>()
+            .join(" ")
+    )
+    .unwrap();
+    writeln!(output, "  NONE").unwrap();
+
+    output
+}
+
+fn get_expected_output(example: &DirEntry) -> String {
+    let mut output = String::new();
+    let f = File::open(example.path()).unwrap();
+    let reader = BufReader::new(f);
+
+    for line in reader.lines() {
+        let line = line.unwrap();
+
+        if let Some(out_str) = line.strip_prefix("/// ") {
+            writeln!(output, "{}", out_str).unwrap();
+        }
+    }
+
+    output
 }

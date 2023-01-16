@@ -31,7 +31,7 @@ mod single_track_moving_forward {
                 .fixtures
                 .get(&1)
                 .unwrap()
-                .parameters(Param::Intensity)
+                .get_parameter(Param::Intensity)
                 .unwrap()
                 .first()
                 .unwrap()
@@ -60,7 +60,7 @@ mod single_track_moving_forward {
                 .fixtures
                 .get(&1)
                 .unwrap()
-                .parameters(Param::Intensity)
+                .get_parameter(Param::Intensity)
                 .unwrap()
                 .first()
                 .unwrap()
@@ -92,7 +92,7 @@ mod single_track_moving_forward {
                 .fixtures
                 .get(&1)
                 .unwrap()
-                .parameters(Param::Intensity)
+                .get_parameter(Param::Intensity)
                 .unwrap()
                 .first()
                 .unwrap()
@@ -122,7 +122,7 @@ mod single_track_moving_forward {
                 .fixtures
                 .get(&1)
                 .unwrap()
-                .parameters(Param::Intensity)
+                .get_parameter(Param::Intensity)
                 .unwrap()
                 .first()
                 .unwrap()
@@ -156,7 +156,7 @@ mod single_track_moving_backwards {
             .fixtures
             .get(&1)
             .unwrap()
-            .parameters(Param::Intensity)
+            .get_parameter(Param::Intensity)
             .is_none())
     }
 
@@ -181,7 +181,7 @@ mod single_track_moving_backwards {
                 .fixtures
                 .get(&1)
                 .unwrap()
-                .parameters(Param::Intensity)
+                .get_parameter(Param::Intensity)
                 .unwrap()
                 .first()
                 .unwrap()
@@ -211,7 +211,7 @@ mod single_track_moving_backwards {
                 .fixtures
                 .get(&2)
                 .unwrap()
-                .parameters(Param::Intensity)
+                .get_parameter(Param::Intensity)
                 .unwrap()
                 .first()
                 .unwrap()
@@ -356,7 +356,7 @@ mod multi_track_moving_backward {
             .fixtures
             .get(&1)
             .unwrap()
-            .parameters(Param::Intensity)
+            .get_parameter(Param::Intensity)
             .is_none())
     }
 
@@ -391,7 +391,7 @@ mod multi_track_moving_backward {
                 .fixtures
                 .get(&1)
                 .unwrap()
-                .parameters(Param::Intensity)
+                .get_parameter(Param::Intensity)
                 .unwrap()
                 .first()
                 .unwrap()
@@ -442,7 +442,7 @@ mod multi_track_moving_backward {
                 .fixtures
                 .get(&1)
                 .unwrap()
-                .parameters(Param::Intensity)
+                .get_parameter(Param::Intensity)
                 .unwrap()
                 .first()
                 .unwrap()
@@ -490,7 +490,7 @@ mod time_moving_both_directions {
                 .fixtures
                 .get(&1)
                 .unwrap()
-                .parameters(Param::Intensity)
+                .get_parameter(Param::Intensity)
                 .unwrap()
                 .first()
                 .unwrap()

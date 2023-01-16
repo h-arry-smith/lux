@@ -54,8 +54,12 @@ impl Fixture {
     }
 
     #[allow(clippy::borrowed_box)]
-    pub fn parameters(&self, parameter: Param) -> Option<&Vec<BoxedGenerator>> {
+    pub fn get_parameter(&self, parameter: Param) -> Option<&Vec<BoxedGenerator>> {
         self.parameters.get(&parameter)
+    }
+
+    pub fn parameters(&self) -> &ParameterMap {
+        &self.parameters
     }
 
     pub fn resolve(&mut self, time: &Time, profile: &FixtureProfile) -> ResolvedFixture {

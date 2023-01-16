@@ -59,8 +59,6 @@ impl<'a> Evaluator<'a> {
             self.global_action.add_group(apply_group);
         }
 
-        dbg!(&self.global_action);
-
         let mut track = Track::new();
         track.add_action(Time::at(0, 0, 0, 0), self.global_action.clone());
 
@@ -264,12 +262,6 @@ impl<'a> Evaluator<'a> {
 
     fn close_apply_group(&mut self) {
         self.parent_apply_group.pop();
-    }
-
-    fn current_apply_group(&mut self) -> &mut ApplyGroup {
-        self.apply_groups
-            .last_mut()
-            .expect("trying to get a mut ref to the current apply group but there isn't one")
     }
 
     fn parent_apply_group(&mut self) -> &mut ApplyGroup {

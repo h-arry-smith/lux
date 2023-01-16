@@ -1,6 +1,6 @@
 use crate::timecode::time::Time;
 use crate::value::convertable::Convertable;
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 use std::time::Duration;
 
 use crate::parameter::Parameter;
@@ -13,7 +13,7 @@ pub type BoxedGenerator = Box<dyn Generator + Send + Sync>;
 
 // TODO: This file needs splitting out to multiple other files
 
-pub trait Generator: Debug + GeneratorClone {
+pub trait Generator: Debug + GeneratorClone + Display {
     fn generate(&mut self, time: &Time, parameter: &Parameter) -> Option<Values>;
     fn value(&self) -> Values;
     fn set_start_time(&mut self, _time: Time) {}
@@ -64,6 +64,12 @@ impl Generator for Static {
 
     fn value(&self) -> Values {
         self.value
+    }
+}
+
+impl Display for Static {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "STATIC({})", self.value)
     }
 }
 
@@ -147,6 +153,12 @@ impl Generator for Fade {
     }
 }
 
+impl Display for Fade {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "FADE({} -> {})", self.start.value(), self.end.value())
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Delay {
     delay: Duration,
@@ -202,6 +214,12 @@ impl Generator for Delay {
         // If start time is unset, then assume a start at 0
         self.start_time
             .unwrap_or_else(|| Time::at(0, 0, 0, 0) + Time::from(&self.delay))
+    }
+}
+
+impl Display for Delay {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "@{} {}", self.delay.as_secs_f64(), self.generator)
     }
 }
 

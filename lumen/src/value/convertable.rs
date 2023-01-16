@@ -35,6 +35,7 @@ impl<'a> Converter for LiteralConverter<'a> {
 }
 
 pub struct PercentageConverter<'a> {
+    #[allow(dead_code)]
     parameter: &'a Parameter,
 }
 
