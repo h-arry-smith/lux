@@ -1,0 +1,30 @@
+1 {
+	intensity: 0 -> 100
+}
+
+2 {
+	intensity: 100 -> 0 2s
+}
+
+3 {
+	intensity: 50% -> 27.1
+}
+
+4 {
+	intensity: -8.5 -> 23.1% 10s
+}
+
+/// FIXTURE 1
+///   Intensity
+///     FADE(0.00 -> 100.00, 3.0s)
+/// FIXTURE 2
+///   Intensity
+///     FADE(100.00 -> 0.00, 2.0s)
+/// FIXTURE 3
+///   Intensity
+///     FADE(50.00% -> 27.10, 3.0s)
+/// FIXTURE 4
+///   Intensity
+///     FADE(-8.50 -> 23.10%, 10.0s)
+/// FIXTURES 5 6 7 8 9 10
+///   NONE

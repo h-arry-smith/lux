@@ -155,7 +155,13 @@ impl Generator for Fade {
 
 impl Display for Fade {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "FADE({} -> {})", self.start.value(), self.end.value())
+        write!(
+            f,
+            "FADE({} -> {}, {:.1}s)",
+            self.start.value(),
+            self.end.value(),
+            self.duration.as_secs_f64()
+        )
     }
 }
 
