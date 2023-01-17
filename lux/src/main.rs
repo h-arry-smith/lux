@@ -104,18 +104,20 @@ fn environment_test_output(environment: &Environment) -> String {
         }
     }
 
-    empty_fixtures.sort();
-    writeln!(
-        output,
-        "FIXTURES {}",
-        empty_fixtures
-            .iter()
-            .map(|id| format!("{}", id))
-            .collect::<Vec<String>>()
-            .join(" ")
-    )
-    .unwrap();
-    writeln!(output, "  NONE").unwrap();
+    if !empty_fixtures.is_empty() {
+        empty_fixtures.sort();
+        writeln!(
+            output,
+            "FIXTURES {}",
+            empty_fixtures
+                .iter()
+                .map(|id| format!("{}", id))
+                .collect::<Vec<String>>()
+                .join(" ")
+        )
+        .unwrap();
+        writeln!(output, "  NONE").unwrap();
+    }
 
     output
 }

@@ -225,7 +225,7 @@ impl Generator for Delay {
 
 impl Display for Delay {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "@{} {}", self.delay.as_secs_f64(), self.generator)
+        write!(f, "@{}s {}", self.delay.as_secs_f64(), self.generator)
     }
 }
 
