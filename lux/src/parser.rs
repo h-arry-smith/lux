@@ -20,6 +20,7 @@ fn parse_statements(pairs: pest::iterators::Pairs<Rule>) -> Vec<AstNode> {
         let node = match pair.as_rule() {
             Rule::stmt => parse_statement(pair.into_inner().next().unwrap()),
             Rule::delay_block => parse_delay_block(pair.into_inner()),
+            Rule::preset_block => parse_preset_block(pair.into_inner()),
             Rule::EOI => break,
             _ => panic!("expected a statement, got: {}", pair.as_str()),
         };
@@ -44,6 +45,11 @@ fn parse_statement(pair: pest::iterators::Pair<Rule>) -> AstNode {
             let statements = parse_statements(pair);
             AstNode::Select(Box::new(query), statements)
         }
+        Rule::preset => {
+            let mut pair = pair.into_inner();
+            let ident = parse_identifier(pair.next().unwrap());
+            AstNode::Preset(Box::new(ident))
+        }
         _ => panic!("Unexpected statement: {}", pair.as_str()),
     }
 }
@@ -55,6 +61,12 @@ fn parse_delay_block(mut pairs: pest::iterators::Pairs<Rule>) -> AstNode {
     AstNode::DelayBlock(Box::new(time), statements)
 }
 
+fn parse_preset_block(mut pairs: pest::iterators::Pairs<Rule>) -> AstNode {
+    let ident = parse_identifier(pairs.next().unwrap());
+    let statements = parse_statements(pairs);
+
+    AstNode::PresetBlock(Box::new(ident), statements)
+}
 
 fn parse_parameter(pair: pest::iterators::Pair<Rule>) -> AstNode {
     match pair.as_rule() {

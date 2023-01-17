@@ -1,0 +1,66 @@
+#high {
+	intensity: 80
+}
+
+#low {
+	intensity: 20
+}
+
+1..5 {
+	#high
+}
+
+6..10 {
+	#low
+}
+
+@2s {
+	1..5 {
+		#low
+	}
+
+	6..10 {
+		#high
+	}
+}
+
+/// FIXTURE 1
+///   Intensity
+///     STATIC(80.00)
+///     @2s STATIC(20.00)
+/// FIXTURE 2
+///   Intensity
+///     STATIC(80.00)
+///     @2s STATIC(20.00)
+/// FIXTURE 3
+///   Intensity
+///     STATIC(80.00)
+///     @2s STATIC(20.00)
+/// FIXTURE 4
+///   Intensity
+///     STATIC(80.00)
+///     @2s STATIC(20.00)
+/// FIXTURE 5
+///   Intensity
+///     STATIC(80.00)
+///     @2s STATIC(20.00)
+/// FIXTURE 6
+///   Intensity
+///     STATIC(20.00)
+///     @2s STATIC(80.00)
+/// FIXTURE 7
+///   Intensity
+///     STATIC(20.00)
+///     @2s STATIC(80.00)
+/// FIXTURE 8
+///   Intensity
+///     STATIC(20.00)
+///     @2s STATIC(80.00)
+/// FIXTURE 9
+///   Intensity
+///     STATIC(20.00)
+///     @2s STATIC(80.00)
+/// FIXTURE 10
+///   Intensity
+///     STATIC(20.00)
+///     @2s STATIC(80.00)

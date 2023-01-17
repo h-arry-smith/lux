@@ -1,11 +1,12 @@
 program = _{ SOI ~ "\n"* ~ ( blockstmt ~ "\n"+)* ~ blockstmt? ~ EOI }
 blockstmt = _{ top_level | stmt }
 
-top_level = _{ delay_block }
-stmt = { select | apply }
+top_level = _{ delay_block | preset_block }
+stmt = { select | apply | preset }
 
 block = _{ "{" ~ "\n"+ ~ (stmt ~ "\n"+)* ~ "}" }
 delay_block = { "@" ~ time ~ block }
+preset_block = { "#" ~ ident ~ block }
 
 select = { query ~ block }
 query = { query_step+ } 
@@ -17,6 +18,8 @@ apply = { param ~ ":" ~ generator }
 generator = { fade | static_value }
 fade = { static_value ~ "->" ~ static_value ~ time? }
 static_value = { percentage | literal }
+
+preset = { "#" ~ ident }
 
 percentage = @{ numeric ~ "%" }
 literal = @{ numeric }

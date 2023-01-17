@@ -13,4 +13,6 @@ pub enum AstNode {
     Fade(Box<AstNode>, Box<AstNode>, Box<AstNode>),
     Time(f64),
     DelayBlock(Box<AstNode>, Vec<AstNode>),
+    PresetBlock(Box<AstNode>, Vec<AstNode>),
+    Preset(Box<AstNode>),
 }

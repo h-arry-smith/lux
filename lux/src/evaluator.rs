@@ -12,7 +12,7 @@
 // For now, we will start with a much simpler evaluation strategy, a single file
 // will create an Lumen Environment that can be handed off and executed.
 
-use std::{fmt::Display, time::Duration};
+use std::{collections::HashMap, fmt::Display, time::Duration};
 
 use crate::ast::AstNode;
 use lumen::{
@@ -35,6 +35,7 @@ pub struct Evaluator<'a> {
     apply_groups: Vec<ApplyGroup>,
     parent_apply_group: Vec<usize>,
     delay_time: Option<Duration>,
+    presets: HashMap<String, Vec<AstNode>>,
 }
 
 impl<'a> Evaluator<'a> {
@@ -45,6 +46,7 @@ impl<'a> Evaluator<'a> {
             apply_groups: Vec::new(),
             parent_apply_group: Vec::new(),
             delay_time: None,
+            presets: HashMap::new(),
         }
     }
 
@@ -84,6 +86,12 @@ impl<'a> Evaluator<'a> {
             }
             AstNode::DelayBlock(time, statements) => {
                 self.evaluate_delay_block(time, statements)?;
+            }
+            AstNode::PresetBlock(identifier, statements) => {
+                self.evaluate_preset_block(identifier, statements)?;
+            }
+            AstNode::Preset(identifier) => {
+                self.evaluate_preset(identifier)?;
             }
             _ => {
                 return self.evaluation_error(format!("Expected a statement but got: {:?}", node));
@@ -253,6 +261,32 @@ impl<'a> Evaluator<'a> {
 
         self.delay_time = None;
         Ok(())
+    }
+
+    fn evaluate_preset_block(
+        &mut self,
+        identifier: &AstNode,
+        statements: &[AstNode],
+    ) -> EvaluationResult {
+        let identifier = self.evaluate_identifier(identifier)?;
+
+        self.presets.insert(identifier, statements.to_vec());
+
+        Ok(())
+    }
+
+    fn evaluate_preset(&mut self, identifier: &AstNode) -> EvaluationResult {
+        let identifier = self.evaluate_identifier(identifier)?;
+
+        match self.presets.get(&identifier) {
+            Some(statements) => {
+                for node in statements.clone() {
+                    self.evaluate_statement(&node)?;
+                }
+                Ok(())
+            }
+            None => self.evaluation_error(format!("could not find preset: {}", identifier)),
+        }
     }
 
     fn evaluate_identifier(&mut self, identifier: &AstNode) -> Result<String, EvaluationError> {
