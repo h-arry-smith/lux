@@ -13,7 +13,7 @@ query_step = _{ qrange | id }
 qrange = ${ id ~ ".." ~ id }
 id = @{ ASCII_DIGIT+ }
 
-apply = { ident ~ ":" ~ generator }
+apply = { param ~ ":" ~ generator }
 generator = { fade | static_value }
 fade = { static_value ~ "->" ~ static_value ~ time? }
 static_value = { percentage | literal }
@@ -22,6 +22,7 @@ percentage = @{ numeric ~ "%" }
 literal = @{ numeric }
 
 ident = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
+param = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
 numeric = @{ ("+" | "-")? ~ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? }
 time = @{ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? ~ "s" }
 

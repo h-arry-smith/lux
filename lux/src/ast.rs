@@ -1,6 +1,7 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum AstNode {
     Apply(Box<AstNode>, Box<AstNode>),
+    Parameter(String),
     Ident(String),
     Literal(f64),
     Percentage(f64),

@@ -34,7 +34,7 @@ fn parse_statement(pair: pest::iterators::Pair<Rule>) -> AstNode {
     match pair.as_rule() {
         Rule::apply => {
             let mut pair = pair.into_inner();
-            let ident = parse_identifier(pair.next().unwrap());
+            let ident = parse_parameter(pair.next().unwrap());
             let generator = parse_generator(pair.next().unwrap());
             AstNode::Apply(Box::new(ident), Box::new(generator))
         }
@@ -53,6 +53,14 @@ fn parse_delay_block(mut pairs: pest::iterators::Pairs<Rule>) -> AstNode {
     let statements = parse_statements(pairs);
 
     AstNode::DelayBlock(Box::new(time), statements)
+}
+
+
+fn parse_parameter(pair: pest::iterators::Pair<Rule>) -> AstNode {
+    match pair.as_rule() {
+        Rule::param => AstNode::Parameter(pair.as_str().to_owned()),
+        _ => panic!("Expected an identifier, but got: {}", pair.as_str()),
+    }
 }
 
 fn parse_identifier(pair: pest::iterators::Pair<Rule>) -> AstNode {

@@ -93,7 +93,7 @@ impl<'a> Evaluator<'a> {
     }
 
     fn evaluate_apply(&mut self, identifier: &AstNode, generator: &AstNode) -> EvaluationResult {
-        let identifier = self.evaluate_identifier(identifier)?;
+        let identifier = self.evaluate_parameter(identifier)?;
         let mut generator = self.evaluate_generator(generator)?;
 
         if let Some(delay_time) = self.delay_time {
@@ -107,19 +107,19 @@ impl<'a> Evaluator<'a> {
         Ok(())
     }
 
-    fn evaluate_identifier(&mut self, identifier: &AstNode) -> Result<Param, EvaluationError> {
-        if let AstNode::Ident(identifier_string) = identifier {
-            match Param::from_string(identifier_string) {
+    fn evaluate_parameter(&mut self, parameter: &AstNode) -> Result<Param, EvaluationError> {
+        if let AstNode::Parameter(parameter_string) = parameter {
+            match Param::from_string(parameter_string) {
                 Some(param) => Ok(param),
                 None => self.evaluation_error(format!(
                     "Expected a valid parameter identifier but got: {}",
-                    identifier_string
+                    parameter_string
                 )),
             }
         } else {
             self.evaluation_error(format!(
                 "Expected a valid parameter identifier but got: {:?}",
-                identifier
+                parameter
             ))
         }
     }
@@ -253,6 +253,13 @@ impl<'a> Evaluator<'a> {
 
         self.delay_time = None;
         Ok(())
+    }
+
+    fn evaluate_identifier(&mut self, identifier: &AstNode) -> Result<String, EvaluationError> {
+        match identifier {
+            AstNode::Ident(string) => Ok(string.clone()),
+            _ => self.evaluation_error(format!("expected a identifier, got: {:?}", identifier)),
+        }
     }
 
     fn open_apply_group(&mut self, query: Query) {
