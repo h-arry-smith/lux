@@ -63,6 +63,7 @@ fn run_example(example: DirEntry) {
             }
         }
     } else {
+        eprintln!("error: {}", result.err().unwrap());
         display_test_result(example, false);
     }
 }
