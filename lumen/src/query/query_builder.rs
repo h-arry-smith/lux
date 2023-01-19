@@ -6,6 +6,7 @@ use super::Query;
 pub enum Step {
     All,
     Even,
+    Odd,
     Range(FixtureID, FixtureID),
     Id(FixtureID),
     SubQuery(Query),
@@ -31,6 +32,11 @@ impl QueryBuilder {
     }
 
     pub fn even(mut self) -> Self {
+        self.steps.push(Step::Even);
+        self
+    }
+
+    pub fn odd(mut self) -> Self {
         self.steps.push(Step::Even);
         self
     }

@@ -20,13 +20,29 @@ impl Query {
         let mut result = QueryResult::new();
         let mut fixtures = fixtures.clone();
 
-        for step in self.steps.iter() {
+        for (i, step) in self.steps.iter().enumerate() {
             match step {
                 Step::All => {
                     result.extend(fixtures.clone());
                 }
+
+                // TODO: The idea expressed here is that if the even / odd step isn't the
+                //       first step, then we are reducing the selection, not adding to it.
+                //       This works for now, but might not be the right way to think about
+                //       this with more complex queries
                 Step::Even => {
-                    result.extend(Self::even(&fixtures));
+                    if i == 0 {
+                        result.extend(Self::even(&fixtures));
+                    } else {
+                        result = Self::even(&result);
+                    }
+                }
+                Step::Odd => {
+                    if i == 0 {
+                        result.extend(Self::odd(&fixtures));
+                    } else {
+                        result = Self::odd(&result);
+                    }
                 }
                 Step::Id(id) => {
                     result.extend(Self::id(id, &fixtures));
@@ -45,6 +61,10 @@ impl Query {
 
     fn even(fixtures: &QueryResult) -> QueryResult {
         fixtures.iter().filter(|id| *id % 2 == 0).cloned().collect()
+    }
+
+    fn odd(fixtures: &QueryResult) -> QueryResult {
+        fixtures.iter().filter(|id| *id % 2 != 0).cloned().collect()
     }
 
     fn id(id: &FixtureID, fixtures: &QueryResult) -> QueryResult {
