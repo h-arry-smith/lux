@@ -150,20 +150,22 @@ fn parse_percentage(pair: pest::iterators::Pair<Rule>) -> AstNode {
 }
 
 fn parse_query(pair: pest::iterators::Pair<Rule>) -> AstNode {
-    let pair = pair.into_inner().next().unwrap();
     let mut query_nodes = Vec::new();
 
-    match pair.as_rule() {
-        Rule::id => {
-            query_nodes.push(parse_query_id(pair));
-        }
-        Rule::qrange => {
-            query_nodes.push(parse_query_range(pair.into_inner()));
-        }
-        _ => panic!("Invalid query: {}", pair.as_str()),
+    for pair in pair.into_inner() {
+        query_nodes.push(parse_query_step(pair))
     }
 
     AstNode::Query(query_nodes)
+}
+
+fn parse_query_step(pair: pest::iterators::Pair<Rule>) -> AstNode {
+    match pair.as_rule() {
+        Rule::id => parse_query_id(pair),
+        Rule::qrange => parse_query_range(pair.into_inner()),
+        Rule::qcommand => parse_qcommand(pair.into_inner()),
+        _ => panic!("Invalid query: {}", pair.as_str()),
+    }
 }
 
 fn parse_query_id(pair: pest::iterators::Pair<Rule>) -> AstNode {
@@ -179,4 +181,10 @@ fn parse_query_range(mut pairs: pest::iterators::Pairs<Rule>) -> AstNode {
     let end = parse_query_id(end);
 
     AstNode::QRange(Box::new(start), Box::new(end))
+}
+
+fn parse_qcommand(mut pairs: pest::iterators::Pairs<Rule>) -> AstNode {
+    let command_ident = parse_identifier(pairs.next().unwrap());
+
+    AstNode::QCommand(Box::new(command_ident))
 }

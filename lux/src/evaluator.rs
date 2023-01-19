@@ -228,6 +228,7 @@ impl<'a> Evaluator<'a> {
         match step {
             AstNode::FixtureID(id) => Ok(Step::Id(*id)),
             AstNode::QRange(start, end) => self.evaluate_query_range(start, end),
+            AstNode::QCommand(ident) => self.evaluate_query_command(ident),
             _ => self.evaluation_error(format!("expected a valid query step but got: {:?}", step)),
         }
     }
@@ -237,6 +238,8 @@ impl<'a> Evaluator<'a> {
         start: &AstNode,
         end: &AstNode,
     ) -> Result<Step, EvaluationError> {
+        // TODO: this should be two fixture id evaluations steps with error returns
+        //       not this nested monstrosity.
         if let AstNode::FixtureID(start) = start {
             if let AstNode::FixtureID(end) = end {
                 Ok(Step::Range(*start, *end))
@@ -245,6 +248,16 @@ impl<'a> Evaluator<'a> {
             }
         } else {
             self.evaluation_error("start value of range must be a fixture id".to_string())
+        }
+    }
+
+    fn evaluate_query_command(&mut self, identifier: &AstNode) -> Result<Step, EvaluationError> {
+        let identifier = self.evaluate_identifier(identifier)?;
+
+        match identifier.as_str() {
+            "even" => Ok(Step::Even),
+            "odd" => Ok(Step::Odd),
+            _ => self.evaluation_error(format!("{} is not a valid query command", identifier)),
         }
     }
 

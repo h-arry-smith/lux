@@ -1,0 +1,54 @@
+:even {
+	intensity: 10	
+}
+
+:odd {
+	intensity: 20
+}
+
+1..5 :even {
+	intensity: 30
+}
+
+6..10 :odd {
+	intensity: 40
+}
+
+:even :odd {
+	intensity: 50
+}
+
+/// FIXTURE 1
+///   Intensity
+///     STATIC(20.00)
+/// FIXTURE 2
+///   Intensity
+///     STATIC(10.00)
+///     STATIC(30.00)
+/// FIXTURE 3
+///   Intensity
+///     STATIC(20.00)
+/// FIXTURE 4
+///   Intensity
+///     STATIC(10.00)
+///     STATIC(30.00)
+/// FIXTURE 5
+///   Intensity
+///     STATIC(20.00)
+/// FIXTURE 6
+///   Intensity
+///     STATIC(10.00)
+/// FIXTURE 7
+///   Intensity
+///     STATIC(20.00)
+///     STATIC(40.00)
+/// FIXTURE 8
+///   Intensity
+///     STATIC(10.00)
+/// FIXTURE 9
+///   Intensity
+///     STATIC(20.00)
+///     STATIC(40.00)
+/// FIXTURE 10
+///   Intensity
+///     STATIC(10.00)

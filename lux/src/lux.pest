@@ -12,8 +12,9 @@ inline_delay = { "@" ~ time ~ stmt }
 
 select = { query ~ block }
 query = { query_step+ } 
-query_step = _{ qrange | id }
+query_step = _{ qrange | id | qcommand }
 qrange = ${ id ~ ".." ~ id }
+qcommand = ${ ":" ~ ident }
 id = @{ ASCII_DIGIT+ }
 
 apply = { param ~ ":" ~ generator }
