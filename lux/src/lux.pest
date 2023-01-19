@@ -1,12 +1,14 @@
 program = _{ SOI ~ "\n"* ~ ( blockstmt ~ "\n"+)* ~ blockstmt? ~ EOI }
 blockstmt = _{ top_level | stmt }
 
-top_level = _{ delay_block | preset_block }
-stmt = { select | apply | preset }
+top_level = _{ preset_block }
+stmt = { select | apply | preset | delay_block | inline_delay }
 
 block = _{ "{" ~ "\n"+ ~ (stmt ~ "\n"+)* ~ "}" }
-delay_block = { "@" ~ time ~ block }
 preset_block = { "#" ~ ident ~ block }
+
+delay_block = { "@" ~ time ~ block }
+inline_delay = { "@" ~ time ~ stmt }
 
 select = { query ~ block }
 query = { query_step+ } 

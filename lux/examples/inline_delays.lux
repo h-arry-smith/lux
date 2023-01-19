@@ -1,0 +1,21 @@
+#flash {
+	intensity: 100 -> 0 0.5s
+}
+
+1 {
+	#flash
+	@1s #flash
+	@2s #flash
+	@3s {
+		intensity: 30
+	}
+}
+
+/// FIXTURE 1
+///   Intensity
+///     FADE(100.00 -> 0.00, 0.5s)
+///     @1s FADE(100.00 -> 0.00, 0.5s)
+///     @2s FADE(100.00 -> 0.00, 0.5s)
+///     @3s STATIC(30.00)
+/// FIXTURES 2 3 4 5 6 7 8 9 10
+///   NONE
