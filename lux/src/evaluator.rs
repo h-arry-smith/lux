@@ -253,6 +253,11 @@ impl<'a> Evaluator<'a> {
         time: &AstNode,
         statements: &Vec<AstNode>,
     ) -> EvaluationResult {
+        // Nested delay blocks are not supported
+        if self.delay_time.is_some() {
+            return self.evaluation_error("can not nest delay blocks".to_string());
+        }
+
         self.delay_time = Some(self.evaluate_time(time)?);
 
         for statement in statements {
