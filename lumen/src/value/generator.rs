@@ -20,6 +20,7 @@ pub trait Generator: Debug + GeneratorClone + Display {
     fn start_time(&self) -> Time {
         Time::at(0, 0, 0, 0)
     }
+    fn resolve(&mut self, value: &Values, time: &Time) {}
 }
 
 pub trait GeneratorClone {
@@ -151,6 +152,11 @@ impl Generator for Fade {
     fn start_time(&self) -> Time {
         self.start_time.unwrap_or_else(|| Time::at(0, 0, 0, 0))
     }
+
+    fn resolve(&mut self, value: &Values, time: &Time) {
+        self.start.resolve(value, time);
+        self.end.resolve(value, time);
+    }
 }
 
 impl Display for Fade {
@@ -221,11 +227,51 @@ impl Generator for Delay {
         self.start_time
             .unwrap_or_else(|| Time::at(0, 0, 0, 0) + Time::from(&self.delay))
     }
+
+    fn resolve(&mut self, value: &Values, time: &Time) {
+        if self.active(time) {
+            self.generator.resolve(value, time);
+        }
+    }
 }
 
 impl Display for Delay {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "@{}s {}", self.delay.as_secs_f64(), self.generator)
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct CurrentValue {
+    generator: Option<BoxedGenerator>,
+}
+
+impl CurrentValue {
+    pub fn new() -> Self {
+        Self { generator: None }
+    }
+}
+
+impl Generator for CurrentValue {
+    fn generate(&mut self, time: &Time, parameter: &Parameter) -> Option<Values> {
+        match self.generator {
+            Some(ref mut generator) => generator.generate(time, parameter),
+            None => Some(Values::make_literal(parameter.min())),
+        }
+    }
+
+    fn value(&self) -> Values {
+        todo!()
+    }
+
+    fn resolve(&mut self, value: &Values, _time: &Time) {
+        self.generator = Some(Box::new(Static::new(value.clone())))
+    }
+}
+
+impl Display for CurrentValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "CurVal")
     }
 }
 

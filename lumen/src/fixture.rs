@@ -72,6 +72,16 @@ impl Fixture {
                 let mut latest_time = Time::at(0, 0, 0, 0);
 
                 for generator in generators {
+                    // Resolve any current values with the current parameter value
+                    match resolved_fixture.get_value(param) {
+                        Some(value) => {
+                            generator.resolve(value, time);
+                        }
+                        None => {
+                            generator.resolve(&Values::make_literal(parameter.default()), time);
+                        }
+                    }
+
                     // If a generator returns None, we keep the previous value
                     if let Some(value) = generator.generate(time, parameter) {
                         if generator.start_time() >= latest_time {
