@@ -261,11 +261,16 @@ impl Generator for CurrentValue {
     }
 
     fn value(&self) -> Values {
-        todo!()
+        match self.generator {
+            Some(ref generator) => generator.value(),
+            None => Values::make_literal(0.0),
+        }
     }
 
     fn resolve(&mut self, value: &Values, _time: &Time) {
-        self.generator = Some(Box::new(Static::new(value.clone())))
+        if self.generator.is_none() {
+            self.generator = Some(Box::new(Static::new(*value)))
+        }
     }
 }
 
