@@ -20,7 +20,8 @@ id = @{ ASCII_DIGIT+ }
 apply = { param ~ ":" ~ generator }
 generator = { fade | static_value }
 fade = { static_value ~ "->" ~ static_value ~ time? }
-static_value = { percentage | literal }
+static_value = { percentage | literal | current_value }
+current_value = { "_" }
 
 preset = { "#" ~ ident }
 

@@ -1,0 +1,23 @@
+1 {
+	intensity: 30
+}
+
+@1s {
+	1 {
+		intensity: _ -> 100 4s
+	}
+}
+
+@3s {
+	1 {
+		intensity: _ -> 0 3s
+	}
+}
+
+/// FIXTURE 1
+///   Intensity
+///     STATIC(30.00)
+///     FADE(30.00 -> 100.00, 4s)
+///     FADE(65.00 -> 0.00, 3s)
+/// FIXTURES 2 3 4 5 6 7 8 9 10
+///   NONE

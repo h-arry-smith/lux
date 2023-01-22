@@ -106,6 +106,7 @@ fn parse_static_value(pair: pest::iterators::Pair<Rule>) -> AstNode {
     let value = match pair.as_rule() {
         Rule::literal => parse_literal(pair),
         Rule::percentage => parse_percentage(pair),
+        Rule::current_value => return AstNode::CurrentValue,
         _ => panic!("Unexpected value for static generator: {}", pair.as_str()),
     };
 

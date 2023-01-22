@@ -21,7 +21,7 @@ use lumen::{
     timecode::time::Time,
     track::Track,
     value::{
-        generator::{BoxedGenerator, Delay, Fade, Static},
+        generator::{BoxedGenerator, CurrentValue, Delay, Fade, Static},
         Values,
     },
     Environment, Query, QueryBuilder, Step,
@@ -139,6 +139,7 @@ impl<'a> Evaluator<'a> {
         let generator = match generator {
             AstNode::Static(value) => self.evaluate_static(value)?,
             AstNode::Fade(start, end, time) => self.evaluate_fade(start, end, time)?,
+            AstNode::CurrentValue => Box::new(CurrentValue::new()),
             _ => {
                 return self.evaluation_error(format!(
                     "Expected a valid generator but got: {:?}",

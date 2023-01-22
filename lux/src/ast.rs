@@ -16,4 +16,5 @@ pub enum AstNode {
     DelayBlock(Box<AstNode>, Vec<AstNode>),
     PresetBlock(Box<AstNode>, Vec<AstNode>),
     Preset(Box<AstNode>),
+    CurrentValue,
 }
