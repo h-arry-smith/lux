@@ -123,7 +123,7 @@ fn resolve(
     }
 
     let t = source.time();
-    env.run_to_time(t);
+    env.run_to_time(t, &patch);
     let resolved_map = env.fixtures.resolve(t, &patch);
 
     // TODO: Very temporary dmx generation of the multiverse, should really be

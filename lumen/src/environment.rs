@@ -5,6 +5,7 @@ use crate::{
     history::History,
     timecode::time::Time,
     track::{Track, Tracks},
+    Patch,
 };
 
 // TODO: This struct splitting technique is succesful for dealing with mutable
@@ -41,7 +42,7 @@ impl Environment {
         self.revert_to_time(Time::at(0, 0, 0, 0));
     }
 
-    pub fn run_to_time(&mut self, time: Time) {
+    pub fn run_to_time(&mut self, time: Time, patch: &Patch) {
         if let Some(last_time) = self.last_time {
             if time < last_time {
                 self.revert_to_time(time);
@@ -68,7 +69,7 @@ impl Environment {
 
             for track_action in track_actions {
                 self.fixtures
-                    .apply_action(track_action.action(), time_frame);
+                    .apply_action(track_action.action(), time_frame, patch);
             }
         }
 

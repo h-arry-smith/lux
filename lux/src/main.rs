@@ -3,6 +3,10 @@ use std::fs::{self, DirEntry, File};
 use std::io::BufRead;
 use std::io::BufReader;
 
+use lumen::address::Address;
+use lumen::parameter::{Param, Parameter};
+use lumen::patch::FixtureProfile;
+use lumen::Patch;
 use lumen::{timecode::time::Time, Environment};
 use lux::{evaluator::Evaluator, parser::parse};
 
@@ -32,16 +36,20 @@ fn run_example(example: DirEntry) {
     if let Ok(program) = result {
         // TODO: This environment is temporary
         let mut environment = Environment::new();
+        let mut patch = Patch::new();
+        let mut profile = FixtureProfile::new();
+        profile.set_parameter(Param::Intensity, Parameter::new(0, 0.0, 100.0));
 
         for n in 1..=10 {
             environment.fixtures.create_with_id(n);
+            patch.patch(n, Address::new(1, n as u16), &profile)
         }
 
         let mut evaluator = Evaluator::new(&mut environment);
 
         match evaluator.evaluate(program) {
             Ok(()) => {
-                environment.run_to_time(Time::at(0, 0, 0, 0));
+                environment.run_to_time(Time::at(0, 0, 0, 0), &patch);
 
                 // Compare environment state to expected output defined in example file
                 let test_output = environment_test_output(&environment);

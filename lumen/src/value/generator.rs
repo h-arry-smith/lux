@@ -164,8 +164,8 @@ impl Display for Fade {
         write!(
             f,
             "FADE({} -> {}, {:.1}s)",
-            self.start.value(),
-            self.end.value(),
+            self.start,
+            self.end,
             self.duration.as_secs_f64()
         )
     }

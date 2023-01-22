@@ -1,5 +1,8 @@
 use crate::{
-    parameter::Param, query::Query, timecode::time::Time, value::generator::BoxedGenerator,
+    parameter::Param,
+    query::Query,
+    timecode::time::Time,
+    value::{generator::BoxedGenerator, Values},
 };
 
 #[derive(Debug, Clone)]
@@ -18,6 +21,12 @@ impl Apply {
 
     pub fn set_start_time(&mut self, time: Time) {
         self.generator.set_start_time(time);
+    }
+
+    pub fn resolve(&mut self, value: Option<&Values>, time: &Time) {
+        if let Some(value) = value {
+            self.generator.resolve(value, time)
+        }
     }
 }
 

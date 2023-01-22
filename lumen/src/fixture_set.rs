@@ -60,20 +60,29 @@ impl FixtureSet {
         self.fixtures.iter_mut()
     }
 
-    pub fn apply_action(&mut self, action: &Action, time: Time) {
+    pub fn apply_action(&mut self, action: &Action, time: Time, patch: &Patch) {
         let mut visited = Vec::new();
+        let current_state = self.resolve(time, patch);
 
         for apply_group in action.apply_groups.iter() {
             for (id, fixture) in self.query(&apply_group.query) {
                 for apply in apply_group.applies.iter() {
+                    let mut apply = apply.clone();
+
                     // If we are applying to a fixture, parameter pair for the first time in this apply,
-                    // we should empty it of previous generators
+                    // we should empty it of previous generators.
                     if !visited.contains(&(*id, apply.parameter)) {
                         fixture.clear_parameter(&apply.parameter);
                         visited.push((*id, apply.parameter));
+
+                        // If we are visiting a parameter pair for the first time, then we should resolve the generator with
+                        // the current value.
+                        apply.resolve(
+                            current_state.get(id).unwrap().get_value(&apply.parameter),
+                            &time,
+                        )
                     }
 
-                    let mut apply = apply.clone();
                     apply.set_start_time(time);
                     fixture.apply(&apply);
                 }
