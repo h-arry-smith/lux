@@ -16,15 +16,15 @@
 
 /// FIXTURE 1
 ///   Intensity
-///     FADE(0.00 -> 100.00, 3.0s)
+///     FADE(STATIC(0.00) -> STATIC(100.00), 3.0s)
 /// FIXTURE 2
 ///   Intensity
-///     FADE(100.00 -> 0.00, 2.0s)
+///     FADE(STATIC(100.00) -> STATIC(0.00), 2.0s)
 /// FIXTURE 3
 ///   Intensity
-///     FADE(50.00% -> 27.10, 3.0s)
+///     FADE(STATIC(50.00%) -> STATIC(27.10), 3.0s)
 /// FIXTURE 4
 ///   Intensity
-///     FADE(-8.50 -> 23.10%, 10.0s)
+///     FADE(STATIC(-8.50) -> STATIC(23.10%), 10.0s)
 /// FIXTURES 5 6 7 8 9 10
 ///   NONE
