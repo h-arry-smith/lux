@@ -20,7 +20,7 @@ pub trait Generator: Debug + GeneratorClone + Display {
     fn start_time(&self) -> Time {
         Time::at(0, 0, 0, 0)
     }
-    fn resolve(&mut self, value: &Values, time: &Time) {}
+    fn resolve(&mut self, _value: &Values, _time: &Time) {}
 }
 
 pub trait GeneratorClone {
@@ -246,6 +246,7 @@ pub struct CurrentValue {
     generator: Option<BoxedGenerator>,
 }
 
+#[allow(clippy::new_without_default)]
 impl CurrentValue {
     pub fn new() -> Self {
         Self { generator: None }

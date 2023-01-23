@@ -9,12 +9,16 @@ use serde::{Deserialize, Serialize};
 #[derive(Eq, Hash, PartialEq, Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum Param {
     Intensity,
+    Pan,
+    Tilt,
 }
 
 impl Param {
     pub fn from_string(string: &str) -> Option<Param> {
         match string {
             "intensity" => Some(Param::Intensity),
+            "pan" => Some(Param::Pan),
+            "tilt" => Some(Param::Tilt),
             _ => None,
         }
     }
