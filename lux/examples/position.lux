@@ -15,19 +15,19 @@
 }
 
 /// FIXTURE 1
-///   PAN
-///     STATIC(-50.00)
-///   TILT
+///   Tilt
 ///     STATIC(50.00)
+///   Pan
+///     STATIC(-50.00)
 /// FIXTURE 2
-///   PAN
-///     STATIC(20.00)
-///   TILT
+///   Tilt
 ///     STATIC(40.00)
+///   Pan
+///     STATIC(20.00)
 /// FIXTURE 3
-///   PAN
-///     FADE(STATIC(-100.00) -> STATIC(100.00), 3.0s)
-///   TILT
+///   Tilt
 ///     FADE(STATIC(-270.00) -> STATIC(270.00), 10.0s)
+///   Pan
+///     FADE(STATIC(-100.00) -> STATIC(100.00), 3.0s)
 /// FIXTURES 4 5 6 7 8 9 10
 ///   NONE

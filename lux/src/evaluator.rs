@@ -15,6 +15,7 @@
 use std::{collections::HashMap, fmt::Display, time::Duration};
 
 use crate::ast::AstNode;
+use crate::group_parameters::GroupParameters;
 use lumen::{
     action::{Action, Apply, ApplyGroup},
     parameter::Param,
@@ -36,6 +37,7 @@ pub struct Evaluator<'a> {
     parent_apply_group: Vec<usize>,
     delay_time: Option<Duration>,
     presets: HashMap<String, Vec<AstNode>>,
+    group_parameters: GroupParameters,
 }
 
 impl<'a> Evaluator<'a> {
@@ -47,6 +49,7 @@ impl<'a> Evaluator<'a> {
             parent_apply_group: Vec::new(),
             delay_time: None,
             presets: HashMap::new(),
+            group_parameters: GroupParameters::default(),
         }
     }
 
@@ -102,6 +105,62 @@ impl<'a> Evaluator<'a> {
 
     fn evaluate_apply(&mut self, identifier: &AstNode, generator: &AstNode) -> EvaluationResult {
         let identifier = self.evaluate_parameter(identifier)?;
+
+        match generator {
+            AstNode::GeneratorGroup(generator_group) => {
+                self.evaluate_apply_generator_group(&identifier, generator_group)
+            }
+            _ => self.evaluate_apply_single_generator(identifier, generator),
+        }
+    }
+
+    fn evaluate_apply_generator_group(
+        &mut self,
+        identifier: &Param,
+        generator_group: &[AstNode],
+    ) -> EvaluationResult {
+        // check param is a group param and get list of param values to use
+        if let Some(group_parameters) = self.group_parameters.get(identifier) {
+            // FIXME: I fixed the immutable borrow above with a clone, but this is
+            //        lazy. There is a better way of doing this, I'm sure.
+            let group_parameters = group_parameters.clone();
+
+            // generate list of generators from the group
+            let mut generators = Vec::new();
+            for unevaluated_generator in generator_group.iter() {
+                let evaluated_generator = self.evaluate_generator(unevaluated_generator)?;
+                generators.push(evaluated_generator);
+            }
+
+            // check provided generator group is exact length
+            if generators.len() != group_parameters.len() {
+                return self.evaluation_error(format!(
+                    "expected a group of len {} but got one of len {}",
+                    group_parameters.len(),
+                    generators.len()
+                ));
+            }
+
+            // for each param, generator group pair, add to the parent apply group
+            for (param, generator) in group_parameters.iter().zip(generators.into_iter()) {
+                self.parent_apply_group()
+                    .add_apply(Apply::new(*param, generator))
+            }
+        } else {
+            return self.evaluation_error(format!(
+                "the identifier {} is not a group parameter",
+                identifier
+            ));
+        }
+
+        Ok(())
+    }
+
+    fn evaluate_apply_single_generator(
+        &mut self,
+        identifier: Param,
+        generator: &AstNode,
+    ) -> EvaluationResult {
         let mut generator = self.evaluate_generator(generator)?;
 
         if let Some(delay_time) = self.delay_time {
@@ -132,10 +191,7 @@ impl<'a> Evaluator<'a> {
         }
     }
 
-    fn evaluate_generator(
-        &mut self,
-        generator: &AstNode,
-    ) -> Result<BoxedGenerator, EvaluationError> {
+    fn evaluate_generator(&self, generator: &AstNode) -> Result<BoxedGenerator, EvaluationError> {
         let generator = match generator {
             AstNode::Static(value) => self.evaluate_static(value)?,
             AstNode::Fade(start, end, time) => self.evaluate_fade(start, end, time)?,
@@ -151,12 +207,12 @@ impl<'a> Evaluator<'a> {
         Ok(generator)
     }
 
-    fn evaluate_static(&mut self, value: &AstNode) -> Result<BoxedGenerator, EvaluationError> {
+    fn evaluate_static(&self, value: &AstNode) -> Result<BoxedGenerator, EvaluationError> {
         let value = self.evaluate_value(value)?;
         Ok(Box::new(Static::new(value)))
     }
 
-    fn evaluate_value(&mut self, value: &AstNode) -> Result<Values, EvaluationError> {
+    fn evaluate_value(&self, value: &AstNode) -> Result<Values, EvaluationError> {
         let value = match value {
             AstNode::Literal(value) => Values::make_literal(*value),
             AstNode::Percentage(value) => Values::make_percentage(*value),
@@ -172,7 +228,7 @@ impl<'a> Evaluator<'a> {
     }
 
     fn evaluate_fade(
-        &mut self,
+        &self,
         start: &AstNode,
         end: &AstNode,
         time: &AstNode,
@@ -184,7 +240,7 @@ impl<'a> Evaluator<'a> {
         Ok(Box::new(Fade::new(start, end, time)))
     }
 
-    fn evaluate_time(&mut self, time: &AstNode) -> Result<Duration, EvaluationError> {
+    fn evaluate_time(&self, time: &AstNode) -> Result<Duration, EvaluationError> {
         match time {
             AstNode::Time(seconds) => Ok(Duration::from_secs_f64(*seconds)),
             _ => self.evaluation_error(format!("Expected a time but got: {:?}", time)),

@@ -11,6 +11,9 @@ pub enum Param {
     Intensity,
     Pan,
     Tilt,
+    // FIXME: This shouldn't be a param, it should be recognised in Lux,
+    //        as only Lux used it
+    Position,
 }
 
 impl Param {
@@ -19,6 +22,7 @@ impl Param {
             "intensity" => Some(Param::Intensity),
             "pan" => Some(Param::Pan),
             "tilt" => Some(Param::Tilt),
+            "position" => Some(Param::Position),
             _ => None,
         }
     }
