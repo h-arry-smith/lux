@@ -17,8 +17,9 @@ qrange = ${ id ~ ".." ~ id }
 qcommand = ${ ":" ~ ident }
 id = @{ ASCII_DIGIT+ }
 
-apply = { param ~ ":" ~ generator }
+apply = { param ~ ":" ~ (group | generator) }
 generator = { fade | static_value }
+group = { "(" ~ (generator ~ ",")* ~ generator? ~ ")" }
 fade = { static_value ~ "->" ~ static_value ~ time? }
 static_value = { percentage | literal | current_value }
 current_value = { "_" }

@@ -1,0 +1,33 @@
+// Pan and tilt are their own attributes
+1 {
+	pan: -50
+	tilt: 50
+}
+
+// But you should be able to talk to it by group syntax
+2 {
+	position: (20, 40)
+}
+
+// Group syntax handles complex values as well as static ones
+3 {
+	position: (-100 -> 100 3s, -270 -> 270 10s,)
+}
+
+/// FIXTURE 1
+///   PAN
+///     STATIC(-50.00)
+///   TILT
+///     STATIC(50.00)
+/// FIXTURE 2
+///   PAN
+///     STATIC(20.00)
+///   TILT
+///     STATIC(40.00)
+/// FIXTURE 3
+///   PAN
+///     FADE(STATIC(-100.00) -> STATIC(100.00), 3.0s)
+///   TILT
+///     FADE(STATIC(-270.00) -> STATIC(270.00), 10.0s)
+/// FIXTURES 4 5 6 7 8 9 10
+///   NONE

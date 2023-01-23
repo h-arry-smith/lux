@@ -10,6 +10,7 @@ pub enum AstNode {
     QCommand(Box<AstNode>),
     Select(Box<AstNode>, Vec<AstNode>),
     FixtureID(usize),
+    GeneratorGroup(Vec<AstNode>),
     Static(Box<AstNode>),
     Fade(Box<AstNode>, Box<AstNode>, Box<AstNode>),
     Time(f64),

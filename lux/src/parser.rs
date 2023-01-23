@@ -35,7 +35,7 @@ fn parse_statement(pair: pest::iterators::Pair<Rule>) -> AstNode {
         Rule::apply => {
             let mut pair = pair.into_inner();
             let ident = parse_parameter(pair.next().unwrap());
-            let generator = parse_generator(pair.next().unwrap());
+            let generator = parse_group_or_generator(pair.next().unwrap());
             AstNode::Apply(Box::new(ident), Box::new(generator))
         }
         Rule::select => {
@@ -88,6 +88,20 @@ fn parse_identifier(pair: pest::iterators::Pair<Rule>) -> AstNode {
         Rule::ident => AstNode::Ident(pair.as_str().to_owned()),
         _ => panic!("Expected an identifier, but got: {}", pair.as_str()),
     }
+}
+
+fn parse_group_or_generator(pair: pest::iterators::Pair<Rule>) -> AstNode {
+    match pair.as_rule() {
+        Rule::group => parse_generator_group(pair.into_inner()),
+        Rule::generator => parse_generator(pair),
+        _ => panic!("Expected generator or group, but got {}", pair.as_str()),
+    }
+}
+
+fn parse_generator_group(pairs: pest::iterators::Pairs<Rule>) -> AstNode {
+    let generators = pairs.map(parse_generator).collect();
+
+    AstNode::GeneratorGroup(generators)
 }
 
 fn parse_generator(pair: pest::iterators::Pair<Rule>) -> AstNode {
