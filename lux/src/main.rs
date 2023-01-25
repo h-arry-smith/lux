@@ -104,7 +104,11 @@ fn environment_test_output(environment: &Environment) -> String {
 
         writeln!(output, "FIXTURE {}", id).unwrap();
 
-        for (param, generators) in fixture.parameters() {
+        let mut alphabetical_params: Vec<Param> = fixture.parameters().keys().cloned().collect();
+        alphabetical_params.sort_by_key(|k| k.to_string());
+
+        for param in alphabetical_params {
+            let generators = fixture.get_parameter(param).unwrap();
             writeln!(output, "  {}", param).unwrap();
 
             for generator in generators {
