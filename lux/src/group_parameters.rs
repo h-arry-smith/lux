@@ -1,29 +1,15 @@
 use std::collections::HashMap;
 
+use lazy_static::lazy_static;
+
 use lumen::parameter::Param;
 
 // TODO: Implement a lazy static for this
 
-pub struct GroupParameters {
-    parameters: HashMap<Param, Vec<Param>>,
-}
-
-impl GroupParameters {
-    pub fn new(parameters: HashMap<Param, Vec<Param>>) -> Self {
-        Self { parameters }
-    }
-
-    pub fn get(&self, param: &Param) -> Option<&Vec<Param>> {
-        self.parameters.get(param)
-    }
-}
-
-impl Default for GroupParameters {
-    fn default() -> Self {
-        let mut parameters = HashMap::new();
-
-        parameters.insert(Param::Position, vec![Param::Pan, Param::Tilt]);
-
-        Self::new(parameters)
-    }
+lazy_static! {
+    pub static ref GROUP_PARAMETERS: HashMap<&'static str, Vec<Param>> = {
+        let mut hashmap = HashMap::new();
+        hashmap.insert("position", vec![Param::Pan, Param::Tilt]);
+        hashmap
+    };
 }

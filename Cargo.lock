@@ -1262,6 +1262,7 @@ dependencies = [
 name = "lux"
 version = "0.1.0"
 dependencies = [
+ "lazy_static",
  "lumen",
  "pest",
  "pest_derive",

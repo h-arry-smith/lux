@@ -12,10 +12,10 @@
 // For now, we will start with a much simpler evaluation strategy, a single file
 // will create an Lumen Environment that can be handed off and executed.
 
+use crate::group_parameters::GROUP_PARAMETERS;
 use std::{collections::HashMap, fmt::Display, time::Duration};
 
 use crate::ast::AstNode;
-use crate::group_parameters::GroupParameters;
 use lumen::{
     action::{Action, Apply, ApplyGroup},
     parameter::Param,
@@ -37,10 +37,9 @@ pub struct Evaluator<'a> {
     parent_apply_group: Vec<usize>,
     delay_time: Option<Duration>,
     presets: HashMap<String, Vec<AstNode>>,
-    group_parameters: GroupParameters,
 }
 
-impl<'a> Evaluator<'a> {
+impl<'b, 'a> Evaluator<'a> {
     pub fn new(env: &'a mut Environment) -> Self {
         Self {
             env,
@@ -49,7 +48,6 @@ impl<'a> Evaluator<'a> {
             parent_apply_group: Vec::new(),
             delay_time: None,
             presets: HashMap::new(),
-            group_parameters: GroupParameters::default(),
         }
     }
 
@@ -104,11 +102,9 @@ impl<'a> Evaluator<'a> {
     }
 
     fn evaluate_apply(&mut self, identifier: &AstNode, generator: &AstNode) -> EvaluationResult {
-        let identifier = self.evaluate_parameter(identifier)?;
-
         match generator {
             AstNode::GeneratorGroup(generator_group) => {
-                self.evaluate_apply_generator_group(&identifier, generator_group)
+                self.evaluate_apply_generator_group(identifier, generator_group)
             }
             _ => self.evaluate_apply_single_generator(identifier, generator),
         }
@@ -116,41 +112,33 @@ impl<'a> Evaluator<'a> {
 
     fn evaluate_apply_generator_group(
         &mut self,
-        identifier: &Param,
+        identifier: &AstNode,
         generator_group: &[AstNode],
     ) -> EvaluationResult {
+        let group_parameter = self.evaluate_group_parameter(identifier)?;
+
         // check param is a group param and get list of param values to use
-        if let Some(group_parameters) = self.group_parameters.get(identifier) {
-            // FIXME: I fixed the immutable borrow above with a clone, but this is
-            //        lazy. There is a better way of doing this, I'm sure.
-            let group_parameters = group_parameters.clone();
+        let group_parameters = GROUP_PARAMETERS.get(group_parameter).unwrap();
+        // generate list of generators from the group
+        let mut generators = Vec::new();
+        for unevaluated_generator in generator_group.iter() {
+            let evaluated_generator = self.evaluate_generator(unevaluated_generator)?;
+            generators.push(evaluated_generator);
+        }
 
-            // generate list of generators from the group
-            let mut generators = Vec::new();
-            for unevaluated_generator in generator_group.iter() {
-                let evaluated_generator = self.evaluate_generator(unevaluated_generator)?;
-                generators.push(evaluated_generator);
-            }
-
-            // check provided generator group is exact length
-            if generators.len() != group_parameters.len() {
-                return self.evaluation_error(format!(
-                    "expected a group of len {} but got one of len {}",
-                    group_parameters.len(),
-                    generators.len()
-                ));
-            }
-
-            // for each param, generator group pair, add to the parent apply group
-            for (param, generator) in group_parameters.iter().zip(generators.into_iter()) {
-                self.parent_apply_group()
-                    .add_apply(Apply::new(*param, generator))
-            }
-        } else {
+        // check provided generator group is exact length
+        if generators.len() != group_parameters.len() {
             return self.evaluation_error(format!(
-                "the identifier {} is not a group parameter",
-                identifier
+                "expected a group of len {} but got one of len {}",
+                group_parameters.len(),
+                generators.len()
             ));
+        }
+
+        // for each param, generator group pair, add to the parent apply group
+        for (param, generator) in group_parameters.iter().zip(generators.into_iter()) {
+            self.parent_apply_group()
+                .add_apply(Apply::new(*param, generator))
         }
 
         Ok(())
@@ -158,9 +146,10 @@ impl<'a> Evaluator<'a> {
 
     fn evaluate_apply_single_generator(
         &mut self,
-        identifier: Param,
+        identifier: &AstNode,
         generator: &AstNode,
     ) -> EvaluationResult {
+        let identifier = self.evaluate_parameter(identifier)?;
         let mut generator = self.evaluate_generator(generator)?;
 
         if let Some(delay_time) = self.delay_time {
@@ -184,10 +173,25 @@ impl<'a> Evaluator<'a> {
                 )),
             }
         } else {
-            self.evaluation_error(format!(
-                "Expected a valid parameter identifier but got: {:?}",
-                parameter
-            ))
+            self.evaluation_error(format!("Expected a parameter but got: {:?}", parameter))
+        }
+    }
+
+    fn evaluate_group_parameter(
+        &mut self,
+        parameter: &'b AstNode,
+    ) -> Result<&'b str, EvaluationError> {
+        if let AstNode::Parameter(parameter_string) = parameter {
+            if GROUP_PARAMETERS.contains_key(parameter_string.as_str()) {
+                Ok(parameter_string)
+            } else {
+                self.evaluation_error(format!(
+                    "Expected a valid group parameter identifier but got: {}",
+                    parameter_string
+                ))
+            }
+        } else {
+            self.evaluation_error(format!("Expected a parameter but got {:?}", parameter))
         }
     }
 
