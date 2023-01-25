@@ -53,6 +53,14 @@ impl Parameter {
         Self { min, max, offset }
     }
 
+    pub fn simple(offset: usize) -> Self {
+        Self {
+            min: 0.0,
+            max: 100.0,
+            offset,
+        }
+    }
+
     pub fn min(&self) -> f64 {
         self.min
     }
