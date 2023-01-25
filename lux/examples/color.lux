@@ -1,0 +1,47 @@
+// Colour can be specified by specific parameters
+1 {
+	red: 10
+	green: 20
+	blue: 30
+}
+
+// But you can also use group syntax
+2 {
+	color: (10, 20, 30)
+}
+
+// Other colour spaces can be accessed using color_rbg, color_cmy etc.
+3 {
+	color_rgb: (10, 20, 30)
+	color_cmy: (100, 0, 50)
+}
+
+/// FIXTURE 1
+///   Blue
+///     STATIC(30.00)
+///   Green
+///     STATIC(20.00)
+///   Red
+///     STATIC(10.00)
+/// FIXTURE 2
+///   Blue
+///     STATIC(30.00)
+///   Green
+///     STATIC(20.00)
+///   Red
+///     STATIC(10.00)
+/// FIXTURE 3
+///   Blue
+///     STATIC(30.00)
+///   Cyan
+///     STATIC(100.00)
+///   Green
+///     STATIC(20.00)
+///   Magenta
+///     STATIC(0.00)
+///   Red
+///     STATIC(10.00)
+///   Yellow
+///     STATIC(50.00)
+/// FIXTURES 4 5 6 7 8 9 10
+///   NONE

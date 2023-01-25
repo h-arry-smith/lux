@@ -11,6 +11,12 @@ pub enum Param {
     Intensity,
     Pan,
     Tilt,
+    Red,
+    Green,
+    Blue,
+    Cyan,
+    Magenta,
+    Yellow,
 }
 
 impl Param {
@@ -19,6 +25,12 @@ impl Param {
             "intensity" => Some(Param::Intensity),
             "pan" => Some(Param::Pan),
             "tilt" => Some(Param::Tilt),
+            "red" => Some(Param::Red),
+            "blue" => Some(Param::Blue),
+            "green" => Some(Param::Green),
+            "cyan" => Some(Param::Cyan),
+            "magenta" => Some(Param::Magenta),
+            "yellow" => Some(Param::Yellow),
             _ => None,
         }
     }
