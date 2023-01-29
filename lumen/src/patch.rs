@@ -1,3 +1,4 @@
+use crate::color::Colorspace;
 use std::collections::HashMap;
 
 use crate::{
@@ -47,8 +48,10 @@ impl<'a> Default for Patch<'a> {
     }
 }
 
+#[derive(Debug)]
 pub struct FixtureProfile {
     parameters: HashMap<Param, Parameter>,
+    colorspace: Option<Colorspace>,
     footprint: usize,
 }
 
@@ -56,6 +59,7 @@ impl FixtureProfile {
     pub fn new() -> Self {
         Self {
             parameters: HashMap::new(),
+            colorspace: None,
             footprint: 0,
         }
     }
@@ -87,6 +91,14 @@ impl FixtureProfile {
         }
 
         dmx_string
+    }
+
+    pub fn set_colorspace(&mut self, colorspace: Colorspace) {
+        self.colorspace = Some(colorspace);
+    }
+
+    pub fn colorspace(&self) -> &Option<Colorspace> {
+        &self.colorspace
     }
 
     fn footprint(&self) -> usize {

@@ -34,6 +34,20 @@ impl Param {
             _ => None,
         }
     }
+
+    pub fn is_color(param: &Param) -> bool {
+        // FIXME: This is rubbish, must be a better way to define these.
+        let color_params = vec![
+            Param::Red,
+            Param::Green,
+            Param::Blue,
+            Param::Cyan,
+            Param::Magenta,
+            Param::Yellow,
+        ];
+
+        color_params.contains(param)
+    }
 }
 
 impl Display for Param {
@@ -42,6 +56,7 @@ impl Display for Param {
     }
 }
 
+#[derive(Debug)]
 pub struct Parameter {
     min: f64,
     max: f64,
