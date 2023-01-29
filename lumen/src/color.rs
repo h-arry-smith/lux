@@ -5,17 +5,19 @@ use crate::{fixture::ParameterMap, parameter::Param, value::Values};
 #[derive(Debug, Clone, Copy)]
 pub enum Colorspace {
     RGB,
+    RGBA,
 }
 
 impl Colorspace {
     pub fn detect(_parameters: &ParameterMap) -> Colorspace {
         // TODO: Detect colorspace
-        Colorspace::RGB
+        Colorspace::RGBA
     }
 
     pub fn params_for_colorspace(colorspace: &Colorspace) -> Vec<Param> {
         match colorspace {
             Colorspace::RGB => vec![Param::Red, Param::Green, Param::Blue],
+            Colorspace::RGBA => vec![Param::Red, Param::Green, Param::Blue, Param::Amber],
         }
     }
 }

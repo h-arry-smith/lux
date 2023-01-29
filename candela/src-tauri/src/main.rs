@@ -115,11 +115,21 @@ fn resolve(
     }
 
     let mut dimmer = FixtureProfile::new();
-    dimmer.set_parameter(Param::Intensity, Parameter::new(0, 0.0, 100.0));
+    dimmer.set_parameter(Param::Intensity, Parameter::simple(0));
+    let mut quad = FixtureProfile::new();
+    quad.set_colorspace(lumen::color::Colorspace::RGBA);
+    quad.set_parameter(Param::Red, Parameter::simple(0));
+    quad.set_parameter(Param::Green, Parameter::simple(1));
+    quad.set_parameter(Param::Blue, Parameter::simple(2));
+    quad.set_parameter(Param::Amber, Parameter::simple(3));
     let mut patch = Patch::new();
 
     for n in 1..=10 {
         patch.patch(n, Address::new(1, n as u16), &dimmer);
+    }
+
+    for n in 1..=9 {
+        patch.patch(100 + n, Address::new(1, (91 + (n * 10)) as u16), &quad);
     }
 
     let t = source.time();
@@ -152,6 +162,10 @@ fn main() {
     let source = Source::new(lumen::timecode::FrameRate::Thirty);
 
     for n in 1..=10 {
+        environment.fixtures.create_with_id(n);
+    }
+
+    for n in 101..=109 {
         environment.fixtures.create_with_id(n);
     }
 

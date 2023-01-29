@@ -17,6 +17,7 @@ pub enum Param {
     Cyan,
     Magenta,
     Yellow,
+    Amber,
 }
 
 impl Param {
@@ -31,6 +32,7 @@ impl Param {
             "cyan" => Some(Param::Cyan),
             "magenta" => Some(Param::Magenta),
             "yellow" => Some(Param::Yellow),
+            "amber" => Some(Param::Amber),
             _ => None,
         }
     }
@@ -44,6 +46,7 @@ impl Param {
             Param::Cyan,
             Param::Magenta,
             Param::Yellow,
+            Param::Amber,
         ];
 
         color_params.contains(param)
