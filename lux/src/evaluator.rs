@@ -137,8 +137,7 @@ impl<'b, 'a> Evaluator<'a> {
 
         // for each param, generator group pair, add to the parent apply group
         for (param, generator) in group_parameters.iter().zip(generators.into_iter()) {
-            self.parent_apply_group()
-                .add_apply(Apply::new(*param, generator))
+            self.add_apply_with_any_delay(*param, generator)
         }
 
         Ok(())
@@ -150,8 +149,14 @@ impl<'b, 'a> Evaluator<'a> {
         generator: &AstNode,
     ) -> EvaluationResult {
         let identifier = self.evaluate_parameter(identifier)?;
-        let mut generator = self.evaluate_generator(generator)?;
+        let generator = self.evaluate_generator(generator)?;
 
+        self.add_apply_with_any_delay(identifier, generator);
+
+        Ok(())
+    }
+
+    fn add_apply_with_any_delay(&mut self, identifier: Param, mut generator: BoxedGenerator) {
         if let Some(delay_time) = self.delay_time {
             generator = Box::new(Delay::new(delay_time, generator));
         }
@@ -159,8 +164,6 @@ impl<'b, 'a> Evaluator<'a> {
         let apply = Apply::new(identifier, generator);
 
         self.parent_apply_group().add_apply(apply);
-
-        Ok(())
     }
 
     fn evaluate_parameter(&mut self, parameter: &AstNode) -> Result<Param, EvaluationError> {
