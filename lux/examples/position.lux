@@ -6,12 +6,12 @@
 
 // But you should be able to talk to it by group syntax
 2 {
-	position: (20, 40)
+	position: {20, 40}
 }
 
 // Group syntax handles complex values as well as static ones
 3 {
-	position: (-100 -> 100 3s, -270 -> 270 10s,)
+	position: {-100 -> 100 3s, -270 -> 270 10s,}
 }
 
 /// FIXTURE 1

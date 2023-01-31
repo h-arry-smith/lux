@@ -98,10 +98,16 @@ fn parse_group_or_generator(pair: pest::iterators::Pair<Rule>) -> AstNode {
     }
 }
 
-fn parse_generator_group(pairs: pest::iterators::Pairs<Rule>) -> AstNode {
+fn parse_generator_group(mut pairs: pest::iterators::Pairs<Rule>) -> AstNode {
+    // Check if the group has a specific identifier
+    let identifier = match pairs.peek().unwrap().as_rule() {
+        Rule::ident => Some(Box::new(parse_identifier(pairs.next().unwrap()))),
+        _ => None,
+    };
+
     let generators = pairs.map(parse_generator).collect();
 
-    AstNode::GeneratorGroup(generators)
+    AstNode::GeneratorGroup(identifier, generators)
 }
 
 fn parse_generator(pair: pest::iterators::Pair<Rule>) -> AstNode {

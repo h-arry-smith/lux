@@ -7,19 +7,19 @@
 
 // But you can also use group syntax
 2 {
-	color: (10, 20, 30)
+	color: {10, 20, 30}
 }
 
-// Other colour spaces can be accessed using color_rbg, color_cmy etc.
+// Other colour spaces can be accessed using identifying colorspaces
 3 {
-	color_rgb: (10, 20, 30)
-	color_cmy: (100, 0, 50)
+	color: rgb{10, 20, 30}
+	color: cmy{100, 0, 50}
 }
 
 // Delaying colors
 @1s {
 	4 {
-		color: (10, 20, 30)
+		color: {10, 20, 30}
 	}
 }
 

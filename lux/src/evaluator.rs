@@ -103,8 +103,8 @@ impl<'b, 'a> Evaluator<'a> {
 
     fn evaluate_apply(&mut self, identifier: &AstNode, generator: &AstNode) -> EvaluationResult {
         match generator {
-            AstNode::GeneratorGroup(generator_group) => {
-                self.evaluate_apply_generator_group(identifier, generator_group)
+            AstNode::GeneratorGroup(prefix, generator_group) => {
+                self.evaluate_apply_generator_group(identifier, prefix, generator_group)
             }
             _ => self.evaluate_apply_single_generator(identifier, generator),
         }
@@ -113,12 +113,13 @@ impl<'b, 'a> Evaluator<'a> {
     fn evaluate_apply_generator_group(
         &mut self,
         identifier: &AstNode,
+        prefix: &Option<Box<AstNode>>,
         generator_group: &[AstNode],
     ) -> EvaluationResult {
-        let group_parameter = self.evaluate_group_parameter(identifier)?;
+        let group_parameter = self.evaluate_group_parameter(prefix, identifier)?;
 
         // check param is a group param and get list of param values to use
-        let group_parameters = GROUP_PARAMETERS.get(group_parameter).unwrap();
+        let group_parameters = GROUP_PARAMETERS.get(group_parameter.as_str()).unwrap();
         // generate list of generators from the group
         let mut generators = Vec::new();
         for unevaluated_generator in generator_group.iter() {
@@ -182,9 +183,13 @@ impl<'b, 'a> Evaluator<'a> {
 
     fn evaluate_group_parameter(
         &mut self,
+        prefix: &Option<Box<AstNode>>,
         parameter: &'b AstNode,
-    ) -> Result<&'b str, EvaluationError> {
+    ) -> Result<String, EvaluationError> {
         if let AstNode::Parameter(parameter_string) = parameter {
+            let parameter_string =
+                self.parameter_string_with_optional_prefix(prefix, parameter_string)?;
+
             if GROUP_PARAMETERS.contains_key(parameter_string.as_str()) {
                 Ok(parameter_string)
             } else {
@@ -195,6 +200,20 @@ impl<'b, 'a> Evaluator<'a> {
             }
         } else {
             self.evaluation_error(format!("Expected a parameter but got {:?}", parameter))
+        }
+    }
+
+    fn parameter_string_with_optional_prefix(
+        &mut self,
+        prefix: &Option<Box<AstNode>>,
+        parameter_string: &str,
+    ) -> Result<String, EvaluationError> {
+        if let Some(prefix) = prefix {
+            let prefix = self.evaluate_identifier(prefix)?;
+
+            Ok(format!("{}_{}", parameter_string, prefix))
+        } else {
+            Ok(parameter_string.to_string())
         }
     }
 
